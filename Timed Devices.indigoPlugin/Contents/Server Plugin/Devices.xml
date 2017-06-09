@@ -1,0 +1,453 @@
+<?xml version='1.0'?>
+<Devices>
+    <Device type='custom' id='activityTimer'>
+        <Name>Activity Timer</Name>
+        <ConfigUI>
+            <Field id='countThreshold' type='textfield' defaultValue='1'>
+                <Label>Count Threshold:</Label>
+            </Field>
+            <Field id='resetCycles' type='textfield' defaultValue='1'>
+                <Label>Reset Cycles:</Label>
+            </Field>
+            <Field id='resetUnits' type='menu' defaultValue='minutes'>
+                <Label>Reset Units:</Label>
+                <List>
+                    <Option value='seconds'>Seconds</Option>
+                    <Option value='minutes'>Minutes</Option>
+                    <Option value='hours'>Hours</Option>
+                    <Option value='days'>Days</Option>
+                </List>
+            </Field>
+            <Field id='offCycles' type='textfield' defaultValue='10'>
+                <Label>Off Cycles:</Label>
+            </Field>
+            <Field id='offUnits' type='menu' defaultValue='minutes'>
+                <Label>Off Units:</Label>
+                <List>
+                    <Option value='seconds'>Seconds</Option>
+                    <Option value='minutes'>Minutes</Option>
+                    <Option value='hours'>Hours</Option>
+                    <Option value='days'>Days</Option>
+                </List>
+            </Field>
+            <Field id='extend' type='checkbox' defaultValue='true'>
+                <Label>Always Extend:</Label>
+                <Description>Extend ON state even when threshold not met.   </Description>
+            </Field>
+            <Field id='deviceSeparator' type='separator' />
+            <Field id='device1' type='menu'>
+                <Label>Device 1:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='device2' type='menu'>
+                <Label>Device 2:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='device3' type='menu'>
+                <Label>Device 3:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='device4' type='menu'>
+                <Label>Device 4:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='device5' type='menu'>
+                <Label>Device 5:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='loadStates' type='button'>
+                <Label></Label>
+                <Title>Load States</Title>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state1' type='menu'>
+                <Label>State 1:</Label>
+                <List class='self' filter='device1' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='state2' type='menu'>
+                <Label>State 2:</Label>
+                <List class='self' filter='device2' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='state3' type='menu'>
+                <Label>State 3:</Label>
+                <List class='self' filter='device3' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='state4' type='menu'>
+                <Label>State 4:</Label>
+                <List class='self' filter='device4' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='state5' type='menu'>
+                <Label>State 5:</Label>
+                <List class='self' filter='device5' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='variableSeparator' type='separator' />
+            <Field id='variable1' type='menu'>
+                <Label>Variable 1:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable2' type='menu'>
+                <Label>Variable 2:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable3' type='menu'>
+                <Label>Variable 3:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable4' type='menu'>
+                <Label>Variable 4:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable5' type='menu'>
+                <Label>Variable 5:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='logicSeparator' type='separator' />
+            <Field id='anyChange' type='checkbox' defaultValue='false'>
+                <Label>Increment count for ANY change.</Label>
+            </Field>
+            <Field id='boolLabel0' type='label' visibleBindingId='anyChange'  visibleBindingValue='false' alwaysUseInDialogHeightCalc='true'>
+                <Label>Normal Logic:</Label>
+            </Field>
+            <Field id='boolLabel1' type='label' visibleBindingId='anyChange'  visibleBindingValue='false' alwaysUseInDialogHeightCalc='true'>
+                <Label>             • Strings match: 'true', 'on', 'open', 'up', 'yes', 'active', 'unlocked', '1'</Label>
+            </Field>
+            <Field id='boolLabel2' type='label' visibleBindingId='anyChange'  visibleBindingValue='false' alwaysUseInDialogHeightCalc='true'>
+                <Label>             • Numbers match if non-zero</Label>
+            </Field>
+            <Field id='boolLabel3' type='label' visibleBindingId='anyChange'  visibleBindingValue='false' alwaysUseInDialogHeightCalc='true'>
+                <Label>             • Booleans match if True</Label>
+            </Field>
+            <Field id='reverseBoolean' type='checkbox' defaultValue='false' visibleBindingId='anyChange'  visibleBindingValue='false' alwaysUseInDialogHeightCalc='true'>
+                <Label>Reverse Logic?:</Label>
+                <Description>Check to reverse above logic.</Description>
+            </Field>
+        </ConfigUI>
+        <States>
+            <State id='onOffState'>
+                <ValueType>Boolean</ValueType>
+                <TriggerLabel>On/Off State is On</TriggerLabel>
+                <TriggerLabelPrefix>On/Off State is</TriggerLabelPrefix>
+                <ControlPageLabel>On/Off State</ControlPageLabel>
+                <ControlPageLabelPrefix>On/Off State is</ControlPageLabelPrefix>
+            </State>
+            <State id='state'>
+                <ValueType>
+                    <List>
+                        <Option value='idle'>Idle</Option>
+                        <Option value='accrue'>Accrual</Option>
+                        <Option value='active'>Active</Option>
+                        <Option value='persist'>Persistent</Option>
+                    </List>
+                </ValueType>
+                <TriggerLabel>Any State Change</TriggerLabel>
+                <TriggerLabelPrefix>State is</TriggerLabelPrefix>
+                <ControlPageLabel>State</ControlPageLabel>
+                <ControlPageLabelPrefix>State is</ControlPageLabelPrefix>
+            </State>
+            <State id='displayState'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Display State Change</TriggerLabel>
+                <TriggerLabelPrefix>Display State is</TriggerLabelPrefix>
+                <ControlPageLabel>Display State</ControlPageLabel>
+                <ControlPageLabelPrefix>Display State is</ControlPageLabelPrefix>
+            </State>
+            <State id='count'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Count</TriggerLabel>
+                <ControlPageLabel>Count</ControlPageLabel>
+            </State>
+            <State id='counting'>
+                <ValueType>Boolean</ValueType>
+                <TriggerLabel>Counting</TriggerLabel>
+                <ControlPageLabel>Counting</ControlPageLabel>
+            </State>
+            <State id='expired'>
+                <ValueType>Boolean</ValueType>
+                <TriggerLabel>Expired</TriggerLabel>
+                <ControlPageLabel>Expired</ControlPageLabel>
+            </State>
+            <State id='reset'>
+                <ValueType>Boolean</ValueType>
+                <TriggerLabel>Reset</TriggerLabel>
+                <ControlPageLabel>Reset</ControlPageLabel>
+            </State>
+            <State id='resetTime'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Reset Time</TriggerLabel>
+                <ControlPageLabel>Reset Time</ControlPageLabel>
+            </State>
+            <State id='resetString'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Reset String</TriggerLabel>
+                <ControlPageLabel>Reset String</ControlPageLabel>
+            </State>
+            <State id='offTime'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Off Time</TriggerLabel>
+                <ControlPageLabel>Off Time</ControlPageLabel>
+            </State>
+            <State id='offString'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Off String</TriggerLabel>
+                <ControlPageLabel>Off String</ControlPageLabel>
+            </State>
+        </States>
+        <UiDisplayStateId>displayState</UiDisplayStateId>
+    </Device>
+    <Device type='custom' id='persistenceTimer'>
+        <Name>Persistence Timer</Name>
+        <ConfigUI>
+            <Field id='onCycles' type='textfield' defaultValue='30'>
+                <Label>ON Wait Cycles:</Label>
+            </Field>
+            <Field id='onUnits' type='menu' defaultValue='seconds'>
+                <Label>ON Wait Units:</Label>
+                <List>
+                    <Option value='seconds'>Seconds</Option>
+                    <Option value='minutes'>Minutes</Option>
+                    <Option value='hours'>Hours</Option>
+                    <Option value='days'>Days</Option>
+                </List>
+            </Field>
+            <Field id='offCycles' type='textfield' defaultValue='30'>
+                <Label>OFF Wait Cycles:</Label>
+            </Field>
+            <Field id='offUnits' type='menu' defaultValue='seconds'>
+                <Label>OFF Wait Units:</Label>
+                <List>
+                    <Option value='seconds'>Seconds</Option>
+                    <Option value='minutes'>Minutes</Option>
+                    <Option value='hours'>Hours</Option>
+                    <Option value='days'>Days</Option>
+                </List>
+            </Field>
+            <Field id='separator' type='separator' />
+            <Field id='trackEntity' type='menu' defaultValue='dev'>
+                <Label>Track:</Label>
+                <List>
+                    <Option value='dev'>Device</Option>
+                    <Option value='var'>Variable</Option>
+                </List>
+            </Field>
+            <Field id='device1' type='menu' visibleBindingId='trackEntity'  visibleBindingValue='dev' alwaysUseInDialogHeightCalc='true'>
+                <Label>Device 1:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='loadStates' type='button' visibleBindingId='trackEntity'  visibleBindingValue='dev' alwaysUseInDialogHeightCalc='true'>
+                <Label></Label>
+                <Title>Load States</Title>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state1' type='menu' visibleBindingId='trackEntity'  visibleBindingValue='dev' alwaysUseInDialogHeightCalc='true'>
+                <Label>State 1:</Label>
+                <List class='self' filter='device1' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='variable1' type='menu' visibleBindingId='trackEntity'  visibleBindingValue='var' alwaysUseInDialogHeightCalc='false'>
+                <Label>Variable 1:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='logicSeparator' type='separator' />
+            <Field id='boolLabel0' type='label'>
+                <Label>This device goes ON if:</Label>
+            </Field>
+            <Field id='boolLabel1' type='label'>
+                <Label>             • Strings match: 'true', 'on', 'open', 'up', 'yes', 'active', 'unlocked', '1'</Label>
+            </Field>
+            <Field id='boolLabel2' type='label'>
+                <Label>             • Numbers match if non-zero</Label>
+            </Field>
+            <Field id='boolLabel3' type='label'>
+                <Label>             • Booleans match if True</Label>
+            </Field>
+            <Field id='reverseBoolean' type='checkbox' defaultValue='false'>
+                <Label>Reverse Logic?:</Label>
+                <Description>Check to reverse above logic.</Description>
+            </Field>
+        </ConfigUI>
+        <States>
+            <State id='onOffState'>
+                <ValueType>Boolean</ValueType>
+                <TriggerLabel>On/Off State is On</TriggerLabel>
+                <TriggerLabelPrefix>On/Off State is</TriggerLabelPrefix>
+                <ControlPageLabel>On/Off State</ControlPageLabel>
+                <ControlPageLabelPrefix>On/Off State is</ControlPageLabelPrefix>
+            </State>
+            <State id='state'>
+                <ValueType>
+                    <List>
+                        <Option value='on'>On</Option>
+                        <Option value='off'>Off</Option>
+                        <Option value='pending'>Pending</Option>
+                    </List>
+                </ValueType>
+                <TriggerLabel>Any State Change</TriggerLabel>
+                <TriggerLabelPrefix>State is</TriggerLabelPrefix>
+                <ControlPageLabel>State</ControlPageLabel>
+                <ControlPageLabelPrefix>State is</ControlPageLabelPrefix>
+            </State>
+            <State id='displayState'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Display State Change</TriggerLabel>
+                <TriggerLabelPrefix>Display State is</TriggerLabelPrefix>
+                <ControlPageLabel>Display State</ControlPageLabel>
+                <ControlPageLabelPrefix>Display State is</ControlPageLabelPrefix>
+            </State>
+            <State id='pending'>
+                <ValueType>Boolean</ValueType>
+                <TriggerLabel>Pending is</TriggerLabel>
+                <TriggerLabelPrefix>Pending is</TriggerLabelPrefix>
+                <ControlPageLabel>Pending</ControlPageLabel>
+                <ControlPageLabelPrefix>Pending is</ControlPageLabelPrefix>
+            </State>
+            <State id='onTime'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Reset Time</TriggerLabel>
+                <ControlPageLabel>Reset Time</ControlPageLabel>
+            </State>
+            <State id='onString'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Reset String</TriggerLabel>
+                <ControlPageLabel>Reset String</ControlPageLabel>
+            </State>
+            <State id='offTime'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Reset Time</TriggerLabel>
+                <ControlPageLabel>Reset Time</ControlPageLabel>
+            </State>
+            <State id='offString'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Reset String</TriggerLabel>
+                <ControlPageLabel>Reset String</ControlPageLabel>
+            </State>
+        </States>
+        <UiDisplayStateId>displayState</UiDisplayStateId>
+    </Device>
+    <Device type='custom' id='lockoutTimer'>
+        <Name>Lockout Timer</Name>
+        <ConfigUI>
+            <Field id='onCycles' type='textfield' defaultValue='30'>
+                <Label>ON Wait Cycles:</Label>
+            </Field>
+            <Field id='onUnits' type='menu' defaultValue='seconds'>
+                <Label>ON Wait Units:</Label>
+                <List>
+                    <Option value='seconds'>Seconds</Option>
+                    <Option value='minutes'>Minutes</Option>
+                    <Option value='hours'>Hours</Option>
+                    <Option value='days'>Days</Option>
+                </List>
+            </Field>
+            <Field id='offCycles' type='textfield' defaultValue='30'>
+                <Label>OFF Wait Cycles:</Label>
+            </Field>
+            <Field id='offUnits' type='menu' defaultValue='seconds'>
+                <Label>OFF Wait Units:</Label>
+                <List>
+                    <Option value='seconds'>Seconds</Option>
+                    <Option value='minutes'>Minutes</Option>
+                    <Option value='hours'>Hours</Option>
+                    <Option value='days'>Days</Option>
+                </List>
+            </Field>
+            <Field id='separator' type='separator' />
+            <Field id='trackEntity' type='menu' defaultValue='dev'>
+                <Label>Track:</Label>
+                <List>
+                    <Option value='dev'>Device</Option>
+                    <Option value='var'>Variable</Option>
+                </List>
+            </Field>
+            <Field id='device1' type='menu' visibleBindingId='trackEntity'  visibleBindingValue='dev' alwaysUseInDialogHeightCalc='true'>
+                <Label>Device 1:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='loadStates' type='button' visibleBindingId='trackEntity'  visibleBindingValue='dev' alwaysUseInDialogHeightCalc='true'>
+                <Label></Label>
+                <Title>Load States</Title>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state1' type='menu' visibleBindingId='trackEntity'  visibleBindingValue='dev' alwaysUseInDialogHeightCalc='true'>
+                <Label>State 1:</Label>
+                <List class='self' filter='device1' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='variable1' type='menu' visibleBindingId='trackEntity'  visibleBindingValue='var' alwaysUseInDialogHeightCalc='false'>
+                <Label>Variable 1:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='logicSeparator' type='separator' />
+            <Field id='boolLabel0' type='label'>
+                <Label>This device goes ON if:</Label>
+            </Field>
+            <Field id='boolLabel1' type='label'>
+                <Label>             • Strings match: 'true', 'on', 'open', 'up', 'yes', 'active', 'unlocked', '1'</Label>
+            </Field>
+            <Field id='boolLabel2' type='label'>
+                <Label>             • Numbers match if non-zero</Label>
+            </Field>
+            <Field id='boolLabel3' type='label'>
+                <Label>             • Booleans match if True</Label>
+            </Field>
+            <Field id='reverseBoolean' type='checkbox' defaultValue='false'>
+                <Label>Reverse Logic?:</Label>
+                <Description>Check to reverse above logic.</Description>
+            </Field>
+        </ConfigUI>
+        <States>
+            <State id='onOffState'>
+                <ValueType>Boolean</ValueType>
+                <TriggerLabel>On/Off State is On</TriggerLabel>
+                <TriggerLabelPrefix>On/Off State is</TriggerLabelPrefix>
+                <ControlPageLabel>On/Off State</ControlPageLabel>
+                <ControlPageLabelPrefix>On/Off State is</ControlPageLabelPrefix>
+            </State>
+            <State id='state'>
+                <ValueType>
+                    <List>
+                        <Option value='on'>On</Option>
+                        <Option value='off'>Off</Option>
+                        <Option value='locked'>Pending</Option>
+                    </List>
+                </ValueType>
+                <TriggerLabel>Any State Change</TriggerLabel>
+                <TriggerLabelPrefix>State is</TriggerLabelPrefix>
+                <ControlPageLabel>State</ControlPageLabel>
+                <ControlPageLabelPrefix>State is</ControlPageLabelPrefix>
+            </State>
+            <State id='displayState'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Display State Change</TriggerLabel>
+                <TriggerLabelPrefix>Display State is</TriggerLabelPrefix>
+                <ControlPageLabel>Display State</ControlPageLabel>
+                <ControlPageLabelPrefix>Display State is</ControlPageLabelPrefix>
+            </State>
+            <State id='locked'>
+                <ValueType>Boolean</ValueType>
+                <TriggerLabel>Locked is</TriggerLabel>
+                <TriggerLabelPrefix>Locked is</TriggerLabelPrefix>
+                <ControlPageLabel>Locked</ControlPageLabel>
+                <ControlPageLabelPrefix>Locked is</ControlPageLabelPrefix>
+            </State>
+            <State id='onTime'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Reset Time</TriggerLabel>
+                <ControlPageLabel>Reset Time</ControlPageLabel>
+            </State>
+            <State id='onString'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Reset String</TriggerLabel>
+                <ControlPageLabel>Reset String</ControlPageLabel>
+            </State>
+            <State id='offTime'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Reset Time</TriggerLabel>
+                <ControlPageLabel>Reset Time</ControlPageLabel>
+            </State>
+            <State id='offString'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Reset String</TriggerLabel>
+                <ControlPageLabel>Reset String</ControlPageLabel>
+            </State>
+        </States>
+        <UiDisplayStateId>displayState</UiDisplayStateId>
+    </Device>
+</Devices>
