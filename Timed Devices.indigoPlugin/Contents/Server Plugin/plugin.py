@@ -41,6 +41,8 @@ k_variableKeys = (
     'variable5',
     )
 
+k_tickSeconds = 1
+
 k_updateCheckHours = 24
 
 ################################################################################
@@ -106,7 +108,7 @@ class Plugin(indigo.PluginBase):
                 if self.tickTime > self.nextCheck:
                     self.checkForUpdates()
                     self.nextCheck = self.tickTime + k_updateCheckHours*60*60
-                self.sleep(self.tickTime + 1 - time.time())
+                self.sleep(self.tickTime + k_tickSeconds - time.time())
         except self.StopThread:
             pass    # Optionally catch the StopThread exception and do any needed cleanup.
 
@@ -314,6 +316,7 @@ class TimerBase(threading.Thread):
         while not self.cancelled:
             try:
                 task,arg1,arg2 = self.queue.get(True,1)
+                self.taskTime = time.time()
                 if task == 'tick':
                     self.tick()
                 elif task == 'tock':
@@ -446,10 +449,10 @@ class ActivityTimer(TimerBase):
     #-------------------------------------------------------------------------------
     def tick(self):
         reset = expired = False
-        if self.states['count'] and (self.plugin.tickTime >= self.states['resetTime']):
+        if self.states['count'] and (self.taskTime >= self.states['resetTime']):
             self.states['count'] = 0
             self.states['reset'] = True
-        if self.states['onOffState'] and (self.plugin.tickTime >= self.states['offTime']):
+        if self.states['onOffState'] and (self.taskTime >= self.states['offTime']):
             self.states['onOffState'] = False
             self.states['expired'] = True
         self.updateStates()
@@ -459,28 +462,28 @@ class ActivityTimer(TimerBase):
         if newVal:
             detected = False
             self.states['count'] += 1
-            self.states['resetTime'] = self.plugin.tickTime + self.resetDelta
+            self.states['resetTime'] = self.taskTime + self.resetDelta
             if self.states['count'] >= self.threshold:
                 self.states['onOffState'] = True
-                self.states['offTime'] = self.plugin.tickTime + self.offDelta
+                self.states['offTime'] = self.taskTime + self.offDelta
             elif self.states['onOffState'] and self.extend:
-                self.states['offTime'] = self.plugin.tickTime + self.offDelta
+                self.states['offTime'] = self.taskTime + self.offDelta
             self.updateStates()
 
     #-------------------------------------------------------------------------------
     def turnOn(self):
         self.states['onOffState'] = True
-        self.states['offTime'] = self.plugin.tickTime + self.offDelta
+        self.states['offTime'] = self.taskTime + self.offDelta
         self.updateStates()
 
     #-------------------------------------------------------------------------------
     def turnOff(self):
         if self.states['count']:
             self.states['count'] = 0
-            self.states['resetTime'] = self.plugin.tickTime
+            self.states['resetTime'] = self.taskTime
         if self.states['onOffState']:
             self.states['onOffState'] = False
-            self.states['offTime'] = self.plugin.tickTime
+            self.states['offTime'] = self.taskTime
         self.updateStates()
 
     #-------------------------------------------------------------------------------
@@ -510,9 +513,9 @@ class ActivityTimer(TimerBase):
             self.states['displayState'] = self.states['state']
             if self.plugin.showTimer:
                 if self.states['state'] in ['active','persist']:
-                    self.states['displayState'] = self.countdown(self.states['offTime']   - self.plugin.tickTime)
+                    self.states['displayState'] = self.countdown(self.states['offTime']   - self.taskTime)
                 elif self.states['state'] == 'accrue':
-                    self.states['displayState'] = self.countdown(self.states['resetTime'] - self.plugin.tickTime)
+                    self.states['displayState'] = self.countdown(self.states['resetTime'] - self.taskTime)
 
             self.saveStates()
 
@@ -539,8 +542,8 @@ class PersistenceTimer(TimerBase):
     #-------------------------------------------------------------------------------
     def tick(self):
         if self.states['pending']:
-            if  (self.states['onOffState'] and self.plugin.tickTime >= self.states['offTime']) or \
-                (not self.states['onOffState'] and self.plugin.tickTime >= self.states['onTime']):
+            if  (self.states['onOffState'] and self.taskTime >= self.states['offTime']) or \
+                (not self.states['onOffState'] and self.taskTime >= self.states['onTime']):
                 self.states['onOffState'] = not self.states['onOffState']
                 self.states['pending'] = False
             self.updateStates()
@@ -551,9 +554,9 @@ class PersistenceTimer(TimerBase):
             self.states['pending'] = False
         else:
             if self.states['onOffState']:
-                self.states['offTime'] = self.plugin.tickTime + self.offDelta
+                self.states['offTime'] = self.taskTime + self.offDelta
             else:
-                self.states['onTime'] = self.plugin.tickTime + self.onDelta
+                self.states['onTime'] = self.taskTime + self.onDelta
             self.states['pending'] = True
         self.updateStates()
 
@@ -593,9 +596,9 @@ class PersistenceTimer(TimerBase):
 
             if self.plugin.showTimer and self.states['pending']:
                 if self.states['onOffState']:
-                    self.states['displayState'] = self.countdown(self.states['offTime'] - self.plugin.tickTime)
+                    self.states['displayState'] = self.countdown(self.states['offTime'] - self.taskTime)
                 else:
-                    self.states['displayState'] = self.countdown(self.states['onTime'] - self.plugin.tickTime)
+                    self.states['displayState'] = self.countdown(self.states['onTime'] - self.taskTime)
             else:
                 self.states['displayState'] = self.states['state']
 
@@ -625,8 +628,8 @@ class LockoutTimer(TimerBase):
     #-------------------------------------------------------------------------------
     def tick(self):
         if self.states['locked']:
-            if  (self.states['onOffState'] and self.plugin.tickTime >= self.states['onTime']) or \
-                (not self.states['onOffState'] and self.plugin.tickTime >= self.states['offTime']):
+            if  (self.states['onOffState'] and self.taskTime >= self.states['onTime']) or \
+                (not self.states['onOffState'] and self.taskTime >= self.states['offTime']):
                 self.states['locked'] = False
                 self.doTask('tock',self.lastVal)
             self.updateStates()
@@ -637,7 +640,7 @@ class LockoutTimer(TimerBase):
         if not self.states['locked']:
             if newVal != self.states['onOffState']:
                 self.states['onOffState'] = newVal
-                self.states[['offTime','onTime'][newVal]] = self.plugin.tickTime + [self.offDelta,self.onDelta][newVal]
+                self.states[['offTime','onTime'][newVal]] = self.taskTime + [self.offDelta,self.onDelta][newVal]
                 self.states['locked'] = True
                 self.updateStates()
 
@@ -677,9 +680,9 @@ class LockoutTimer(TimerBase):
 
             if self.plugin.showTimer and self.states['locked']:
                 if self.states['onOffState']:
-                    self.states['displayState'] = self.countdown(self.states['offTime'] - self.plugin.tickTime)
+                    self.states['displayState'] = self.countdown(self.states['onTime'] - self.taskTime)
                 else:
-                    self.states['displayState'] = self.countdown(self.states['onTime'] - self.plugin.tickTime)
+                    self.states['displayState'] = self.countdown(self.states['offTime'] - self.taskTime)
             else:
                 self.states['displayState'] = self.states['state']
 
