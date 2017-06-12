@@ -405,7 +405,7 @@
                     <List>
                         <Option value='on'>On</Option>
                         <Option value='off'>Off</Option>
-                        <Option value='locked'>Pending</Option>
+                        <Option value='locked'>Locked</Option>
                     </List>
                 </ValueType>
                 <TriggerLabel>Any State Change</TriggerLabel>

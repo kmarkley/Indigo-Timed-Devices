@@ -116,7 +116,6 @@ class Plugin(indigo.PluginBase):
     # Device Methods
     #-------------------------------------------------------------------------------
     def deviceStartComm(self, dev):
-        self.logger.debug("deviceStartComm: "+dev.name)
         if dev.version != self.pluginVersion:
             self.updateDeviceVersion(dev)
         if dev.configured:
@@ -131,7 +130,6 @@ class Plugin(indigo.PluginBase):
 
     #-------------------------------------------------------------------------------
     def deviceStopComm(self, dev):
-        self.logger.debug("deviceStopComm: "+dev.name)
         if dev.id in self.deviceDict:
             self.deviceDict[dev.id].cancel()
             del self.deviceDict[dev.id]
@@ -207,6 +205,7 @@ class Plugin(indigo.PluginBase):
 
     #-------------------------------------------------------------------------------
     def forceOff(self, action):
+        self.logger.debug(str(action))
         if action.deviceId in self.deviceDict:
             self.deviceDict[action.deviceId].doTask('turnOff')
         else:
@@ -315,7 +314,7 @@ class TimerBase(threading.Thread):
         self.logger.debug('{}: thread started'.format(self.name))
         while not self.cancelled:
             try:
-                task,arg1,arg2 = self.queue.get(True,1)
+                task,arg1,arg2 = self.queue.get(True,2)
                 self.taskTime = time.time()
                 if task == 'tick':
                     self.tick()
@@ -353,13 +352,13 @@ class TimerBase(threading.Thread):
         if newDev.id in self.deviceStateDict:
             stateKey = self.deviceStateDict[newDev.id]
             if oldDev.states[stateKey] != newDev.states[stateKey]:
-                self.tock(self.getChangeBool(newDev.states[stateKey]))
+                self.tock(self.getBoolValue(newDev.states[stateKey]))
 
     #-------------------------------------------------------------------------------
     def varChanged(self, oldVar, newVar):
         if newVar.id in self.variableList:
             if oldVar.value != newVar.value:
-                self.tock(self.getChangeBool(newVar.value))
+                self.tock(self.getBoolValue(newVar.value))
 
     #-------------------------------------------------------------------------------
     def saveStates(self):
@@ -381,7 +380,7 @@ class TimerBase(threading.Thread):
         self.states = self.dev.states
 
     #-------------------------------------------------------------------------------
-    def getChangeBool(self, value):
+    def getBoolValue(self, value):
         if self.anyChange:
             result = True
         else:
@@ -430,7 +429,7 @@ class TimerBase(threading.Thread):
         raise NotImplementedError
 
     #-------------------------------------------------------------------------------
-    def updateStates(self):
+    def updateStates(self, force=False):
         raise NotImplementedError
 
 ################################################################################
@@ -445,6 +444,13 @@ class ActivityTimer(TimerBase):
         self.anyChange  = instance.pluginProps.get('anyChange',False)
         self.resetDelta = self.delta(instance.pluginProps.get('resetCycles',1), instance.pluginProps.get('resetUnits','minutes'))
         self.offDelta   = self.delta(instance.pluginProps.get('offCycles', 10), instance.pluginProps.get('offUnits',  'minutes'))
+
+        # initial state
+        self.states['onOffState'] = False
+        self.states['reset'] = False
+        self.states['expired'] = False
+        self.states['count'] = 0
+        self.updateStates(True)
 
     #-------------------------------------------------------------------------------
     def tick(self):
@@ -487,8 +493,8 @@ class ActivityTimer(TimerBase):
         self.updateStates()
 
     #-------------------------------------------------------------------------------
-    def updateStates(self):
-        if self.plugin.showTimer or (self.states != self.dev.states):
+    def updateStates(self, force=False):
+        if force or self.plugin.showTimer or (self.states != self.dev.states):
             if self.states['onOffState']:
                 if (self.states['count'] >= self.threshold) or (self.states['count'] and self.extend):
                     self.states['state'] = 'active'
@@ -534,10 +540,10 @@ class PersistenceTimer(TimerBase):
         self.states['pending'] = False
         if instance.pluginProps['trackEntity'] == 'dev':
             devId, state = self.deviceStateDict.items()[0]
-            self.states['onOffState'] = self.getChangeBool(indigo.devices[devId].states[state])
+            self.states['onOffState'] = self.getBoolValue(indigo.devices[devId].states[state])
         else:
-            self.states['onOffState'] = self.getChangeBool(indigo.variables[self.variableList[0]].value)
-        self.updateStates()
+            self.states['onOffState'] = self.getBoolValue(indigo.variables[self.variableList[0]].value)
+        self.updateStates(True)
 
     #-------------------------------------------------------------------------------
     def tick(self):
@@ -573,8 +579,8 @@ class PersistenceTimer(TimerBase):
         self.updateStates()
 
     #-------------------------------------------------------------------------------
-    def updateStates(self):
-        if self.plugin.showTimer or (self.states != self.dev.states):
+    def updateStates(self, force=False):
+        if force or self.plugin.showTimer or (self.states != self.dev.states):
 
             if self.states['onOffState']:
                 if self.states['pending']:
@@ -619,11 +625,11 @@ class LockoutTimer(TimerBase):
         self.states['locked'] = False
         if instance.pluginProps['trackEntity'] == 'dev':
             devId, state = self.deviceStateDict.items()[0]
-            self.lastVal = self.getChangeBool(indigo.devices[devId].states[state])
+            self.lastVal = self.getBoolValue(indigo.devices[devId].states[state])
         else:
-            self.lastVal = self.getChangeBool(indigo.variables[self.variableList[0]].value)
+            self.lastVal = self.getBoolValue(indigo.variables[self.variableList[0]].value)
         self.states['onOffState'] = self.lastVal
-        self.updateStates()
+        self.updateStates(True)
 
     #-------------------------------------------------------------------------------
     def tick(self):
@@ -657,8 +663,8 @@ class LockoutTimer(TimerBase):
         self.updateStates()
 
     #-------------------------------------------------------------------------------
-    def updateStates(self):
-        if self.plugin.showTimer or (self.states != self.dev.states):
+    def updateStates(self, force=False):
+        if force or self.plugin.showTimer or (self.states != self.dev.states):
 
             if self.states['onOffState']:
                 if self.states['locked']:

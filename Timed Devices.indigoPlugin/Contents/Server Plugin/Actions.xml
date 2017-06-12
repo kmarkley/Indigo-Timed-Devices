@@ -1,11 +1,11 @@
 <?xml version='1.0'?>
 <Actions>
     <Action id='forceOn' deviceFilter='self' uiPath='DeviceActions'>
-        <Name>Force On</Name>
+        <Name>Force Timed Device On</Name>
         <CallbackMethod>forceOn</CallbackMethod>
     </Action>
     <Action id='forceOff' deviceFilter='self' uiPath='DeviceActions'>
-        <Name>Force Off</Name>
+        <Name>Force Timed Device Off</Name>
         <CallbackMethod>forceOff</CallbackMethod>
     </Action>
 </Actions>
