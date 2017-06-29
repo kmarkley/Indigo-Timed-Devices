@@ -198,10 +198,10 @@
         <Name>Persistence Timer</Name>
         <ConfigUI>
             <Field id='onCycles' type='textfield' defaultValue='30'>
-                <Label>ON Wait Cycles:</Label>
+                <Label>ON Persist Cycles:</Label>
             </Field>
             <Field id='onUnits' type='menu' defaultValue='seconds'>
-                <Label>ON Wait Units:</Label>
+                <Label>ON Persist Units:</Label>
                 <List>
                     <Option value='seconds'>Seconds</Option>
                     <Option value='minutes'>Minutes</Option>
@@ -210,10 +210,10 @@
                 </List>
             </Field>
             <Field id='offCycles' type='textfield' defaultValue='30'>
-                <Label>OFF Wait Cycles:</Label>
+                <Label>OFF Persist Cycles:</Label>
             </Field>
             <Field id='offUnits' type='menu' defaultValue='seconds'>
-                <Label>OFF Wait Units:</Label>
+                <Label>OFF Persist Units:</Label>
                 <List>
                     <Option value='seconds'>Seconds</Option>
                     <Option value='minutes'>Minutes</Option>
@@ -326,10 +326,10 @@
         <Name>Lockout Timer</Name>
         <ConfigUI>
             <Field id='onCycles' type='textfield' defaultValue='30'>
-                <Label>ON Wait Cycles:</Label>
+                <Label>ON Lockout Cycles:</Label>
             </Field>
             <Field id='onUnits' type='menu' defaultValue='seconds'>
-                <Label>ON Wait Units:</Label>
+                <Label>ON Lockout Units:</Label>
                 <List>
                     <Option value='seconds'>Seconds</Option>
                     <Option value='minutes'>Minutes</Option>
@@ -338,10 +338,10 @@
                 </List>
             </Field>
             <Field id='offCycles' type='textfield' defaultValue='30'>
-                <Label>OFF Wait Cycles:</Label>
+                <Label>OFF Lockout Cycles:</Label>
             </Field>
             <Field id='offUnits' type='menu' defaultValue='seconds'>
-                <Label>OFF Wait Units:</Label>
+                <Label>OFF Lockout Units:</Label>
                 <List>
                     <Option value='seconds'>Seconds</Option>
                     <Option value='minutes'>Minutes</Option>
