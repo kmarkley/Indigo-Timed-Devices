@@ -104,8 +104,8 @@ class Plugin(indigo.PluginBase):
         try:
             while True:
                 self.tickTime = time.time()
-                for id, activity in self.deviceDict.iteritems():
-                    activity.doTask('tick')
+                for devId, device in self.deviceDict.iteritems():
+                    device.doTask('tick')
                 if self.tickTime > self.nextCheck:
                     self.checkForUpdates()
                     self.nextCheck = self.tickTime + k_updateCheckHours*60*60
@@ -160,6 +160,13 @@ class Plugin(indigo.PluginBase):
             if not valuesDict.get(key,"").isdigit():
                 errorsDict[key] = "Must be an integer zero or greater"
 
+        if valuesDict.get('logicType','simple') == 'complex':
+            if valuesDict.get('valueType','str') == 'num':
+                try:
+                    temp = float(valuesDict.get('value',''))
+                except:
+                    errorsDict['value'] = "Make value a number or change data type"
+
         if len(errorsDict) > 0:
             self.logger.debug('validate device config error: \n{}'.format(errorsDict))
             return (False, valuesDict, errorsDict)
@@ -170,7 +177,13 @@ class Plugin(indigo.PluginBase):
         theProps = dev.pluginProps
         # update states
         dev.stateListOrDisplayStateIdChanged()
-        # check for props
+
+        # update logic selections
+        if ver(theProps.get('version',"0.0.0")) < ver("0.0.9"):
+            if theProps.get('anyChange',False):
+                theProps['logicType'] = 'any'
+            else:
+                theProps['logicType'] = 'simple'
 
         # push to server
         theProps["version"] = self.pluginVersion
@@ -184,16 +197,15 @@ class Plugin(indigo.PluginBase):
             indigo.PluginBase.deviceUpdated(self, oldDev, newDev)
 
         else:
-            for id, activity in self.deviceDict.items():
-                activity.doTask('devChanged', oldDev, newDev)
+            for devId, device in self.deviceDict.items():
+                device.doTask('devChanged', oldDev, newDev)
 
     #-------------------------------------------------------------------------------
     # Variable Methods
     #-------------------------------------------------------------------------------
     def variableUpdated(self, oldVar, newVar):
-        for id, activity in self.deviceDict.items():
-            activity.doTask('varChanged', oldVar, newVar)
-
+        for devId, device in self.deviceDict.items():
+            device.doTask('varChanged', oldVar, newVar)
 
     #-------------------------------------------------------------------------------
     # Action Methods
@@ -289,16 +301,24 @@ class TimerBase(threading.Thread):
         self.cancelled  = False
         self.queue      = Queue.Queue()
 
+        self.plugin     = plugin
+        self.logger     = plugin.logger
+
         self.dev        = instance
         self.id         = instance.id
         self.name       = instance.name
         self.states     = instance.states
-
-        self.plugin     = plugin
-        self.logger     = plugin.logger
-
-        self.reverse    = instance.pluginProps.get('reverseBoolean',False)
         self.stateImg   = None
+
+        self.logic      = instance.pluginProps.get('logicType','simple')
+        self.reverse    = instance.pluginProps.get('reverseBoolean',False)
+        self.valType    = instance.pluginProps.get('valueType','str')
+        if self.valType == 'str':
+            self.value  = str(instance.pluginProps.get('value','')).lower()
+        elif self.valType == 'num':
+            self.value  = float(instance.pluginProps.get('value',''))
+        self.operator   = instance.pluginProps.get('operator','eq')
+        self.logOnOff   = instance.pluginProps.get('logOnOff',True)
 
         self.deviceStateDict = dict()
         for deviceKey, stateKey in k_deviceKeys:
@@ -371,7 +391,7 @@ class TimerBase(threading.Thread):
             for key, value in self.states.iteritems():
                 if self.states[key] != self.dev.states[key]:
                     newStates.append({'key':key,'value':value})
-                    if key == 'onOffState':
+                    if key == 'onOffState' and self.logOnOff:
                         self.logger.info('"{0}" {1}'.format(self.name, ['off','on'][value]))
                     elif key == 'state':
                         self.dev.updateStateImageOnServer(k_stateImages[self.stateImg])
@@ -388,9 +408,9 @@ class TimerBase(threading.Thread):
 
     #-------------------------------------------------------------------------------
     def getBoolValue(self, value):
-        if self.anyChange:
+        if self.logic == 'any':
             result = True
-        else:
+        elif self.logic == 'simple':
             result = False
             if zint(value):
                 result = True
@@ -398,6 +418,27 @@ class TimerBase(threading.Thread):
                 result = value.lower() in k_commonTrueStates
             if self.reverse:
                 result = not result
+        elif self.logic == 'complex':
+            try:
+                if self.valType == 'str':
+                    value = str(value).lower()
+                elif self.valType == 'num':
+                    value = float(value)
+                if   self.operator == 'eq':
+                    result = value == self.value
+                elif self.operator == 'ne':
+                    result = value != self.value
+                elif self.operator == 'gt':
+                    result = value >  self.value
+                elif self.operator == 'lt':
+                    result = value <  self.value
+                elif self.operator == 'ge':
+                    result = value >= self.value
+                elif self.operator == 'le':
+                    result = value <= self.value
+            except Exception as e:
+                result = False
+                self.logger.debug('Data type error for device "{}"'.format(self.name))
         return result
 
     #-------------------------------------------------------------------------------
@@ -453,7 +494,6 @@ class ActivityTimer(TimerBase):
 
         self.threshold  = int(instance.pluginProps.get('countThreshold',1))
         self.extend     = instance.pluginProps.get('extend',True)
-        self.anyChange  = instance.pluginProps.get('anyChange',False)
         self.resetDelta = self.delta(instance.pluginProps.get('resetCycles',1), instance.pluginProps.get('resetUnits','minutes'))
         self.offDelta   = self.delta(instance.pluginProps.get('offCycles', 10), instance.pluginProps.get('offUnits',  'minutes'))
 
@@ -540,7 +580,6 @@ class PersistenceTimer(TimerBase):
     def __init__(self, instance, plugin):
         super(PersistenceTimer, self).__init__(instance, plugin)
 
-        self.anyChange = False
         self.onDelta  = self.delta(instance.pluginProps.get('onCycles',30), instance.pluginProps.get('onUnits','seconds'))
         self.offDelta = self.delta(instance.pluginProps.get('offCycles',30), instance.pluginProps.get('offUnits','seconds'))
 
@@ -567,8 +606,18 @@ class PersistenceTimer(TimerBase):
         if newVal == self.states['onOffState']:
             self.states['pending'] = False
         else:
-            self.states['pending'] = True
-            self.states[['onTime','offTime'][self.states['onOffState']]] = self.taskTime + [self.onDelta,self.offDelta][self.states['onOffState']]
+            if self.states['onOffState']:
+                if self.offDelta:
+                    self.states['pending'] = True
+                    self.states['offTime'] = self.taskTime + self.offDelta
+                else:
+                    self.states['onOffState'] = False
+            else:
+                if self.onDelta:
+                    self.states['pending'] = True
+                    self.states['onTime'] = self.taskTime + self.onDelta
+                else:
+                    self.states['onOffState'] = True
         self.update()
 
     #-------------------------------------------------------------------------------
@@ -618,7 +667,6 @@ class LockoutTimer(TimerBase):
     def __init__(self, instance, plugin):
         super(LockoutTimer, self).__init__(instance, plugin)
 
-        self.anyChange = False
         self.onDelta  = self.delta(instance.pluginProps.get('onCycles',30), instance.pluginProps.get('onUnits','seconds'))
         self.offDelta = self.delta(instance.pluginProps.get('offCycles',30), instance.pluginProps.get('offUnits','seconds'))
 
@@ -698,3 +746,6 @@ class LockoutTimer(TimerBase):
 def zint(value):
     try: return int(value)
     except: return 0
+
+#-------------------------------------------------------------------------------
+def ver(vstr): return tuple(map(int, (vstr.split('.'))))
