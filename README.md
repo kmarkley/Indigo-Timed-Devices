@@ -17,7 +17,7 @@ I first wrote the plugin for this scenario and in one case was able to replace 1
 
 #### Persistence Timer devices
 
-These devices track the state of a single device or variable, but only change state after the tracked entity state has ***persisted*** for a defined period of time.
+These devices track the state of a single device or variable, but only change state after the tracked entity state has ***persisted*** for a defined period of time.  At the end of the lockout period, the plugin will reevaluate if the tracked entity has changed in the interim, and initiate another lockout period if it has.
 
 Once configured, these devices are just ON or OFF to reflect the delayed/confirmed state of some other device or variable (eliminating the need for possibly several cancel-delayed-action actions).
 
@@ -76,7 +76,7 @@ Choose whether or not to log device on/off changes to the Indigo event log.
 #### States
 
 * **count** (int): current count toward **threshold**.
-* **counting** (bool): whether the device is aquire inputs toward **threshold**.
+* **counting** (bool): whether the device is acquiring inputs toward **threshold**.
 * **displayState** (str): state to display in indigo client interface.
 * **expired** (bool): true when device expires (as opposed to being forced off).
 * **offString** (str): timestamp of scheduled expiration.
@@ -140,9 +140,9 @@ Choose whether or not to log device on/off changes to the Indigo event log.
 #### Configuration
 
 * **ON Lockout Cycles** and **ON Lockout Units**  
-How long after a tracked device/variable is on/true before plugin device may turn back off.
+How long after turning ON before plugin device may turn back OFF.
 * **OFF Lockout Cycles** and **OFF Lockout Unites**  
-How long after a tracked device/variable is off/false before plugin device may turn back on.
+How long after turning OFF before plugin device may turn back ON.
 * **Track**  
 Choose whether to track a device state or variable value.
 * **Device** and **State**  
