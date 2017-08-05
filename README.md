@@ -9,9 +9,9 @@ This plugin doesn't do anything that can't be accomplished in Indigo with a comb
 
 These devices infer an ongoing ***activity*** from one or more _momentary_ inputs.  The device will expire (turn off) after a defined period of time with no additional inputs.
 
-The most common use is inferring activity in a room or area by tracking motion sensors.  I commonly wish to have more than one motion sensor activate before assuming a room is in use, and extend the timeout when one or more motion sensors are re-activated.
-
 Once configured, these devices are simply ON to indicate recent activity and OFF to indicate no recent activity.
+
+The most common use is inferring activity in a room or area by tracking motion sensors.  I commonly wish to have more than one motion sensor activate before assuming a room is in use, and extend the timeout when one or more motion sensors are re-activated.
 
 I first wrote the plugin for this scenario and in one case was able to replace 13 indigo entities (2 variables, 2 timers, and 9 triggers) with a single plugin device.
 
@@ -19,11 +19,15 @@ I first wrote the plugin for this scenario and in one case was able to replace 1
 
 These devices track the state of a single device or variable, but only change state after the tracked entity state has ***persisted*** for a defined period of time.
 
+Once configured, these devices are just ON or OFF to reflect the delayed/confirmed state of some other device or variable (eliminating the need for possibly several cancel-delayed-action actions).
+
 An obvious example is the if you want to track if a door has been left open (or closed), but ignore the door being opened (or closed) momentarily.
 
 #### Lockout Timer devices
 
 These devices track a single device or variable and change state immediately when the tracked entity changes, but will ***lockout*** (ignore) subsequent changes for a user-defined period of time.
+
+Once configured, these devices are just ON or OFF to reflect the state of some other device or variable, but are guaranteed not to change more often than some pre-set period of time (allowing your triggered actions to complete before, say, reversing themselves).
 
 Not sure there is an obvious example for this, but I do find it useful in a few situations, especially when I don't want on/off triggers to fire too close together.
 
