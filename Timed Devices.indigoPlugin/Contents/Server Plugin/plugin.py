@@ -313,11 +313,12 @@ class TimerBase(threading.Thread):
         self.logic      = instance.pluginProps.get('logicType','simple')
         self.reverse    = instance.pluginProps.get('reverseBoolean',False)
         self.valType    = instance.pluginProps.get('valueType','str')
-        if self.valType == 'str':
-            self.value  = str(instance.pluginProps.get('value','')).lower()
-        elif self.valType == 'num':
-            self.value  = float(instance.pluginProps.get('value',''))
         self.operator   = instance.pluginProps.get('operator','eq')
+        if self.logic == 'complex' and self.valType == 'num':
+            self.value = float(instance.pluginProps.get('value',''))
+        else:
+            self.value = str(instance.pluginProps.get('value','')).lower()
+
         self.logOnOff   = instance.pluginProps.get('logOnOff',True)
 
         self.deviceStateDict = dict()

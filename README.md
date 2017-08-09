@@ -106,7 +106,6 @@ Choose a device and state to track.
 * **Variable**  
 Choose a variable to track.
 * **Logic**
-    * **Any**: any change to device states or variable value is considered an input.
     * **Simple**: device states or variable values that can be understood as true/false are considered inputs.
         * **Reverse?**  
         Reverse the logic.  I.e. consider False values as inputs.
@@ -150,7 +149,6 @@ Choose a device and state to track.
 * **Variable**  
 Choose a variable to track.
 * **Logic**
-    * **Any**: any change to device states or variable value is considered an input.
     * **Simple**: device states or variable values that can be understood as true/false are considered inputs.
         * **Reverse?**  
         Reverse the logic.  I.e. consider False values as inputs.
