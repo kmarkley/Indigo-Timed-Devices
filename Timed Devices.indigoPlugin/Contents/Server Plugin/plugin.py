@@ -15,7 +15,7 @@ from ghpu import GitHubPluginUpdater
 ###############################################################################
 # globals
 
-k_commonTrueStates = ['true', 'on', 'open', 'up', 'yes', 'active', 'unlocked', '1']
+k_commonTrueStates = ['true', 'on', 'open', 'up', 'yes', 'active', 'locked', '1']
 
 k_stateImages = {
     'SensorOff':    indigo.kStateImageSel.SensorOff,
@@ -596,10 +596,12 @@ class PersistenceTimer(TimerBase):
     #-------------------------------------------------------------------------------
     def tick(self):
         if self.states['pending']:
-            if  (self.states['onOffState'] and self.taskTime >= self.states['offTime']) or \
-                (not self.states['onOffState'] and self.taskTime >= self.states['onTime']):
-                self.states['onOffState'] = not self.states['onOffState']
+            if  self.states['onOffState'] and self.taskTime >= self.states['offTime']:
                 self.states['pending'] = False
+                self.states['onOffState'] = False
+            elif not self.states['onOffState'] and self.taskTime >= self.states['onTime']:
+                self.states['pending'] = False
+                self.states['onOffState'] = True
             self.update()
 
     #-------------------------------------------------------------------------------
@@ -684,7 +686,7 @@ class LockoutTimer(TimerBase):
     #-------------------------------------------------------------------------------
     def tick(self):
         if self.states['locked']:
-            if  (self.states['onOffState'] and self.taskTime >= self.states['onTime']) or \
+            if  (    self.states['onOffState'] and self.taskTime >= self.states['onTime'] ) or \
                 (not self.states['onOffState'] and self.taskTime >= self.states['offTime']):
                 self.states['locked'] = False
                 self.doTask('tock',self.lastVal)
@@ -697,7 +699,10 @@ class LockoutTimer(TimerBase):
             if newVal != self.states['onOffState']:
                 self.states['onOffState'] = newVal
                 self.states['locked'] = True
-                self.states[['offTime','onTime'][newVal]] = self.taskTime + [self.offDelta,self.onDelta][newVal]
+                if newVal:
+                    self.states['onTime']  = self.taskTime + self.onDelta
+                else:
+                    self.states['offTime'] = self.taskTime + self.offDelta
                 self.update()
 
     #-------------------------------------------------------------------------------

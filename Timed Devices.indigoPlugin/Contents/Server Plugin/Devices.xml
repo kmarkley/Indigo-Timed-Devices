@@ -114,7 +114,7 @@
                 <Label>• Strings match:</Label>
             </Field>
             <Field id='boolLabel1' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
-                <Label>    'true', 'on', 'open', 'up', 'yes', 'active', 'unlocked', '1'</Label>
+                <Label>    'true', 'on', 'open', 'up', 'yes', 'active', 'locked', '1'</Label>
             </Field>
             <Field id='boolLabel2' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
                 <Label>• Numbers match if non-zero</Label>
@@ -297,7 +297,7 @@
                 <Label>• Strings match:</Label>
             </Field>
             <Field id='boolLabel1' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
-                <Label>    'true', 'on', 'open', 'up', 'yes', 'active', 'unlocked', '1'</Label>
+                <Label>    'true', 'on', 'open', 'up', 'yes', 'active', 'locked', '1'</Label>
             </Field>
             <Field id='boolLabel2' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
                 <Label>• Numbers match if non-zero</Label>
@@ -466,7 +466,7 @@
                 <Label>• Strings match:</Label>
             </Field>
             <Field id='boolLabel1' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
-                <Label>    'true', 'on', 'open', 'up', 'yes', 'active', 'unlocked', '1'</Label>
+                <Label>    'true', 'on', 'open', 'up', 'yes', 'active', 'locked', '1'</Label>
             </Field>
             <Field id='boolLabel2' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
                 <Label>• Numbers match if non-zero</Label>
