@@ -42,7 +42,7 @@ k_variableKeys = (
 
 k_tickSeconds = 1
 
-k_updateCheckHours = 24
+kPluginUpdateCheckHours = 24
 
 k_strftimeFormat = '%Y-%m-%d %H:%M:%S'
 
@@ -63,6 +63,7 @@ class Plugin(indigo.PluginBase):
         self.nextCheck      = self.pluginPrefs.get('nextUpdateCheck',0)
         self.showTimer      = self.pluginPrefs.get('showTimer',False)
         self.debug          = self.pluginPrefs.get('showDebugInfo',False)
+        self.verbose        = self.pluginPrefs.get('verboseDebug',False)
         self.logger.debug("startup")
         if self.debug:
             self.logger.debug("Debug logging enabled")
@@ -77,6 +78,7 @@ class Plugin(indigo.PluginBase):
     def shutdown(self):
         self.logger.debug("shutdown")
         self.pluginPrefs['showDebugInfo'] = self.debug
+        self.pluginPrefs['verboseDebug'] = self.verbose
         self.pluginPrefs['showTimer'] = self.showTimer
         self.pluginPrefs['nextUpdateCheck'] = self.nextCheck
 
@@ -94,7 +96,8 @@ class Plugin(indigo.PluginBase):
     def closedPrefsConfigUi(self, valuesDict, userCancelled):
         self.logger.debug("closedPrefsConfigUi")
         if not userCancelled:
-            self.debug = valuesDict.get('showDebugInfo',False)
+            self.debug     = valuesDict.get('showDebugInfo',False)
+            self.verbose   = valuesDict.get('verboseDebug',False)
             self.showTimer = valuesDict.get('showTimer',True)
             if self.debug:
                 self.logger.debug("Debug logging enabled")
@@ -108,7 +111,6 @@ class Plugin(indigo.PluginBase):
                     device.doTask('tick')
                 if self.tickTime > self.nextCheck:
                     self.checkForUpdates()
-                    self.nextCheck = self.tickTime + k_updateCheckHours*60*60
                 self.sleep(self.tickTime + k_tickSeconds - time.time())
         except self.StopThread:
             pass    # Optionally catch the StopThread exception and do any needed cleanup.
@@ -228,7 +230,16 @@ class Plugin(indigo.PluginBase):
     # Menu Methods
     #-------------------------------------------------------------------------------
     def checkForUpdates(self):
-        self.updater.checkForUpdate()
+        self.nextCheck = time.time() + (kPluginUpdateCheckHours*60*60)
+        try:
+            self.updater.checkForUpdate()
+        except Exception as e:
+            msg = 'Check for update error.  Next attempt in {} hours.'.format(kPluginUpdateCheckHours)
+            if self.debug:
+                self.logger.exception(msg)
+            else:
+                self.logger.error(msg)
+                self.logger.debug(e)
 
     #-------------------------------------------------------------------------------
     def updatePlugin(self):
@@ -333,7 +344,7 @@ class TimerBase(threading.Thread):
 
     #-------------------------------------------------------------------------------
     def run(self):
-        self.logger.debug('{}: thread started'.format(self.name))
+        self.logger.debug('"{}" thread started'.format(self.name))
         while not self.cancelled:
             try:
                 task,arg1,arg2 = self.queue.get(True,2)
@@ -351,14 +362,14 @@ class TimerBase(threading.Thread):
                 elif task == 'turnOff':
                     self.turnOff()
                 else:
-                    self.logger.error('{}: task "{}" not recognized'.format(self.name,task))
+                    self.logger.error('"{}" task "{}" not recognized'.format(self.name,task))
                 self.queue.task_done()
             except Queue.Empty:
                 pass
             except Exception as e:
-                self.logger.error('{}: thread error \n{}'.format(self.name, e))
+                self.logger.error('"{}" thread error \n{}'.format(self.name, e))
         else:
-            self.logger.debug('{}: thread cancelled'.format(self.name))
+            self.logger.debug('"{}" thread cancelled'.format(self.name))
 
     #-------------------------------------------------------------------------------
     def cancel(self):
@@ -398,11 +409,11 @@ class TimerBase(threading.Thread):
                         self.dev.updateStateImageOnServer(k_stateImages[self.stateImg])
 
             if len(newStates) > 0:
-                if self.plugin.debug: # don't fill up plugin log unless actively debugging
-                    logStates = 'updating states on device "{0}":'.format(self.name)
+                if self.plugin.verbose:
+                    logStates = ""
                     for item in newStates:
-                        logStates += '\n{:>50}: {}'.format(item['key'],item['value'])
-                    self.logger.debug(logStates)
+                        logStates += '{}:{}, '.format(item['key'],item['value'])
+                    self.logger.debug('"{0}" states: [{1}]'.format(self.name, logStates.strip(', ')))
                 self.dev.updateStatesOnServer(newStates)
 
             self.states = self.dev.states
@@ -437,7 +448,7 @@ class TimerBase(threading.Thread):
                     result = value >= self.value
                 elif self.operator == 'le':
                     result = value <= self.value
-            except Exception as e:
+            except ValueError as e:
                 result = False
                 self.logger.debug('Data type error for device "{}"'.format(self.name))
         return result
@@ -518,6 +529,7 @@ class ActivityTimer(TimerBase):
 
     #-------------------------------------------------------------------------------
     def tock(self, newVal):
+        self.logger.debug('"{}" input:  [newVal:{}, onOff:{}, count:{}]'.format(self.name, newVal, self.states['onOffState'], self.states['count']))
         if newVal:
             self.states['count'] += 1
             self.states['resetTime'] = self.taskTime + self.resetDelta
@@ -606,6 +618,7 @@ class PersistenceTimer(TimerBase):
 
     #-------------------------------------------------------------------------------
     def tock(self, newVal):
+        self.logger.debug('"{}" input:  [newVal:{}, onOff:{}, pending:{}]'.format(self.name, newVal, self.states['onOffState'], self.states['pending']))
         if newVal == self.states['onOffState']:
             self.states['pending'] = False
         else:
@@ -694,6 +707,7 @@ class LockoutTimer(TimerBase):
 
     #-------------------------------------------------------------------------------
     def tock(self, newVal):
+        self.logger.debug('"{}" input:  [newVal:{}, onOff:{}, locked:{}]'.format(self.name, newVal, self.states['onOffState'], self.states['locked']))
         self.lastVal = newVal
         if not self.states['locked']:
             if newVal != self.states['onOffState']:
