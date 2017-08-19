@@ -63,7 +63,7 @@ class Plugin(indigo.PluginBase):
         self.nextCheck      = self.pluginPrefs.get('nextUpdateCheck',0)
         self.showTimer      = self.pluginPrefs.get('showTimer',False)
         self.debug          = self.pluginPrefs.get('showDebugInfo',False)
-        self.verbose        = self.pluginPrefs.get('verboseDebug',False)
+        self.verbose        = self.pluginPrefs.get('verboseDebug',False) and self.debug
         self.logger.debug("startup")
         if self.debug:
             self.logger.debug("Debug logging enabled")
@@ -343,6 +343,34 @@ class TimerBase(threading.Thread):
                 self.variableList.append(int(instance.pluginProps[variableKey]))
 
     #-------------------------------------------------------------------------------
+    # properties
+    #-------------------------------------------------------------------------------
+    def _stateGet(self):
+        return self.states['state']
+    def _stateSet(self, value):
+        self.states['state'] = value
+    state = property(_stateGet, _stateSet)
+
+    def _displayStateGet(self):
+        return self.states['displayState']
+    def _displayStateSet(self, value):
+        self.states['displayState'] = value
+    displayState = property(_displayStateGet, _displayStateSet)
+
+    def _onStateGet(self):
+        return self.states['onOffState']
+    def _onStateSet(self, value):
+        self.states['onOffState'] = value
+    onState = property(_onStateGet, _onStateSet)
+
+    def _offTimeGet(self):
+        return self.states['offTime']
+    def _offTimeSet(self, value):
+        self.states['offTime'] = value
+        self.states['offString'] = self.timestamp(value)
+    offTime = property(_offTimeGet, _offTimeSet)
+
+    #-------------------------------------------------------------------------------
     def run(self):
         self.logger.debug('"{}" thread started'.format(self.name))
         while not self.cancelled:
@@ -367,7 +395,11 @@ class TimerBase(threading.Thread):
             except Queue.Empty:
                 pass
             except Exception as e:
-                self.logger.error('"{}" thread error \n{}'.format(self.name, e))
+                msg = '"{}" thread error \n{}'.format(self.name, e)
+                if self.plugin.debug:
+                    self.logger.exception(msg)
+                else:
+                    self.logger.error(msg)
         else:
             self.logger.debug('"{}" thread cancelled'.format(self.name))
 
@@ -510,81 +542,111 @@ class ActivityTimer(TimerBase):
         self.offDelta   = self.delta(instance.pluginProps.get('offCycles', 10), instance.pluginProps.get('offUnits',  'minutes'))
 
         # initial state
-        self.states['onOffState'] = False
-        self.states['reset'] = False
-        self.states['expired'] = False
-        self.states['count'] = 0
+        self.onState = False
+        self.reset   = False
+        self.expired = False
+        self.count   = 0
         self.update(True)
+
+    #-------------------------------------------------------------------------------
+    # properties
+    #-------------------------------------------------------------------------------
+    def _countGet(self):
+        return self.states['count']
+    def _countSet(self, value):
+        self.states['count'] = value
+        self.states['counting'] = bool(value)
+    count = property(_countGet, _countSet)
+
+    def _resetGet(self):
+        return self.states['reset']
+    def _resetSet(self, value):
+        self.states['reset'] = value
+    reset = property(_resetGet, _resetSet)
+
+    def _expiredGet(self):
+        return self.states['expired']
+    def _expiredSet(self, value):
+        self.states['expired'] = value
+    expired = property(_expiredGet, _expiredSet)
+
+    def _resetTimeGet(self):
+        return self.states['resetTime']
+    def _resetTimeSet(self, value):
+        self.states['resetTime'] = value
+        self.states['resetString'] = self.timestamp(value)
+    resetTime = property(_resetTimeGet, _resetTimeSet)
 
     #-------------------------------------------------------------------------------
     def tick(self):
         reset = expired = False
-        if self.states['count'] and (self.taskTime >= self.states['resetTime']):
-            self.states['count'] = 0
-            self.states['reset'] = True
-        if self.states['onOffState'] and (self.taskTime >= self.states['offTime']):
-            self.states['onOffState'] = False
-            self.states['expired'] = True
+        if self.count and (self.taskTime >= self.resetTime):
+            self.count = 0
+            self.reset = True
+            logTimer = 'resetTime'
+        if self.onState and (self.taskTime >= self.offTime):
+            self.onState = False
+            self.expired = True
+            logTimer = 'offTime'
         self.update()
+        if reset or expired:
+            self.logger.debug('"{}" timer:{}  [onOff:{}, count:{}, reset:{}, expired:{}]'.format(self.name, logTimer, self.onState, self.count, self.reset, self.expired))
 
     #-------------------------------------------------------------------------------
     def tock(self, newVal):
-        self.logger.debug('"{}" input:  [newVal:{}, onOff:{}, count:{}]'.format(self.name, newVal, self.states['onOffState'], self.states['count']))
         if newVal:
-            self.states['count'] += 1
-            self.states['resetTime'] = self.taskTime + self.resetDelta
-            if self.states['count'] >= self.threshold:
-                self.states['onOffState'] = True
-                self.states['offTime'] = self.taskTime + self.offDelta
-            elif self.states['onOffState'] and self.extend:
-                self.states['offTime'] = self.taskTime + self.offDelta
+            self.count += 1
+            self.resetTime = self.taskTime + self.resetDelta
+            if self.count >= self.threshold:
+                self.onState = True
+                self.offTime = self.taskTime + self.offDelta
+            elif self.onState and self.extend:
+                self.offTime = self.taskTime + self.offDelta
             self.update()
+        self.logger.debug('"{}" input:{}  [onOff:{}, count:{}, reset:{}, expired:{}]'.format(self.name, newVal, self.onState, self.count, self.reset, self.expired))
 
     #-------------------------------------------------------------------------------
     def turnOn(self):
-        self.states['onOffState'] = True
-        self.states['offTime'] = self.taskTime + self.offDelta
+        self.onState = True
+        self.offTime = self.taskTime + self.offDelta
         self.update()
 
     #-------------------------------------------------------------------------------
     def turnOff(self):
-        if self.states['count']:
-            self.states['count'] = 0
-            self.states['resetTime'] = self.taskTime
-        if self.states['onOffState']:
-            self.states['onOffState'] = False
-            self.states['offTime'] = self.taskTime
+        if self.count:
+            self.count = 0
+            self.resetTime = self.taskTime
+        if self.onState:
+            self.onState = False
+            self.offTime = self.taskTime
         self.update()
 
     #-------------------------------------------------------------------------------
     def getStates(self):
-        if self.states['onOffState']:
-            if (self.states['count'] >= self.threshold) or (self.states['count'] and self.extend):
-                self.states['state'] = 'active'
+        if self.onState:
+            if (self.count >= self.threshold) or (self.count and self.extend):
+                self.state = 'active'
                 self.stateImg = 'TimerOn'
             else:
-                self.states['state'] = 'persist'
+                self.state = 'persist'
                 self.stateImg = 'SensorOn'
         else:
-            if self.states['count']:
-                self.states['state'] = 'accrue'
+            if self.count:
+                self.state = 'accrue'
                 self.stateImg = 'TimerOff'
             else:
-                self.states['state'] = 'idle'
+                self.state = 'idle'
                 self.stateImg = 'SensorOff'
 
-        self.states['resetString']   = self.timestamp(self.states['resetTime'])
-        self.states['offString']     = self.timestamp(self.states['offTime'])
-        self.states['counting']      = bool(self.states['count'])
-        if self.states['onOffState']:  self.states['expired'] = False
-        if self.states['counting']:    self.states['reset']   = False
+        if self.onState: self.expired = False
+        if self.count:   self.reset   = False
 
-        self.states['displayState'] = self.states['state']
+        self.displayState = self.state
         if self.plugin.showTimer:
-            if self.states['state'] in ['active','persist']:
-                self.states['displayState'] = self.countdown(self.states['offTime']   - self.taskTime)
-            elif self.states['state'] == 'accrue':
-                self.states['displayState'] = self.countdown(self.states['resetTime'] - self.taskTime)
+            if self.state in ['active','persist']:
+                self.displayState = self.countdown(self.offTime   - self.taskTime)
+            elif self.state == 'accrue':
+                self.displayState = self.countdown(self.resetTime - self.taskTime)
 
 ################################################################################
 class PersistenceTimer(TimerBase):
@@ -597,84 +659,101 @@ class PersistenceTimer(TimerBase):
         self.offDelta = self.delta(instance.pluginProps.get('offCycles',30), instance.pluginProps.get('offUnits','seconds'))
 
         # initial state
-        self.states['pending'] = False
+        self.pending = False
         if instance.pluginProps['trackEntity'] == 'dev':
             devId, state = self.deviceStateDict.items()[0]
-            self.states['onOffState'] = self.getBoolValue(indigo.devices[devId].states[state])
+            self.onState = self.getBoolValue(indigo.devices[devId].states[state])
         else:
-            self.states['onOffState'] = self.getBoolValue(indigo.variables[self.variableList[0]].value)
+            self.onState = self.getBoolValue(indigo.variables[self.variableList[0]].value)
         self.update(True)
 
     #-------------------------------------------------------------------------------
+    # properties
+    #-------------------------------------------------------------------------------
+    def _pendingGet(self):
+        return self.states['pending']
+    def _pendingSet(self, value):
+        self.states['pending'] = value
+    pending = property(_pendingGet, _pendingSet)
+
+    def _onTimeGet(self):
+        return self.states['onTime']
+    def _onTimeSet(self, value):
+        self.states['onTime'] = value
+        self.states['onString'] = self.timestamp(value)
+    onTime = property(_onTimeGet, _onTimeSet)
+
+    #-------------------------------------------------------------------------------
     def tick(self):
-        if self.states['pending']:
-            if  self.states['onOffState'] and self.taskTime >= self.states['offTime']:
-                self.states['pending'] = False
-                self.states['onOffState'] = False
-            elif not self.states['onOffState'] and self.taskTime >= self.states['onTime']:
-                self.states['pending'] = False
-                self.states['onOffState'] = True
+        if self.pending:
+            if  self.onState and self.taskTime >= self.offTime:
+                self.pending = False
+                self.onState = False
+                logTimer = 'offTime'
+            elif not self.onState and self.taskTime >= self.onTime:
+                self.pending = False
+                self.onState = True
+                logTimer = 'onTime'
             self.update()
+            if not self.pending:
+                self.logger.debug('"{}" timer:{}  [onOff:{}, pending:{}]'.format(self.name, logTimer, self.onState, self.pending))
 
     #-------------------------------------------------------------------------------
     def tock(self, newVal):
-        self.logger.debug('"{}" input:  [newVal:{}, onOff:{}, pending:{}]'.format(self.name, newVal, self.states['onOffState'], self.states['pending']))
-        if newVal == self.states['onOffState']:
-            self.states['pending'] = False
+        if newVal == self.onState:
+            self.pending = False
         else:
-            if self.states['onOffState']:
+            if self.onState:
                 if self.offDelta:
-                    self.states['pending'] = True
-                    self.states['offTime'] = self.taskTime + self.offDelta
+                    self.pending = True
+                    self.offTime = self.taskTime + self.offDelta
                 else:
-                    self.states['onOffState'] = False
+                    self.onState = False
             else:
                 if self.onDelta:
-                    self.states['pending'] = True
-                    self.states['onTime'] = self.taskTime + self.onDelta
+                    self.pending = True
+                    self.onTime = self.taskTime + self.onDelta
                 else:
-                    self.states['onOffState'] = True
+                    self.onState = True
         self.update()
+        self.logger.debug('"{}" input:{}  [onOff:{}, pending:{}]'.format(self.name, newVal, self.onState, self.pending))
 
     #-------------------------------------------------------------------------------
     def turnOn(self):
-        self.states['onOffState'] = True
-        self.states['pending'] = False
+        self.onState = True
+        self.pending = False
         self.update()
 
     #-------------------------------------------------------------------------------
     def turnOff(self):
-        self.states['onOffState'] = False
-        self.states['pending'] = False
+        self.onState = False
+        self.pending = False
         self.update()
 
     #-------------------------------------------------------------------------------
     def getStates(self):
-        if self.states['onOffState']:
-            if self.states['pending']:
-                self.states['state'] = 'pending'
+        if self.onState:
+            if self.pending:
+                self.state = 'pending'
                 self.stateImg = 'TimerOn'
             else:
-                self.states['state'] = 'on'
+                self.state = 'on'
                 self.stateImg = 'SensorOn'
         else:
-            if self.states['pending']:
-                self.states['state'] = 'pending'
+            if self.pending:
+                self.state = 'pending'
                 self.stateImg = 'TimerOff'
             else:
-                self.states['state'] = 'off'
+                self.state = 'off'
                 self.stateImg = 'SensorOff'
 
-        self.states['onString']   = self.timestamp(self.states['onTime'])
-        self.states['offString']  = self.timestamp(self.states['offTime'])
-
-        if self.plugin.showTimer and self.states['pending']:
-            if self.states['onOffState']:
-                self.states['displayState'] = self.countdown(self.states['offTime'] - self.taskTime)
+        if self.plugin.showTimer and self.pending:
+            if self.onState:
+                self.displayState = self.countdown(self.offTime - self.taskTime)
             else:
-                self.states['displayState'] = self.countdown(self.states['onTime'] - self.taskTime)
+                self.displayState = self.countdown(self.onTime - self.taskTime)
         else:
-            self.states['displayState'] = self.states['state']
+            self.displayState = self.state
 
 ################################################################################
 class LockoutTimer(TimerBase):
@@ -687,77 +766,95 @@ class LockoutTimer(TimerBase):
         self.offDelta = self.delta(instance.pluginProps.get('offCycles',30), instance.pluginProps.get('offUnits','seconds'))
 
         # initial state
-        self.states['locked'] = False
+        self.locked = False
         if instance.pluginProps['trackEntity'] == 'dev':
             devId, state = self.deviceStateDict.items()[0]
             self.lastVal = self.getBoolValue(indigo.devices[devId].states[state])
         else:
             self.lastVal = self.getBoolValue(indigo.variables[self.variableList[0]].value)
-        self.states['onOffState'] = self.lastVal
+        self.onState = self.lastVal
         self.update(True)
 
     #-------------------------------------------------------------------------------
+    # properties
+    #-------------------------------------------------------------------------------
+    def _lockedGet(self):
+        return self.states['locked']
+    def _lockedSet(self, value):
+        self.states['locked'] = value
+    locked = property(_lockedGet, _lockedSet)
+
+    def _onTimeGet(self):
+        return self.states['onTime']
+    def _onTimeSet(self, value):
+        self.states['onTime'] = value
+        self.states['onString'] = self.timestamp(value)
+    onTime = property(_onTimeGet, _onTimeSet)
+
+    #-------------------------------------------------------------------------------
     def tick(self):
-        if self.states['locked']:
-            if  (    self.states['onOffState'] and self.taskTime >= self.states['onTime'] ) or \
-                (not self.states['onOffState'] and self.taskTime >= self.states['offTime']):
-                self.states['locked'] = False
-                self.doTask('tock',self.lastVal)
+        if self.locked:
+            if  self.onState and self.taskTime >= self.onTime:
+                self.locked = False
+                logTimer = 'onTime'
+            elif not self.onState and self.taskTime >= self.offTime:
+                self.locked = False
+                logTimer = 'offTime'
             self.update()
+            if not self.locked:
+                self.logger.debug('"{}" timer:{}  [onOff:{}, locked:{}]'.format(self.name, logTimer, self.onState, self.locked))
+                self.doTask('tock', self.lastVal)
 
     #-------------------------------------------------------------------------------
     def tock(self, newVal):
-        self.logger.debug('"{}" input:  [newVal:{}, onOff:{}, locked:{}]'.format(self.name, newVal, self.states['onOffState'], self.states['locked']))
         self.lastVal = newVal
-        if not self.states['locked']:
-            if newVal != self.states['onOffState']:
-                self.states['onOffState'] = newVal
-                self.states['locked'] = True
+        if not self.locked:
+            if newVal != self.onState:
+                self.onState = newVal
+                self.locked = True
                 if newVal:
-                    self.states['onTime']  = self.taskTime + self.onDelta
+                    self.onTime  = self.taskTime + self.onDelta
                 else:
-                    self.states['offTime'] = self.taskTime + self.offDelta
+                    self.offTime = self.taskTime + self.offDelta
                 self.update()
+        self.logger.debug('"{}" input:{}  [onOff:{}, locked:{}]'.format(self.name, newVal, self.onState, self.locked))
 
     #-------------------------------------------------------------------------------
     def turnOn(self):
-        self.states['onOffState'] = True
-        self.states['locked'] = False
+        self.onState = True
+        self.locked = False
         self.update()
 
     #-------------------------------------------------------------------------------
     def turnOff(self):
-        self.states['onOffState'] = False
-        self.states['locked'] = False
+        self.onState = False
+        self.locked = False
         self.update()
 
     #-------------------------------------------------------------------------------
     def getStates(self):
-        if self.states['onOffState']:
-            if self.states['locked']:
-                self.states['state'] = 'locked'
+        if self.onState:
+            if self.locked:
+                self.state = 'locked'
                 self.stateImg = 'TimerOn'
             else:
-                self.states['state'] = 'on'
+                self.state = 'on'
                 self.stateImg = 'SensorOn'
         else:
-            if self.states['locked']:
-                self.states['state'] = 'locked'
+            if self.locked:
+                self.state = 'locked'
                 self.stateImg = 'TimerOff'
             else:
-                self.states['state'] = 'off'
+                self.state = 'off'
                 self.stateImg = 'SensorOff'
 
-        self.states['onString']   = self.timestamp(self.states['onTime'])
-        self.states['offString']  = self.timestamp(self.states['offTime'])
-
-        if self.plugin.showTimer and self.states['locked']:
-            if self.states['onOffState']:
-                self.states['displayState'] = self.countdown(self.states['onTime'] - self.taskTime)
+        if self.plugin.showTimer and self.locked:
+            if self.onState:
+                self.displayState = self.countdown(self.onTime - self.taskTime)
             else:
-                self.states['displayState'] = self.countdown(self.states['offTime'] - self.taskTime)
+                self.displayState = self.countdown(self.offTime - self.taskTime)
         else:
-            self.states['displayState'] = self.states['state']
+            self.displayState = self.state
 
 ################################################################################
 # Utilities
