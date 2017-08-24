@@ -678,8 +678,10 @@ class PersistenceTimer(TimerBase):
         if instance.pluginProps['trackEntity'] == 'dev':
             devId, state = self.deviceStateDict.items()[0]
             self.onState = self.getBoolValue(indigo.devices[devId].states[state])
+            self.variableList = list()
         else:
             self.onState = self.getBoolValue(indigo.variables[self.variableList[0]].value)
+            self.deviceStateDict = dict()
         self.update(True)
 
     #-------------------------------------------------------------------------------
@@ -789,8 +791,10 @@ class LockoutTimer(TimerBase):
         if instance.pluginProps['trackEntity'] == 'dev':
             devId, state = self.deviceStateDict.items()[0]
             self.lastVal = self.getBoolValue(indigo.devices[devId].states[state])
+            self.variableList = list()
         else:
             self.lastVal = self.getBoolValue(indigo.variables[self.variableList[0]].value)
+            self.deviceStateDict = dict()
         self.onState = self.lastVal
         self.update(True)
 
