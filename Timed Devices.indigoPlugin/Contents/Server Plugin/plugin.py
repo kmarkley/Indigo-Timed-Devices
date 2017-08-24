@@ -77,9 +77,9 @@ class Plugin(indigo.PluginBase):
     #-------------------------------------------------------------------------------
     def shutdown(self):
         self.logger.debug("shutdown")
-        self.pluginPrefs['showDebugInfo'] = self.debug
-        self.pluginPrefs['verboseDebug'] = self.verbose
-        self.pluginPrefs['showTimer'] = self.showTimer
+        self.pluginPrefs['showDebugInfo']   = self.debug
+        self.pluginPrefs['verboseDebug']    = self.verbose
+        self.pluginPrefs['showTimer']       = self.showTimer
         self.pluginPrefs['nextUpdateCheck'] = self.nextCheck
 
     #-------------------------------------------------------------------------------
@@ -97,7 +97,7 @@ class Plugin(indigo.PluginBase):
         self.logger.debug("closedPrefsConfigUi")
         if not userCancelled:
             self.debug     = valuesDict.get('showDebugInfo',False)
-            self.verbose   = valuesDict.get('verboseDebug',False)
+            self.verbose   = valuesDict.get('verboseDebug',False) and self.debug
             self.showTimer = valuesDict.get('showTimer',True)
             if self.debug:
                 self.logger.debug("Debug logging enabled")
@@ -220,7 +220,6 @@ class Plugin(indigo.PluginBase):
 
     #-------------------------------------------------------------------------------
     def forceOff(self, action):
-        self.logger.debug(str(action))
         if action.deviceId in self.deviceDict:
             self.deviceDict[action.deviceId].doTask('turnOff')
         else:
@@ -417,13 +416,23 @@ class TimerBase(threading.Thread):
         if newDev.id in self.deviceStateDict:
             stateKey = self.deviceStateDict[newDev.id]
             if oldDev.states[stateKey] != newDev.states[stateKey]:
-                self.tock(self.getBoolValue(newDev.states[stateKey]))
+                rawVal = newDev.states[stateKey]
+                boolVal = self.getBoolValue(rawVal)
+                if self.plugin.verbose:
+                    self.logger.debug('"{}" devChanged:"{}"  [stateKey:{}, raw:{}, type:{}, input:{}]'
+                        .format(self.name, newDev.name, stateKey, rawVal, type(rawVal), boolVal))
+                self.tock(boolVal)
 
     #-------------------------------------------------------------------------------
     def varChanged(self, oldVar, newVar):
         if newVar.id in self.variableList:
             if oldVar.value != newVar.value:
-                self.tock(self.getBoolValue(newVar.value))
+                rawVal = newVar.value
+                boolVal = self.getBoolValue(rawVal)
+                if self.plugin.verbose:
+                    self.logger.debug('"{}" varChanged:"{}"  [raw:{}, type:{}, input:{}]'
+                        .format(self.name, newVar.name, rawVal, type(rawVal), boolVal))
+                self.tock(boolVal)
 
     #-------------------------------------------------------------------------------
     def update(self, force=False):
@@ -538,8 +547,10 @@ class ActivityTimer(TimerBase):
 
         self.threshold  = int(instance.pluginProps.get('countThreshold',1))
         self.extend     = instance.pluginProps.get('extend',True)
-        self.resetDelta = self.delta(instance.pluginProps.get('resetCycles',1), instance.pluginProps.get('resetUnits','minutes'))
-        self.offDelta   = self.delta(instance.pluginProps.get('offCycles', 10), instance.pluginProps.get('offUnits',  'minutes'))
+        self.resetDelta = self.delta( instance.pluginProps.get('resetCycles',1),
+                                      instance.pluginProps.get('resetUnits','minutes') )
+        self.offDelta   = self.delta( instance.pluginProps.get('offCycles', 10),
+                                      instance.pluginProps.get('offUnits',  'minutes') )
 
         # initial state
         self.onState = False
@@ -588,9 +599,10 @@ class ActivityTimer(TimerBase):
             self.onState = False
             self.expired = True
             logTimer = 'offTime'
-        self.update()
         if reset or expired:
-            self.logger.debug('"{}" timer:{}  [onOff:{}, count:{}, reset:{}, expired:{}]'.format(self.name, logTimer, self.onState, self.count, self.reset, self.expired))
+            self.logger.debug('"{}" timer:{}  [onOff:{}, count:{}, reset:{}, expired:{}]'
+                .format(self.name, logTimer, self.onState, self.count, self.reset, self.expired))
+        self.update()
 
     #-------------------------------------------------------------------------------
     def tock(self, newVal):
@@ -602,8 +614,9 @@ class ActivityTimer(TimerBase):
                 self.offTime = self.taskTime + self.offDelta
             elif self.onState and self.extend:
                 self.offTime = self.taskTime + self.offDelta
-            self.update()
-        self.logger.debug('"{}" input:{}  [onOff:{}, count:{}, reset:{}, expired:{}]'.format(self.name, newVal, self.onState, self.count, self.reset, self.expired))
+        self.logger.debug('"{}" input:{}  [onOff:{}, count:{}, reset:{}, expired:{}]'
+            .format(self.name, newVal, self.onState, self.count, self.reset, self.expired))
+        self.update()
 
     #-------------------------------------------------------------------------------
     def turnOn(self):
@@ -655,8 +668,10 @@ class PersistenceTimer(TimerBase):
     def __init__(self, instance, plugin):
         super(PersistenceTimer, self).__init__(instance, plugin)
 
-        self.onDelta  = self.delta(instance.pluginProps.get('onCycles',30), instance.pluginProps.get('onUnits','seconds'))
-        self.offDelta = self.delta(instance.pluginProps.get('offCycles',30), instance.pluginProps.get('offUnits','seconds'))
+        self.onDelta  = self.delta( instance.pluginProps.get('onCycles',30),
+                                    instance.pluginProps.get('onUnits','seconds') )
+        self.offDelta = self.delta( instance.pluginProps.get('offCycles',30),
+                                    instance.pluginProps.get('offUnits','seconds') )
 
         # initial state
         self.pending = False
@@ -694,9 +709,10 @@ class PersistenceTimer(TimerBase):
                 self.pending = False
                 self.onState = True
                 logTimer = 'onTime'
-            self.update()
             if not self.pending:
-                self.logger.debug('"{}" timer:{}  [onOff:{}, pending:{}]'.format(self.name, logTimer, self.onState, self.pending))
+                self.logger.debug('"{}" timer:{}  [onOff:{}, pending:{}]'
+                    .format(self.name, logTimer, self.onState, self.pending))
+            self.update()
 
     #-------------------------------------------------------------------------------
     def tock(self, newVal):
@@ -715,8 +731,9 @@ class PersistenceTimer(TimerBase):
                     self.onTime = self.taskTime + self.onDelta
                 else:
                     self.onState = True
+        self.logger.debug('"{}" input:{}  [onOff:{}, pending:{}]'
+            .format(self.name, newVal, self.onState, self.pending))
         self.update()
-        self.logger.debug('"{}" input:{}  [onOff:{}, pending:{}]'.format(self.name, newVal, self.onState, self.pending))
 
     #-------------------------------------------------------------------------------
     def turnOn(self):
@@ -762,8 +779,10 @@ class LockoutTimer(TimerBase):
     def __init__(self, instance, plugin):
         super(LockoutTimer, self).__init__(instance, plugin)
 
-        self.onDelta  = self.delta(instance.pluginProps.get('onCycles',30), instance.pluginProps.get('onUnits','seconds'))
-        self.offDelta = self.delta(instance.pluginProps.get('offCycles',30), instance.pluginProps.get('offUnits','seconds'))
+        self.onDelta  = self.delta( instance.pluginProps.get('onCycles',30),
+                                    instance.pluginProps.get('onUnits','seconds') )
+        self.offDelta = self.delta( instance.pluginProps.get('offCycles',30),
+                                    instance.pluginProps.get('offUnits','seconds') )
 
         # initial state
         self.locked = False
@@ -800,9 +819,11 @@ class LockoutTimer(TimerBase):
             elif not self.onState and self.taskTime >= self.offTime:
                 self.locked = False
                 logTimer = 'offTime'
+            if not self.locked:
+                self.logger.debug('"{}" timer:{}  [onOff:{}, locked:{}]'
+                    .format(self.name, logTimer, self.onState, self.locked))
             self.update()
             if not self.locked:
-                self.logger.debug('"{}" timer:{}  [onOff:{}, locked:{}]'.format(self.name, logTimer, self.onState, self.locked))
                 self.doTask('tock', self.lastVal)
 
     #-------------------------------------------------------------------------------
@@ -816,8 +837,9 @@ class LockoutTimer(TimerBase):
                     self.onTime  = self.taskTime + self.onDelta
                 else:
                     self.offTime = self.taskTime + self.offDelta
-                self.update()
-        self.logger.debug('"{}" input:{}  [onOff:{}, locked:{}]'.format(self.name, newVal, self.onState, self.locked))
+        self.logger.debug('"{}" input:{}  [onOff:{}, locked:{}]'
+            .format(self.name, newVal, self.onState, self.locked))
+        self.update()
 
     #-------------------------------------------------------------------------------
     def turnOn(self):
