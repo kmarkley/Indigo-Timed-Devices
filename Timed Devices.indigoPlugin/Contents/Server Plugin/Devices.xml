@@ -80,6 +80,147 @@
                 <Label>State 5:</Label>
                 <List class='self' filter='device5' method='getStateList' dynamicReload='true'/>
             </Field>
+            <Field id='show10dev' type='checkbox' defaultValue='false'>
+                <Label>Show more</Label>
+            </Field>
+            <Field id='device6' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>Device 6:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state6' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>State 6:</Label>
+                <List class='self' filter='device6' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device7' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>Device 7:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state7' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>State 7:</Label>
+                <List class='self' filter='device7' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device8' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>Device 8:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state8' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>State 8:</Label>
+                <List class='self' filter='device8' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device9' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>Device 9:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state9' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>State 9:</Label>
+                <List class='self' filter='device9' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device10' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>Device 10:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state10' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>State 10:</Label>
+                <List class='self' filter='device10' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='show20dev' type='checkbox' defaultValue='false'>
+                <Label>Show even more</Label>
+            </Field>
+            <Field id='device11' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 11:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state11' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 11:</Label>
+                <List class='self' filter='device11' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device12' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 12:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state12' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 12:</Label>
+                <List class='self' filter='device12' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device13' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 13:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state13' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 13:</Label>
+                <List class='self' filter='device13' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device14' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 14:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state14' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 14:</Label>
+                <List class='self' filter='device14' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device15' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 15:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state15' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 15:</Label>
+                <List class='self' filter='device15' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device16' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 16:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state16' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 16:</Label>
+                <List class='self' filter='device16' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device17' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 17:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state17' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 17:</Label>
+                <List class='self' filter='device17' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device18' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 18:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state18' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 18:</Label>
+                <List class='self' filter='device18' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device19' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 19:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state19' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 19:</Label>
+                <List class='self' filter='device19' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device20' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 20:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state20' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 20:</Label>
+                <List class='self' filter='device20' method='getStateList' dynamicReload='true'/>
+            </Field>
             <Field id='variableSeparator' type='separator' />
             <Field id='variable1' type='menu'>
                 <Label>Variable 1:</Label>
@@ -99,6 +240,29 @@
             </Field>
             <Field id='variable5' type='menu'>
                 <Label>Variable 5:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='show10var' type='checkbox' defaultValue='false'>
+                <Label>Show more</Label>
+            </Field>
+            <Field id='variable6' type='menu' visibleBindingId='show10var'  visibleBindingValue='true'>
+                <Label>Variable 6:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable7' type='menu' visibleBindingId='show10var'  visibleBindingValue='true'>
+                <Label>Variable 7:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable8' type='menu' visibleBindingId='show10var'  visibleBindingValue='true'>
+                <Label>Variable 8:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable9' type='menu' visibleBindingId='show10var'  visibleBindingValue='true'>
+                <Label>Variable 9:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable10' type='menu' visibleBindingId='show10var'  visibleBindingValue='true'>
+                <Label>Variable 10:</Label>
                 <List class='self' method='getVariableList'/>
             </Field>
             <Field id='logicSeparator' type='separator' />

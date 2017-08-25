@@ -30,6 +30,21 @@ k_deviceKeys = (
     ('device3', 'state3'),
     ('device4', 'state4'),
     ('device5', 'state5'),
+    ('device6', 'state6'),
+    ('device7', 'state7'),
+    ('device8', 'state8'),
+    ('device9', 'state9'),
+    ('device10', 'state10'),
+    ('device11', 'state11'),
+    ('device12', 'state12'),
+    ('device13', 'state13'),
+    ('device14', 'state14'),
+    ('device15', 'state15'),
+    ('device16', 'state16'),
+    ('device17', 'state17'),
+    ('device18', 'state18'),
+    ('device19', 'state19'),
+    ('device20', 'state20'),
     )
 
 k_variableKeys = (
@@ -38,6 +53,11 @@ k_variableKeys = (
     'variable3',
     'variable4',
     'variable5',
+    'variable6',
+    'variable7',
+    'variable8',
+    'variable9',
+    'variable10',
     )
 
 k_tickSeconds = 1
@@ -60,16 +80,16 @@ class Plugin(indigo.PluginBase):
     # Start, Stop and Config changes
     #-------------------------------------------------------------------------------
     def startup(self):
-        self.nextCheck      = self.pluginPrefs.get('nextUpdateCheck',0)
-        self.showTimer      = self.pluginPrefs.get('showTimer',False)
-        self.debug          = self.pluginPrefs.get('showDebugInfo',False)
-        self.verbose        = self.pluginPrefs.get('verboseDebug',False) and self.debug
+        self.nextCheck  = self.pluginPrefs.get('nextUpdateCheck',0)
+        self.showTimer  = self.pluginPrefs.get('showTimer',False)
+        self.debug      = self.pluginPrefs.get('showDebugInfo',False)
+        self.verbose    = self.pluginPrefs.get('verboseDebug',False) and self.debug
         self.logger.debug("startup")
         if self.debug:
             self.logger.debug("Debug logging enabled")
 
-        self.deviceDict     = dict()
-        self.tickTime       = time.time()
+        self.deviceDict = dict()
+        self.tickTime   = time.time()
 
         indigo.devices.subscribeToChanges()
         indigo.variables.subscribeToChanges()
@@ -135,6 +155,8 @@ class Plugin(indigo.PluginBase):
     def deviceStopComm(self, dev):
         if dev.id in self.deviceDict:
             self.deviceDict[dev.id].cancel()
+            while self.deviceDict[dev.id].is_alive():
+                time.sleep(0.1)
             del self.deviceDict[dev.id]
 
     #-------------------------------------------------------------------------------
@@ -341,6 +363,8 @@ class TimerBase(threading.Thread):
             if zint(instance.pluginProps.get(variableKey,'')):
                 self.variableList.append(int(instance.pluginProps[variableKey]))
 
+        self.taskTime = time.time()
+
     #-------------------------------------------------------------------------------
     # properties
     #-------------------------------------------------------------------------------
@@ -374,7 +398,7 @@ class TimerBase(threading.Thread):
         self.logger.debug('"{}" thread started'.format(self.name))
         while not self.cancelled:
             try:
-                task,arg1,arg2 = self.queue.get(True,2)
+                task,arg1,arg2 = self.queue.get(True,0.25)
                 self.taskTime = time.time()
                 if task == 'tick':
                     self.tick()
@@ -553,11 +577,7 @@ class ActivityTimer(TimerBase):
                                       instance.pluginProps.get('offUnits',  'minutes') )
 
         # initial state
-        self.onState = False
-        self.reset   = False
-        self.expired = False
-        self.count   = 0
-        self.update(True)
+        self.tick()
 
     #-------------------------------------------------------------------------------
     # properties
@@ -674,15 +694,14 @@ class PersistenceTimer(TimerBase):
                                     instance.pluginProps.get('offUnits','seconds') )
 
         # initial state
-        self.pending = False
+        self.tick()
         if instance.pluginProps['trackEntity'] == 'dev':
             devId, state = self.deviceStateDict.items()[0]
-            self.onState = self.getBoolValue(indigo.devices[devId].states[state])
+            self.tock(self.getBoolValue(indigo.devices[devId].states[state]))
             self.variableList = list()
         else:
-            self.onState = self.getBoolValue(indigo.variables[self.variableList[0]].value)
+            self.tock(self.getBoolValue(indigo.variables[self.variableList[0]].value))
             self.deviceStateDict = dict()
-        self.update(True)
 
     #-------------------------------------------------------------------------------
     # properties
@@ -787,16 +806,14 @@ class LockoutTimer(TimerBase):
                                     instance.pluginProps.get('offUnits','seconds') )
 
         # initial state
-        self.locked = False
+        self.tick()
         if instance.pluginProps['trackEntity'] == 'dev':
             devId, state = self.deviceStateDict.items()[0]
-            self.lastVal = self.getBoolValue(indigo.devices[devId].states[state])
+            self.tock(self.getBoolValue(indigo.devices[devId].states[state]))
             self.variableList = list()
         else:
-            self.lastVal = self.getBoolValue(indigo.variables[self.variableList[0]].value)
+            self.tock(self.getBoolValue(indigo.variables[self.variableList[0]].value))
             self.deviceStateDict = dict()
-        self.onState = self.lastVal
-        self.update(True)
 
     #-------------------------------------------------------------------------------
     # properties
