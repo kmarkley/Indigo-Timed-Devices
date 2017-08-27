@@ -742,11 +742,11 @@
     <Device type='custom' id='aliveTimer'>
         <Name>Alive Timer</Name>
         <ConfigUI>
-            <Field id='offCycles' type='textfield' defaultValue='30'>
-                <Label>OFF Lockout Cycles:</Label>
+            <Field id='offCycles' type='textfield' defaultValue='24'>
+                <Label>Alive Cycles:</Label>
             </Field>
-            <Field id='offUnits' type='menu' defaultValue='seconds'>
-                <Label>OFF Lockout Units:</Label>
+            <Field id='offUnits' type='menu' defaultValue='hours'>
+                <Label>Alive Units:</Label>
                 <List>
                     <Option value='seconds'>Seconds</Option>
                     <Option value='minutes'>Minutes</Option>
