@@ -31,6 +31,14 @@ Once configured, these devices are just ON or OFF to reflect the state of some o
 
 Not sure there is an obvious example for this, but I do find it useful in a few situations, especially when I don't want on/off triggers to fire too close together.
 
+#### Alive Timer devices
+
+These devices track whether single device or variable is ***alive*** and become OFF when the tracked entity hasn't changed for a user-defined period of time.
+
+Once configured, these devices are just ON or OFF to reflect whether or not some other device or variable has been seen within some pre-set period of time.
+
+The obvious use is battery-powered devices like sensors.  Unlike the other device types, these will react to heartbeats even if none of devices states have changed value.
+
 ## Plugin configuration
 
 * **Show Timer**
@@ -39,7 +47,11 @@ Not sure there is an obvious example for this, but I do find it useful in a few 
 
 
 * **Enable Debugging**
-    * Check to log (pretty limited) debugging information to the Indigo event log.
+    * Check to log basic debugging information to the Indigo event log.
+
+
+* **Verbose Debugging**
+    * Check to log extensive debugging information to the Indigo event log.  If 'Show Timers' is set, this will include multiple log entries every second.
 
 ## Activity Timer devices
 
@@ -101,10 +113,10 @@ How long a tracked device/variable must be on/true before plugin device turns on
 How long a tracked device/variable must be off/false before plugin device turns off.
 * **Track**  
 Choose whether to track a device state or variable value.
-* **Device** and **State**  
-Choose a device and state to track.
-* **Variable**  
-Choose a variable to track.
+    * **Device** and **State**  
+    Choose a device and state to track.
+    * **Variable**  
+    Choose a variable to track.
 * **Logic**
     * **Simple**: device states or variable values that can be understood as true/false are considered inputs.
         * **Reverse?**  
@@ -144,10 +156,10 @@ How long after turning ON before plugin device may turn back OFF.
 How long after turning OFF before plugin device may turn back ON.
 * **Track**  
 Choose whether to track a device state or variable value.
-* **Device** and **State**  
-Choose a device and state to track.
-* **Variable**  
-Choose a variable to track.
+    * **Device** and **State**  
+    Choose a device and state to track.
+    * **Variable**  
+    Choose a variable to track.
 * **Logic**
     * **Simple**: device states or variable values that can be understood as true/false are considered inputs.
         * **Reverse?**  
@@ -176,6 +188,31 @@ Choose whether or not to log device on/off changes to the Indigo event log.
     * **on**: the tracked device/variable and plugin device are both on.
     * **off**: the tracked device/variable and plugin device are both off.
     * **locked**: the plugin device is prevented from changing state until the timer expires.
+
+## Alive Timer devices
+
+#### Configuration
+
+* **OFF Lockout Cycles** and **OFF Lockout Unites**  
+How long after turning OFF before plugin device may turn back ON.
+* **Track**  
+Choose whether to track a device state or variable value.
+    * **Device**  
+    Choose a device to track.
+    * **Variable**  
+    Choose a variable to track.
+* **Log On/Off**  
+Choose whether or not to log device on/off changes to the Indigo event log.
+
+#### States
+
+* **displayState** (str): state to display in indigo client interface.
+* **offString** (str): timestamp of off lockout expiration.
+* **offTime** (float): epoch time of off lockout expiration.
+* **onOffState** (bool): whether the device is on or off.
+* **state** (enum): one of
+    * **on**: the tracked device/variable is alive.
+    * **off**: the tracked device/variable is not alive.
 
 ## Actions
 

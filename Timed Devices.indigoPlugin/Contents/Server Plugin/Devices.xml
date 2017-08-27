@@ -739,4 +739,82 @@
         </States>
         <UiDisplayStateId>displayState</UiDisplayStateId>
     </Device>
+    <Device type='custom' id='aliveTimer'>
+        <Name>Alive Timer</Name>
+        <ConfigUI>
+            <Field id='offCycles' type='textfield' defaultValue='30'>
+                <Label>OFF Lockout Cycles:</Label>
+            </Field>
+            <Field id='offUnits' type='menu' defaultValue='seconds'>
+                <Label>OFF Lockout Units:</Label>
+                <List>
+                    <Option value='seconds'>Seconds</Option>
+                    <Option value='minutes'>Minutes</Option>
+                    <Option value='hours'>Hours</Option>
+                    <Option value='days'>Days</Option>
+                </List>
+            </Field>
+            <Field id='separator' type='separator' />
+            <Field id='trackEntity' type='menu' defaultValue='dev'>
+                <Label>Track:</Label>
+                <List>
+                    <Option value='dev'>Device</Option>
+                    <Option value='var'>Variable</Option>
+                </List>
+            </Field>
+            <Field id='device1' type='menu' visibleBindingId='trackEntity'  visibleBindingValue='dev' alwaysUseInDialogHeightCalc='true'>
+                <Label>Device:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state1' type='textField' defaultValue='None' hidden='true' />
+            <Field id='variable1' type='menu' visibleBindingId='trackEntity'  visibleBindingValue='var' alwaysUseInDialogHeightCalc='false'>
+                <Label>Variable:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='logSeparator' type='separator' />
+            <Field id='logOnOff' type='checkbox' defaultValue='true'>
+                <Label>Log On/Off?:</Label>
+                <Description>Uncheck to suppress logging on/off events</Description>
+            </Field>
+        </ConfigUI>
+        <States>
+            <State id='onOffState'>
+                <ValueType>Boolean</ValueType>
+                <TriggerLabel>On/Off State is On</TriggerLabel>
+                <TriggerLabelPrefix>On/Off State is</TriggerLabelPrefix>
+                <ControlPageLabel>On/Off State</ControlPageLabel>
+                <ControlPageLabelPrefix>On/Off State is</ControlPageLabelPrefix>
+            </State>
+            <State id='state'>
+                <ValueType>
+                    <List>
+                        <Option value='on'>On</Option>
+                        <Option value='off'>Off</Option>
+                    </List>
+                </ValueType>
+                <TriggerLabel>Any State Change</TriggerLabel>
+                <TriggerLabelPrefix>State is</TriggerLabelPrefix>
+                <ControlPageLabel>State</ControlPageLabel>
+                <ControlPageLabelPrefix>State is</ControlPageLabelPrefix>
+            </State>
+            <State id='displayState'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Display State Change</TriggerLabel>
+                <TriggerLabelPrefix>Display State is</TriggerLabelPrefix>
+                <ControlPageLabel>Display State</ControlPageLabel>
+                <ControlPageLabelPrefix>Display State is</ControlPageLabelPrefix>
+            </State>
+            <State id='offTime'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Reset Time</TriggerLabel>
+                <ControlPageLabel>Reset Time</ControlPageLabel>
+            </State>
+            <State id='offString'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Reset String</TriggerLabel>
+                <ControlPageLabel>Reset String</ControlPageLabel>
+            </State>
+        </States>
+        <UiDisplayStateId>displayState</UiDisplayStateId>
+    </Device>
 </Devices>

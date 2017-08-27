@@ -148,6 +148,8 @@ class Plugin(indigo.PluginBase):
                 self.deviceDict[dev.id] = PersistenceTimer(dev, self)
             elif dev.deviceTypeId == 'lockoutTimer':
                 self.deviceDict[dev.id] = LockoutTimer(dev, self)
+            elif dev.deviceTypeId == 'aliveTimer':
+                self.deviceDict[dev.id] = AliveTimer(dev, self)
             # start the thread
             self.deviceDict[dev.id].start()
 
@@ -164,14 +166,14 @@ class Plugin(indigo.PluginBase):
         self.logger.debug("validateDeviceConfigUi: " + typeId)
         errorsDict = indigo.Dict()
 
+        requiredIntegers = ['offCycles']
         if typeId == 'activityTimer':
+            requiredIntegers.extend(['resetCycles','countThreshold'])
             for devKey, stateKey in k_deviceKeys:
                 if zint(valuesDict.get(devKey,'')) and not valuesDict.get(stateKey,''):
                     errorsDict[stateKey] = "Required"
-            requiredIntegers = ['resetCycles','countThreshold','offCycles']
-
         elif typeId in ['persistenceTimer','lockoutTimer']:
-            requiredIntegers = ['onCycles','offCycles']
+            requiredIntegers.append('onCycles')
             if valuesDict.get('trackEntity','dev') == 'dev':
                 keys = k_deviceKeys[0]
             else:
@@ -179,6 +181,13 @@ class Plugin(indigo.PluginBase):
             for key in keys:
                 if not valuesDict.get(key,''):
                     errorsDict[key] = "Required"
+        elif typeId == 'aliveTimer':
+            if valuesDict.get('trackEntity','dev') == 'dev':
+                key = k_deviceKeys[0][0]
+            else:
+                key = k_variableKeys[0]
+            if not valuesDict.get(key,''):
+                errorsDict[key] = "Required"
 
         for key in requiredIntegers:
             if not valuesDict.get(key,"").isdigit():
@@ -898,6 +907,75 @@ class LockoutTimer(TimerBase):
                 self.displayState = self.countdown(self.offTime - self.taskTime)
         else:
             self.displayState = self.state
+
+################################################################################
+class AliveTimer(TimerBase):
+
+    #-------------------------------------------------------------------------------
+    def __init__(self, instance, plugin):
+        super(AliveTimer, self).__init__(instance, plugin)
+
+        self.offDelta = self.delta( instance.pluginProps.get('offCycles',30),
+                                    instance.pluginProps.get('offUnits','seconds') )
+
+        # initial state
+        self.tick()
+
+    #-------------------------------------------------------------------------------
+    def tick(self):
+        if  self.onState and self.taskTime >= self.offTime:
+            self.onState = False
+            self.logger.debug('"{}" timer:{}  [onOff:{}]'
+                .format(self.name, "offTimer", self.onState))
+        self.update()
+
+    #-------------------------------------------------------------------------------
+    def tock(self, newVal):
+        self.onState = True
+        self.offTime = self.taskTime + self.offDelta
+        self.logger.debug('"{}" input:{}  [onOff:{}]'
+            .format(self.name, newVal, self.onState))
+        self.update()
+
+    #-------------------------------------------------------------------------------
+    def turnOn(self):
+        self.onState = True
+        self.update()
+
+    #-------------------------------------------------------------------------------
+    def turnOff(self):
+        self.onState = False
+        self.update()
+
+    #-------------------------------------------------------------------------------
+    def getStates(self):
+        if self.onState:
+            self.state = 'on'
+            self.stateImg = 'TimerOn'
+        else:
+            self.state = 'off'
+            self.stateImg = 'SensorOff'
+
+        if self.plugin.showTimer and self.onState:
+            self.displayState = self.countdown(self.offTime - self.taskTime)
+        else:
+            self.displayState = self.state
+
+    #-------------------------------------------------------------------------------
+    # override base class methods
+    #-------------------------------------------------------------------------------
+    def devChanged(self, oldDev, newDev):
+        if newDev.id in self.deviceStateDict:
+            if self.plugin.verbose:
+                self.logger.debug('"{}" devChanged:"{}"'.format(self.name, newDev.name))
+            self.tock(True)
+
+    #-------------------------------------------------------------------------------
+    def varChanged(self, oldVar, newVar):
+        if newVar.id in self.variableList:
+            if self.plugin.verbose:
+                self.logger.debug('"{}" varChanged:"{}"'.format(self.name, newVar.name))
+            self.tock(True)
 
 ################################################################################
 # Utilities
