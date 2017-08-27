@@ -218,7 +218,8 @@ Choose whether or not to log device on/off changes to the Indigo event log.
 
 #### Force Timed Device Off
 Force the plugin device to become off.  
-For **Activity Timer** devices, **reset** and **expired** states will become/remain false.
+Related timers (expire, lockout) will be started.  
+For **Activity Timer** devices, **reset** and **expired** states will become/remain true.
 
 #### Force Timed Device On
 Force the plugin device to become on.  

@@ -304,7 +304,7 @@ class Plugin(indigo.PluginBase):
         devList = list()
         excludeList  = [dev.id for dev in indigo.devices.iter(filter='self')]
         for dev in indigo.devices.iter():
-            if not dev.id in excludeList:
+            if not dev.id == targetId:
                 devList.append((dev.id, dev.name))
         devList.append((0,"- none -"))
         return devList
@@ -320,9 +320,7 @@ class Plugin(indigo.PluginBase):
 
     #-------------------------------------------------------------------------------
     def getVariableList(self, filter='', valuesDict=dict(), typeId='', targetId=0):
-        varList = list()
-        for var in indigo.variables.iter():
-            varList.append((var.id, var.name))
+        varList = [(var.id,var.name) for var in indigo.variables.iter()]
         varList.append((0,"- none -"))
         return varList
 
@@ -755,12 +753,14 @@ class PersistenceTimer(TimerBase):
                     self.offTime = self.taskTime + self.offDelta
                 else:
                     self.onState = False
+                    self.offTime = self.taskTime
             else:
                 if self.onDelta:
                     self.pending = True
                     self.onTime = self.taskTime + self.onDelta
                 else:
                     self.onState = True
+                    self.onTime = self.taskTime
         self.logger.debug('"{}" input:{}  [onOff:{}, pending:{}]'
             .format(self.name, newVal, self.onState, self.pending))
         self.update()
@@ -769,12 +769,14 @@ class PersistenceTimer(TimerBase):
     def turnOn(self):
         self.onState = True
         self.pending = False
+        self.onTime = self.taskTime
         self.update()
 
     #-------------------------------------------------------------------------------
     def turnOff(self):
         self.onState = False
         self.pending = False
+        self.offTime = self.taskTime
         self.update()
 
     #-------------------------------------------------------------------------------
@@ -874,13 +876,15 @@ class LockoutTimer(TimerBase):
     #-------------------------------------------------------------------------------
     def turnOn(self):
         self.onState = True
-        self.locked = False
+        self.locked = True
+        self.onTime  = self.taskTime + self.onDelta
         self.update()
 
     #-------------------------------------------------------------------------------
     def turnOff(self):
         self.onState = False
-        self.locked = False
+        self.locked = True
+        self.offTime = self.taskTime + self.offDelta
         self.update()
 
     #-------------------------------------------------------------------------------
@@ -919,6 +923,17 @@ class AliveTimer(TimerBase):
                                     instance.pluginProps.get('offUnits','seconds') )
 
         # initial state
+        if instance.pluginProps['trackEntity'] == 'dev':
+            devId, state = self.deviceStateDict.items()[0]
+            lastDateTime = indigo.devices[devId].lastChanged
+            lastTimeTime = time.mktime(lastDateTime.timetuple())
+            self.offTime = lastTimeTime + self.offDelta
+            self.onState = (time.time() < self.offTime)
+            self.variableList = list()
+        else:
+            # no last changed data available for variables
+            # onState initialized to whatever it was before
+            self.deviceStateDict = dict()
         self.tick()
 
     #-------------------------------------------------------------------------------
@@ -940,11 +955,13 @@ class AliveTimer(TimerBase):
     #-------------------------------------------------------------------------------
     def turnOn(self):
         self.onState = True
+        self.offTime = self.taskTime + self.offDelta
         self.update()
 
     #-------------------------------------------------------------------------------
     def turnOff(self):
         self.onState = False
+        self.offTime = self.taskTime
         self.update()
 
     #-------------------------------------------------------------------------------
