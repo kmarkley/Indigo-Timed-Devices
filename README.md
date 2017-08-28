@@ -33,11 +33,11 @@ Not sure there is an obvious example for this, but I do find it useful in a few 
 
 #### Alive Timer devices
 
-These devices track whether single device or variable is ***alive*** and become OFF when the tracked entity hasn't changed for a user-defined period of time.
+These devices track whether single device or variable is ***alive*** and becomes OFF when the tracked entity hasn't changed for a user-defined period of time.
 
 Once configured, these devices are just ON or OFF to reflect whether or not some other device or variable has been seen within some pre-set period of time.
 
-The obvious use is battery-powered devices like sensors.  Unlike the other device types, these will react to heartbeats even if none of devices states have changed value.
+The obvious use is battery-powered devices like sensors.  Unlike the other device types, these will react to heartbeats even if none of device's states have changed value.
 
 ## Plugin configuration
 
@@ -193,8 +193,8 @@ Choose whether or not to log device on/off changes to the Indigo event log.
 
 #### Configuration
 
-* **OFF Lockout Cycles** and **OFF Lockout Unites**  
-How long after turning OFF before plugin device may turn back ON.
+* **Alive Cycles** and **Alive Unites**  
+Inactive period before device turns off.
 * **Track**  
 Choose whether to track a device state or variable value.
     * **Device**  
