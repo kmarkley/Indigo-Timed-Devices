@@ -109,7 +109,7 @@ Choose whether or not to log device on/off changes to the Indigo event log.
 
 * **ON Persist Cycles** and **ON Persist Units**  
 How long a tracked device/variable must be on/true before plugin device turns on.
-* **OFF Persist Cycles** and **OFF Persist Unites**  
+* **OFF Persist Cycles** and **OFF Persist Units**  
 How long a tracked device/variable must be off/false before plugin device turns off.
 * **Track**  
 Choose whether to track a device state or variable value.
@@ -152,7 +152,7 @@ Choose whether or not to log device on/off changes to the Indigo event log.
 
 * **ON Lockout Cycles** and **ON Lockout Units**  
 How long after turning ON before plugin device may turn back OFF.
-* **OFF Lockout Cycles** and **OFF Lockout Unites**  
+* **OFF Lockout Cycles** and **OFF Lockout Units**  
 How long after turning OFF before plugin device may turn back ON.
 * **Track**  
 Choose whether to track a device state or variable value.
@@ -193,7 +193,7 @@ Choose whether or not to log device on/off changes to the Indigo event log.
 
 #### Configuration
 
-* **Alive Cycles** and **Alive Unites**  
+* **Alive Cycles** and **Alive Units**  
 Inactive period before device turns off.
 * **Track**  
 Choose whether to track a device state or variable value.
