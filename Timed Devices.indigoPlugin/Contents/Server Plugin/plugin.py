@@ -329,6 +329,7 @@ class Plugin(indigo.PluginBase):
     # Callbacks
     #-------------------------------------------------------------------------------
     def getDeviceList(self, filter='', valuesDict=dict(), typeId='', targetId=0):
+        self.logger.debug('getDeviceList: {}'.format(targetId))
         devList = list()
         excludeList  = [dev.id for dev in indigo.devices.iter(filter='self')]
         for dev in indigo.devices.iter():
@@ -349,6 +350,7 @@ class Plugin(indigo.PluginBase):
 
     #-------------------------------------------------------------------------------
     def getVariableList(self, filter='', valuesDict=dict(), typeId='', targetId=0):
+        self.logger.debug('getVariableList: {}'.format(targetId))
         varList = [(var.id,var.name) for var in indigo.variables.iter()]
         varList.append((0,"- none -"))
         return varList
