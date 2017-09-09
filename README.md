@@ -39,6 +39,13 @@ Once configured, these devices are just ON or OFF to reflect whether or not some
 
 The obvious use is battery-powered devices like sensors.  Unlike the other device types, these will react to heartbeats even if none of device's states have changed value.
 
+#### Running Timer devices
+
+These devices track how long a single device or variable has been ***running*** and calculated accumulated ON times over various time periods.
+
+Once configured, these devices are just ON or OFF to reflect whether or not some other device or variable is ON or OFF.
+
+
 ## Plugin configuration
 
 * **Show Timer**
@@ -213,6 +220,49 @@ Choose whether or not to log device on/off changes to the Indigo event log.
 * **state** (enum): one of
     * **on**: the tracked device/variable is alive.
     * **off**: the tracked device/variable is not alive.
+
+## Running Timer devices
+
+#### Configuration
+
+* **Update Frequency**  
+How often to update the time statistics in the device's states.  The plugin will always be updated when the tracked entity changes.
+* **Track**  
+Choose whether to track a device state or variable value.
+    * **Device** and **State**  
+    Choose a device and state to track.
+    * **Variable**  
+    Choose a variable to track.
+* **Logic**
+    * **Simple**: device states or variable values that can be understood as true/false are considered inputs.
+        * **Reverse?**  
+        Reverse the logic.  I.e. consider False values as inputs.
+    * **Complex**: provide specific comaparison logic to determine what is considered an input.
+        * **Operator**  
+        The operator used to compare device states and variable values to a reference value.
+        * **Comparison**  
+        The reference value for comparison.
+        * **Data Type**  
+            * **String**: compare as strings.
+            * **Number**: compare as number (float)
+* **Log On/Off**  
+Choose whether or not to log device on/off changes to the Indigo event log.
+
+#### States
+
+* **displayState** (str): state to display in indigo client interface.
+* **offString** (str): timestamp of last OFF.
+* **offTime** (float): epoch time of last OFF.
+* **onOffState** (bool): whether the device is on or off.
+* **onString** (str): timestamp of last ON.
+* **onTime** (float): epoch time of last ON.
+* **state** (enum): one of
+    * **on**: the tracked device/variable and plugin device are both on.
+    * **off**: the tracked device/variable and plugin device are both off.
+* **secondsThisPeriod**: the number of seconds the tracked entity has been ON for a given time period.
+* **secondsLastPeriod**: the number of seconds the tracked entity has been ON for the prior time period.
+* **stringThisPeriod**: string equivalent of **secondsThisPeriod**.
+* **stringLastPeriod**: string equivalent of **secondsLastPeriod**.
 
 ## Actions
 

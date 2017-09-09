@@ -817,4 +817,342 @@
         </States>
         <UiDisplayStateId>displayState</UiDisplayStateId>
     </Device>
+    <Device type='custom' id='runningTimer'>
+        <Name>Running Timer</Name>
+        <ConfigUI>
+            <Field id='updateSeconds' type='menu' defaultValue='60'>
+                <Label>Update Frequency:</Label>
+                <List>
+                    <Option value='0'>Only when changed</Option>
+                    <Option value='5'>5 Seconds (testing)</Option>
+                    <Option value='10'>10 Seconds</Option>
+                    <Option value='30'>30 Seconds</Option>
+                    <Option value="60">1 Minute</Option>
+                    <Option value="120">2 Minutes</Option>
+                    <Option value="300">5 Minutes</Option>
+                    <Option value="600">10 Minutes</Option>
+                    <Option value="900">15 Minutes</Option>
+                    <Option value="1800">30 Minutes</Option>
+                    <Option value="3600">1 Hour</Option>
+                </List>
+            </Field>
+            <Field id='updateHelp' type='label' alignWithControl='true' fontSize='small' fontColor='darkgrey'>
+                <Label>Device will always update when tracked entity changes</Label>
+            </Field>
+            <Field id='separator' type='separator' />
+            <Field id='trackEntity' type='menu' defaultValue='dev'>
+                <Label>Track:</Label>
+                <List>
+                    <Option value='dev'>Device</Option>
+                    <Option value='var'>Variable</Option>
+                </List>
+            </Field>
+            <Field id='device1' type='menu' visibleBindingId='trackEntity'  visibleBindingValue='dev' alwaysUseInDialogHeightCalc='true'>
+                <Label>Device:</Label>
+                <List class='self' method='getDeviceList'/>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='state1' type='menu' visibleBindingId='trackEntity'  visibleBindingValue='dev' alwaysUseInDialogHeightCalc='true'>
+                <Label>State:</Label>
+                <List class='self' filter='device1' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='variable1' type='menu' visibleBindingId='trackEntity'  visibleBindingValue='var' alwaysUseInDialogHeightCalc='false'>
+                <Label>Variable:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='logicSeparator' type='separator' />
+            <Field id='logicType' type='menu' defaultValue='simple'>
+                <Label>Logic:</Label>
+                <List>
+                    <Option value='simple'>Simple</Option>
+                    <Option value='complex'>Complex</Option>
+                </List>
+            </Field>
+            <Field id='boolLabel0' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
+                <Label>• Strings match:</Label>
+            </Field>
+            <Field id='boolLabel1' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
+                <Label>    'true', 'on', 'open', 'up', 'yes', 'active', 'locked', '1'</Label>
+            </Field>
+            <Field id='boolLabel2' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
+                <Label>• Numbers match if non-zero</Label>
+            </Field>
+            <Field id='boolLabel3' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
+                <Label>• Booleans match if True</Label>
+            </Field>
+            <Field id='reverseBoolean' type='checkbox' defaultValue='false' visibleBindingId='logicType'  visibleBindingValue='simple' alwaysUseInDialogHeightCalc='true'>
+                <Label>Reverse?:</Label>
+                <Description>Check to reverse above logic.</Description>
+            </Field>
+            <Field id='operator' type='menu' defaultValue='eq' visibleBindingId='logicType'  visibleBindingValue='complex'>
+                <Label>Operator:</Label>
+                <List>
+                    <Option value='eq'>Equal</Option>
+                    <Option value='ne'>Not Equal</Option>
+                    <Option value='gt'>Greater Than</Option>
+                    <Option value='lt'>Less Than</Option>
+                    <Option value='ge'>Greater or Equal</Option>
+                    <Option value='le'>Less or Equal</Option>
+                </List>
+            </Field>
+            <Field id='value' type='textfield' visibleBindingId='logicType'  visibleBindingValue='complex'>
+                <Label>Comparison:</Label>
+            </Field>
+            <Field id='valueType' type='menu' defaultValue='str' visibleBindingId='logicType'  visibleBindingValue='complex'>
+                <Label>Data Type:</Label>
+                <List>
+                    <Option value='str'>String</Option>
+                    <Option value='num'>Number</Option>
+                </List>
+            </Field>
+            <Field id='boolLabel4' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+                <Label>• Type errors always compare as False</Label>
+            </Field>
+            <Field id='boolLabel5' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+                <Label>• Strings are compared in lowercase</Label>
+            </Field>
+            <Field id='boolLabel6' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+                <Label>• Numbers are compared as floats</Label>
+            </Field>
+            <Field id='boolLabel7' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+                <Label>• For boolean comparison, use simple logic</Label>
+            </Field>
+            <Field id='logSeparator' type='separator' />
+            <Field id='logOnOff' type='checkbox' defaultValue='true'>
+                <Label>Log On/Off?:</Label>
+                <Description>Uncheck to suppress logging on/off events</Description>
+            </Field>
+        </ConfigUI>
+        <States>
+            <State id='onOffState'>
+                <ValueType>Boolean</ValueType>
+                <TriggerLabel>On/Off State is On</TriggerLabel>
+                <TriggerLabelPrefix>On/Off State is</TriggerLabelPrefix>
+                <ControlPageLabel>On/Off State</ControlPageLabel>
+                <ControlPageLabelPrefix>On/Off State is</ControlPageLabelPrefix>
+            </State>
+            <State id='state'>
+                <ValueType>
+                    <List>
+                        <Option value='on'>On</Option>
+                        <Option value='off'>Off</Option>
+                    </List>
+                </ValueType>
+                <TriggerLabel>Any State Change</TriggerLabel>
+                <TriggerLabelPrefix>State is</TriggerLabelPrefix>
+                <ControlPageLabel>State</ControlPageLabel>
+                <ControlPageLabelPrefix>State is</ControlPageLabelPrefix>
+            </State>
+            <State id='displayState'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Display State Change</TriggerLabel>
+                <TriggerLabelPrefix>Display State is</TriggerLabelPrefix>
+                <ControlPageLabel>Display State</ControlPageLabel>
+                <ControlPageLabelPrefix>Display State is</ControlPageLabelPrefix>
+            </State>
+            <State id='onTime'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Reset Time</TriggerLabel>
+                <ControlPageLabel>Reset Time</ControlPageLabel>
+            </State>
+            <State id='onString'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Reset String</TriggerLabel>
+                <ControlPageLabel>Reset String</ControlPageLabel>
+            </State>
+            <State id='offTime'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Reset Time</TriggerLabel>
+                <ControlPageLabel>Reset Time</ControlPageLabel>
+            </State>
+            <State id='offString'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Reset String</TriggerLabel>
+                <ControlPageLabel>Reset String</ControlPageLabel>
+            </State>
+            <State id='secondsThisContinuous'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On Currently</TriggerLabel>
+                <TriggerLabelPrefix>Seconds On Currently</TriggerLabelPrefix>
+                <ControlPageLabel>Seconds On Currently</ControlPageLabel>
+                <ControlPageLabelPrefix>Seconds On Currently</ControlPageLabelPrefix>
+            </State>
+            <State id='secondsThisHour'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On This Hour</TriggerLabel>
+                <TriggerLabelPrefix>Seconds On This Hour</TriggerLabelPrefix>
+                <ControlPageLabel>Seconds On This Hour</ControlPageLabel>
+                <ControlPageLabelPrefix>Seconds On This Hour</ControlPageLabelPrefix>
+            </State>
+            <State id='secondsThisDay'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On This Day</TriggerLabel>
+                <TriggerLabelPrefix>Seconds On This Day</TriggerLabelPrefix>
+                <ControlPageLabel>Seconds On This Day</ControlPageLabel>
+                <ControlPageLabelPrefix>Seconds On This Day</ControlPageLabelPrefix>
+            </State>
+            <State id='secondsThisWeek'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On This Week</TriggerLabel>
+                <TriggerLabelPrefix>Seconds On This Week</TriggerLabelPrefix>
+                <ControlPageLabel>Seconds On This Week</ControlPageLabel>
+                <ControlPageLabelPrefix>Seconds On This Week</ControlPageLabelPrefix>
+            </State>
+            <State id='secondsThisMonth'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On This Month</TriggerLabel>
+                <TriggerLabelPrefix>Seconds On This Month</TriggerLabelPrefix>
+                <ControlPageLabel>Seconds On This Month</ControlPageLabel>
+                <ControlPageLabelPrefix>Seconds On This Month</ControlPageLabelPrefix>
+            </State>
+            <State id='secondsThisYear'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On This Year</TriggerLabel>
+                <TriggerLabelPrefix>Seconds On This Year</TriggerLabelPrefix>
+                <ControlPageLabel>Seconds On This Year</ControlPageLabel>
+                <ControlPageLabelPrefix>Seconds On This Year</ControlPageLabelPrefix>
+            </State>
+            <State id='secondsLastContinuous'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On Previously</TriggerLabel>
+                <TriggerLabelPrefix>Seconds On Previously</TriggerLabelPrefix>
+                <ControlPageLabel>Seconds On Previously</ControlPageLabel>
+                <ControlPageLabelPrefix>Seconds On Previously</ControlPageLabelPrefix>
+            </State>
+            <State id='secondsLastHour'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On Last Hour</TriggerLabel>
+                <TriggerLabelPrefix>Seconds On Last Hour</TriggerLabelPrefix>
+                <ControlPageLabel>Seconds On Last Hour</ControlPageLabel>
+                <ControlPageLabelPrefix>Seconds On Last Hour</ControlPageLabelPrefix>
+            </State>
+            <State id='secondsLastDay'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On Last Day</TriggerLabel>
+                <TriggerLabelPrefix>Seconds On Last Day</TriggerLabelPrefix>
+                <ControlPageLabel>Seconds On Last Day</ControlPageLabel>
+                <ControlPageLabelPrefix>Seconds On Last Day</ControlPageLabelPrefix>
+            </State>
+            <State id='secondsLastWeek'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On Last Week</TriggerLabel>
+                <TriggerLabelPrefix>Seconds On Last Week</TriggerLabelPrefix>
+                <ControlPageLabel>Seconds On Last Week</ControlPageLabel>
+                <ControlPageLabelPrefix>Seconds On Last Week</ControlPageLabelPrefix>
+            </State>
+            <State id='secondsLastMonth'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On Last Month</TriggerLabel>
+                <TriggerLabelPrefix>Seconds On Last Month</TriggerLabelPrefix>
+                <ControlPageLabel>Seconds On Last Month</ControlPageLabel>
+                <ControlPageLabelPrefix>Seconds On Last Month</ControlPageLabelPrefix>
+            </State>
+            <State id='secondsLastYear'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On Last Year</TriggerLabel>
+                <TriggerLabelPrefix>Seconds On Last Year</TriggerLabelPrefix>
+                <ControlPageLabel>Seconds On Last Year</ControlPageLabel>
+                <ControlPageLabelPrefix>Seconds On Last Year</ControlPageLabelPrefix>
+            </State>
+            <State id='stringThisContinuous'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On Currently</TriggerLabel>
+                <TriggerLabelPrefix>String On Currently</TriggerLabelPrefix>
+                <ControlPageLabel>String On Currently</ControlPageLabel>
+                <ControlPageLabelPrefix>String On Currently</ControlPageLabelPrefix>
+            </State>
+            <State id='stringThisHour'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On This Hour</TriggerLabel>
+                <TriggerLabelPrefix>String On This Hour</TriggerLabelPrefix>
+                <ControlPageLabel>String On This Hour</ControlPageLabel>
+                <ControlPageLabelPrefix>String On This Hour</ControlPageLabelPrefix>
+            </State>
+            <State id='stringThisDay'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On This Day</TriggerLabel>
+                <TriggerLabelPrefix>String On This Day</TriggerLabelPrefix>
+                <ControlPageLabel>String On This Day</ControlPageLabel>
+                <ControlPageLabelPrefix>String On This Day</ControlPageLabelPrefix>
+            </State>
+            <State id='stringThisWeek'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On This Week</TriggerLabel>
+                <TriggerLabelPrefix>String On This Week</TriggerLabelPrefix>
+                <ControlPageLabel>String On This Week</ControlPageLabel>
+                <ControlPageLabelPrefix>String On This Week</ControlPageLabelPrefix>
+            </State>
+            <State id='stringThisMonth'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On This Month</TriggerLabel>
+                <TriggerLabelPrefix>String On This Month</TriggerLabelPrefix>
+                <ControlPageLabel>String On This Month</ControlPageLabel>
+                <ControlPageLabelPrefix>String On This Month</ControlPageLabelPrefix>
+            </State>
+            <State id='stringThisYear'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On This Year</TriggerLabel>
+                <TriggerLabelPrefix>String On This Year</TriggerLabelPrefix>
+                <ControlPageLabel>String On This Year</ControlPageLabel>
+                <ControlPageLabelPrefix>String On This Year</ControlPageLabelPrefix>
+            </State>
+            <State id='stringLastContinuous'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On Previously</TriggerLabel>
+                <TriggerLabelPrefix>String On Previously</TriggerLabelPrefix>
+                <ControlPageLabel>String On Previously</ControlPageLabel>
+                <ControlPageLabelPrefix>String On Previously</ControlPageLabelPrefix>
+            </State>
+            <State id='stringLastHour'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On Last Hour</TriggerLabel>
+                <TriggerLabelPrefix>String On Last Hour</TriggerLabelPrefix>
+                <ControlPageLabel>String On Last Hour</ControlPageLabel>
+                <ControlPageLabelPrefix>String On Last Hour</ControlPageLabelPrefix>
+            </State>
+            <State id='stringLastDay'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On Last Day</TriggerLabel>
+                <TriggerLabelPrefix>String On Last Day</TriggerLabelPrefix>
+                <ControlPageLabel>String On Last Day</ControlPageLabel>
+                <ControlPageLabelPrefix>String On Last Day</ControlPageLabelPrefix>
+            </State>
+            <State id='stringLastWeek'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On Last Week</TriggerLabel>
+                <TriggerLabelPrefix>String On Last Week</TriggerLabelPrefix>
+                <ControlPageLabel>String On Last Week</ControlPageLabel>
+                <ControlPageLabelPrefix>String On Last Week</ControlPageLabelPrefix>
+            </State>
+            <State id='stringLastMonth'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On Last Month</TriggerLabel>
+                <TriggerLabelPrefix>String On Last Month</TriggerLabelPrefix>
+                <ControlPageLabel>String On Last Month</ControlPageLabel>
+                <ControlPageLabelPrefix>String On Last Month</ControlPageLabelPrefix>
+            </State>
+            <State id='stringLastYear'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On Last Year</TriggerLabel>
+                <TriggerLabelPrefix>String On Last Year</TriggerLabelPrefix>
+                <ControlPageLabel>String On Last Year</ControlPageLabel>
+                <ControlPageLabelPrefix>String On Last Year</ControlPageLabelPrefix>
+            </State>
+            <State id='zzzSaveSpanDict'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>-- Do Not Use --</TriggerLabel>
+                <TriggerLabelPrefix>-- Do Not Use --</TriggerLabelPrefix>
+                <ControlPageLabel>-- Do Not Use --</ControlPageLabel>
+                <ControlPageLabelPrefix>-- Do Not Use --</ControlPageLabelPrefix>
+            </State>
+            <State id='zzzSecsDoneDict'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>-- Do Not Use --</TriggerLabel>
+                <TriggerLabelPrefix>-- Do Not Use --</TriggerLabelPrefix>
+                <ControlPageLabel>-- Do Not Use --</ControlPageLabel>
+                <ControlPageLabelPrefix>-- Do Not Use --</ControlPageLabelPrefix>
+            </State>
+        </States>
+        <UiDisplayStateId>displayState</UiDisplayStateId>
+    </Device>
 </Devices>

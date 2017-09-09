@@ -7,6 +7,8 @@ import indigo
 import threading
 import Queue
 import time
+from datetime import datetime, timedelta
+from ast import literal_eval
 from ghpu import GitHubPluginUpdater
 
 # Note the "indigo" module is automatically imported and made available inside
@@ -58,6 +60,15 @@ k_variableKeys = (
     'variable8',
     'variable9',
     'variable10',
+    )
+
+k_timeSpans = (
+    'h',
+    'd',
+    'w',
+    'm',
+    'y',
+    'c',
     )
 
 k_tickSeconds = 1
@@ -150,6 +161,8 @@ class Plugin(indigo.PluginBase):
                 self.deviceDict[dev.id] = LockoutTimer(dev, self)
             elif dev.deviceTypeId == 'aliveTimer':
                 self.deviceDict[dev.id] = AliveTimer(dev, self)
+            elif dev.deviceTypeId == 'runningTimer':
+                self.deviceDict[dev.id] = RunningTimer(dev, self)
             # start the thread
             self.deviceDict[dev.id].start()
 
@@ -168,12 +181,10 @@ class Plugin(indigo.PluginBase):
 
         requiredIntegers = ['offCycles']
         if typeId == 'activityTimer':
-            requiredIntegers.extend(['resetCycles','countThreshold'])
-            for devKey, stateKey in k_deviceKeys:
-                if zint(valuesDict.get(devKey,'')) and not valuesDict.get(stateKey,''):
-                    errorsDict[stateKey] = "Required"
+            requiredIntegers = ['offCycles','resetCycles','countThreshold']
+
         elif typeId in ['persistenceTimer','lockoutTimer']:
-            requiredIntegers.append('onCycles')
+            requiredIntegers = ['offCycles','onCycles']
             if valuesDict.get('trackEntity','dev') == 'dev':
                 keys = k_deviceKeys[0]
             else:
@@ -181,7 +192,18 @@ class Plugin(indigo.PluginBase):
             for key in keys:
                 if not valuesDict.get(key,''):
                     errorsDict[key] = "Required"
+
         elif typeId == 'aliveTimer':
+            requiredIntegers = ['offCycles']
+            if valuesDict.get('trackEntity','dev') == 'dev':
+                key = k_deviceKeys[0][0]
+            else:
+                key = k_variableKeys[0]
+            if not valuesDict.get(key,''):
+                errorsDict[key] = "Required"
+
+        elif typeId == 'runningTimer':
+            requiredIntegers = []
             if valuesDict.get('trackEntity','dev') == 'dev':
                 key = k_deviceKeys[0][0]
             else:
@@ -192,6 +214,10 @@ class Plugin(indigo.PluginBase):
         for key in requiredIntegers:
             if not valuesDict.get(key,"").isdigit():
                 errorsDict[key] = "Must be an integer zero or greater"
+
+        for devKey, stateKey in k_deviceKeys:
+            if zint(valuesDict.get(devKey,'')) and not valuesDict.get(stateKey,''):
+                errorsDict[stateKey] = "Required"
 
         if valuesDict.get('logicType','simple') == 'complex':
             if valuesDict.get('valueType','str') == 'num':
@@ -225,10 +251,12 @@ class Plugin(indigo.PluginBase):
     #-------------------------------------------------------------------------------
     def deviceUpdated(self, oldDev, newDev):
 
-        # device belongs to plugin
-        if newDev.pluginId == self.pluginId or oldDev.pluginId == self.pluginId:
+        if newDev.pluginId == self.pluginId:
+            # device belongs to plugin
             indigo.PluginBase.deviceUpdated(self, oldDev, newDev)
-
+            if newDev.id in self.deviceDict:
+                self.deviceDict[newDev.id].dev = newDev
+                self.deviceDict[newDev.id].name = newDev.name
         else:
             for devId, device in self.deviceDict.items():
                 device.doTask('devChanged', oldDev, newDev)
@@ -247,14 +275,14 @@ class Plugin(indigo.PluginBase):
         if action.deviceId in self.deviceDict:
             self.deviceDict[action.deviceId].doTask('turnOn')
         else:
-            self.logger.error('device id "%s" not available' % action.deviceId)
+            self.logger.error('device id "{}" not available'.format(action.deviceId))
 
     #-------------------------------------------------------------------------------
     def forceOff(self, action):
         if action.deviceId in self.deviceDict:
             self.deviceDict[action.deviceId].doTask('turnOff')
         else:
-            self.logger.error('device id "%s" not available' % action.deviceId)
+            self.logger.error('device id "{}" not available'.format(action.deviceId))
 
     #-------------------------------------------------------------------------------
     # Menu Methods
@@ -311,6 +339,7 @@ class Plugin(indigo.PluginBase):
 
     #-------------------------------------------------------------------------------
     def getStateList(self, filter=None, valuesDict=dict(), typeId='', targetId=0):
+        self.logger.debug('getStateList: {}'.format(targetId))
         stateList = list()
         devId = zint(valuesDict.get(filter,''))
         if devId:
@@ -393,13 +422,6 @@ class TimerBase(threading.Thread):
         self.states['onOffState'] = value
     onState = property(_onStateGet, _onStateSet)
 
-    def _offTimeGet(self):
-        return self.states['offTime']
-    def _offTimeSet(self, value):
-        self.states['offTime'] = value
-        self.states['offString'] = self.timestamp(value)
-    offTime = property(_offTimeGet, _offTimeSet)
-
     #-------------------------------------------------------------------------------
     def run(self):
         self.logger.debug('"{}" thread started'.format(self.name))
@@ -466,8 +488,8 @@ class TimerBase(threading.Thread):
                 self.tock(boolVal)
 
     #-------------------------------------------------------------------------------
-    def update(self, force=False):
-        if force or self.plugin.showTimer or (self.states != self.dev.states):
+    def update(self):
+        if self.plugin.showTimer or (self.states != self.dev.states):
 
             self.getStates()
 
@@ -537,17 +559,6 @@ class TimerBase(threading.Thread):
         return int(cycles)*multiplier
 
     #-------------------------------------------------------------------------------
-    def countdown(self, value):
-        hours, remainder = divmod(zint(value), 3600)
-        minutes, seconds = divmod(remainder, 60)
-        return '{}:{:0>2d}:{:0>2d}'.format(hours, minutes, seconds)
-
-    #-------------------------------------------------------------------------------
-    def timestamp(self, t=None):
-        if not t: t = time.time()
-        return time.strftime(k_strftimeFormat,time.localtime(t))
-
-    #-------------------------------------------------------------------------------
     # abstract methods
     #-------------------------------------------------------------------------------
     def tick(self):
@@ -589,6 +600,13 @@ class ActivityTimer(TimerBase):
     #-------------------------------------------------------------------------------
     # properties
     #-------------------------------------------------------------------------------
+    def _offTimeGet(self):
+        return self.states['offTime']
+    def _offTimeSet(self, value):
+        self.states['offTime'] = value
+        self.states['offString'] = format_datetime(value)
+    offTime = property(_offTimeGet, _offTimeSet)
+
     def _countGet(self):
         return self.states['count']
     def _countSet(self, value):
@@ -612,7 +630,7 @@ class ActivityTimer(TimerBase):
         return self.states['resetTime']
     def _resetTimeSet(self, value):
         self.states['resetTime'] = value
-        self.states['resetString'] = self.timestamp(value)
+        self.states['resetString'] = format_datetime(value)
     resetTime = property(_resetTimeGet, _resetTimeSet)
 
     #-------------------------------------------------------------------------------
@@ -684,9 +702,9 @@ class ActivityTimer(TimerBase):
         self.displayState = self.state
         if self.plugin.showTimer:
             if self.state in ['active','persist']:
-                self.displayState = self.countdown(self.offTime   - self.taskTime)
+                self.displayState = format_seconds(self.offTime   - self.taskTime)
             elif self.state == 'accrue':
-                self.displayState = self.countdown(self.resetTime - self.taskTime)
+                self.displayState = format_seconds(self.resetTime - self.taskTime)
 
 ################################################################################
 class PersistenceTimer(TimerBase):
@@ -713,6 +731,13 @@ class PersistenceTimer(TimerBase):
     #-------------------------------------------------------------------------------
     # properties
     #-------------------------------------------------------------------------------
+    def _offTimeGet(self):
+        return self.states['offTime']
+    def _offTimeSet(self, value):
+        self.states['offTime'] = value
+        self.states['offString'] = format_datetime(value)
+    offTime = property(_offTimeGet, _offTimeSet)
+
     def _pendingGet(self):
         return self.states['pending']
     def _pendingSet(self, value):
@@ -723,7 +748,7 @@ class PersistenceTimer(TimerBase):
         return self.states['onTime']
     def _onTimeSet(self, value):
         self.states['onTime'] = value
-        self.states['onString'] = self.timestamp(value)
+        self.states['onString'] = format_datetime(value)
     onTime = property(_onTimeGet, _onTimeSet)
 
     #-------------------------------------------------------------------------------
@@ -798,9 +823,9 @@ class PersistenceTimer(TimerBase):
 
         if self.plugin.showTimer and self.pending:
             if self.onState:
-                self.displayState = self.countdown(self.offTime - self.taskTime)
+                self.displayState = format_seconds(self.offTime - self.taskTime)
             else:
-                self.displayState = self.countdown(self.onTime - self.taskTime)
+                self.displayState = format_seconds(self.onTime - self.taskTime)
         else:
             self.displayState = self.state
 
@@ -829,6 +854,13 @@ class LockoutTimer(TimerBase):
     #-------------------------------------------------------------------------------
     # properties
     #-------------------------------------------------------------------------------
+    def _offTimeGet(self):
+        return self.states['offTime']
+    def _offTimeSet(self, value):
+        self.states['offTime'] = value
+        self.states['offString'] = format_datetime(value)
+    offTime = property(_offTimeGet, _offTimeSet)
+
     def _lockedGet(self):
         return self.states['locked']
     def _lockedSet(self, value):
@@ -839,7 +871,7 @@ class LockoutTimer(TimerBase):
         return self.states['onTime']
     def _onTimeSet(self, value):
         self.states['onTime'] = value
-        self.states['onString'] = self.timestamp(value)
+        self.states['onString'] = format_datetime(value)
     onTime = property(_onTimeGet, _onTimeSet)
 
     #-------------------------------------------------------------------------------
@@ -906,9 +938,9 @@ class LockoutTimer(TimerBase):
 
         if self.plugin.showTimer and self.locked:
             if self.onState:
-                self.displayState = self.countdown(self.onTime - self.taskTime)
+                self.displayState = format_seconds(self.onTime - self.taskTime)
             else:
-                self.displayState = self.countdown(self.offTime - self.taskTime)
+                self.displayState = format_seconds(self.offTime - self.taskTime)
         else:
             self.displayState = self.state
 
@@ -935,6 +967,16 @@ class AliveTimer(TimerBase):
             # onState initialized to whatever it was before
             self.deviceStateDict = dict()
         self.tick()
+
+    #-------------------------------------------------------------------------------
+    # Properties
+    #-------------------------------------------------------------------------------
+    def _offTimeGet(self):
+        return self.states['offTime']
+    def _offTimeSet(self, value):
+        self.states['offTime'] = value
+        self.states['offString'] = format_datetime(value)
+    offTime = property(_offTimeGet, _offTimeSet)
 
     #-------------------------------------------------------------------------------
     def tick(self):
@@ -974,7 +1016,7 @@ class AliveTimer(TimerBase):
             self.stateImg = 'SensorOff'
 
         if self.plugin.showTimer and self.onState:
-            self.displayState = self.countdown(self.offTime - self.taskTime)
+            self.displayState = format_seconds(self.offTime - self.taskTime)
         else:
             self.displayState = self.state
 
@@ -995,6 +1037,293 @@ class AliveTimer(TimerBase):
             self.tock(True)
 
 ################################################################################
+class RunningTimer(TimerBase):
+
+    #-------------------------------------------------------------------------------
+    def __init__(self, instance, plugin):
+        super(RunningTimer, self).__init__(instance, plugin)
+
+        self.updateDelta = int(instance.pluginProps.get('updateSeconds',60))
+        self.updateTime  = 0
+
+        self.task     = self.TaskSpans(self)
+        self.saved    = self.SavedSpans(self)
+        self.secStart = self.SecStartSpans(self)
+        self.secsDone = self.SecsDoneSpans(self)
+        self.secsThis = self.SecsThisSpans(self)
+        self.secsLast = self.SecsLastSpans(self)
+
+        # initial state
+        if instance.pluginProps['trackEntity'] == 'dev':
+            devId, state = self.deviceStateDict.items()[0]
+            dev = indigo.devices[devId]
+            lastDateTime = dev.lastChanged
+            lastTimeTime = time.mktime(lastDateTime.timetuple())
+            self.onState = self.getBoolValue(dev.states[state])
+            if self.onState:
+                self.onTime = max(self.onTime,lastTimeTime)
+            self.variableList = list()
+        else:
+            self.onState = self.getBoolValue(indigo.variables[self.variableList[0]].value)
+            self.deviceStateDict = dict()
+
+        self.secsThis.update()
+        for span in k_timeSpans:
+            if self.task.spans[span] != self.saved.spans[span]:
+                # we are now in a new time span
+                if self.onstate:
+                    self.secsLast.spans[span] = self.secsThis.spans[span]-(self.taskTime - self.secStart.spans[span])
+                    self.secsDone.spans[span] = self.taskTime - self.secStart.spans[span]
+                else:
+                    self.secsLast.spans[span] = self.secsThis.spans[span]
+                    self.secsDone.spans[span] = 0
+                # start timer for new span now
+                self.secStart.spans[span] = self.taskTime
+                # save new span so we know when it changes again
+                self.saved.spans[span] = self.task.spans[span]
+                # update props when done
+        if not self.onState and self.secsThis.spans['c']:
+            self.secsLast.spans['c'] = self.secsThis.spans['c']
+            self.secsThis.spans['c'] = 0
+
+        self.updateSeconds()
+
+    #-------------------------------------------------------------------------------
+    # Time Span Classes
+    #-------------------------------------------------------------------------------
+    class Spans(object):
+        def __init__(self,instance):
+            self.spans = dict()
+            self.instance = instance
+            self.update()
+        def update(self):
+            raise NotImplementedError
+
+    #-------------------------------------------------------------------------------
+    class TaskSpans(Spans):
+        def __init__(self,instance): instance.Spans.__init__(self,instance)
+        def update(self):
+            dt = datetime.fromtimestamp(self.instance.taskTime)
+            self.spans = {
+                'h': dt.hour,
+                'd': dt.day,
+                'w': dt.isocalendar()[1],
+                'm': dt.month,
+                'y': dt.year,
+                'c': 0
+            }
+
+    #-------------------------------------------------------------------------------
+    class SavedSpans(Spans):
+        def __init__(self,instance): instance.Spans.__init__(self,instance)
+        def update(self):
+            try:
+                self.spans = literal_eval(self.instance.states['zzzSaveSpanDict'])
+            except:
+                self.spans = dict()
+            for span in k_timeSpans:
+                if not self.spans.get(span,None): self.spans[span] = self.instance.task.spans[span]
+        def save(self):
+            self.instance.states['zzzSaveSpanDict'] = repr(self.spans)
+
+    #-------------------------------------------------------------------------------
+    class SecStartSpans(Spans):
+        def __init__(self,instance): instance.Spans.__init__(self,instance)
+        def update(self):
+            year  = self.instance.saved.spans['y']
+            month = self.instance.saved.spans['m']
+            day   = self.instance.saved.spans['d']
+            hour  = self.instance.saved.spans['h']
+            self.spans = {
+                'h': time.mktime(datetime(year, month, day, hour).timetuple()),
+                'd': time.mktime(datetime(year, month, day).timetuple()),
+                'm': time.mktime(datetime(year, month, 1).timetuple()),
+                'y': time.mktime(datetime(year, 1, 1).timetuple()),
+                'c': self.instance.onTime,
+                }
+            self.spans['w'] = self.spans['d'] - (time.localtime(self.instance.taskTime).tm_wday*24*60*60)
+
+    #-------------------------------------------------------------------------------
+    class SecsDoneSpans(Spans):
+        def __init__(self,instance): instance.Spans.__init__(self,instance)
+        def update(self):
+            try:
+                self.spans = literal_eval(self.instance.states['zzzSecsDoneDict'])
+            except:
+                self.spans = dict()
+            for span in k_timeSpans:
+                if not self.spans.get(span,None): self.spans[span] = 0
+        def save(self):
+            self.instance.states['zzzSecsDoneDict'] = repr(self.spans)
+
+    #-------------------------------------------------------------------------------
+    class SecsThisSpans(Spans):
+        def __init__(self,instance): instance.Spans.__init__(self,instance)
+        def update(self):
+            for span in k_timeSpans:
+                if self.instance.onState:
+                    accumulated = self.instance.taskTime - max(self.instance.onTime, self.instance.secStart.spans[span])
+                else:
+                    accumulated = 0
+                if span =='c':
+                    self.spans[span] = accumulated
+                else:
+                    self.spans[span] = self.instance.secsDone.spans[span] + accumulated
+        def save(self):
+            self.instance.states['secondsThisHour']  = int(round(self.spans['h']))
+            self.instance.states['secondsThisDay']   = int(round(self.spans['d']))
+            self.instance.states['secondsThisWeek']  = int(round(self.spans['w']))
+            self.instance.states['secondsThisMonth'] = int(round(self.spans['m']))
+            self.instance.states['secondsThisYear']  = int(round(self.spans['y']))
+            self.instance.states['secondsThisContinuous'] = int(round(self.spans['c']))
+            self.instance.states['stringThisHour']   = format_seconds(self.spans['h'])
+            self.instance.states['stringThisDay']    = format_seconds(self.spans['d'])
+            self.instance.states['stringThisWeek']   = format_seconds(self.spans['w'])
+            self.instance.states['stringThisMonth']  = format_seconds(self.spans['m'])
+            self.instance.states['stringThisYear']   = format_seconds(self.spans['y'])
+            self.instance.states['stringThisContinuous'] = format_seconds(self.spans['c'])
+
+    #-------------------------------------------------------------------------------
+    class SecsLastSpans(Spans):
+        def __init__(self,instance): instance.Spans.__init__(self,instance)
+        def update(self):
+            self.spans = {
+                'h': self.instance.states['secondsLastHour'],
+                'd': self.instance.states['secondsLastDay'],
+                'w': self.instance.states['secondsLastWeek'],
+                'm': self.instance.states['secondsLastMonth'],
+                'y': self.instance.states['secondsLastYear'],
+                'c': self.instance.states['secondsLastContinuous'],
+                }
+        def save(self):
+            self.instance.states['secondsLastHour']  = int(round(self.spans['h']))
+            self.instance.states['secondsLastDay']   = int(round(self.spans['d']))
+            self.instance.states['secondsLastWeek']  = int(round(self.spans['w']))
+            self.instance.states['secondsLastMonth'] = int(round(self.spans['m']))
+            self.instance.states['secondsLastYear']  = int(round(self.spans['y']))
+            self.instance.states['secondsLastContinuous'] = int(round(self.spans['c']))
+            self.instance.states['stringLastHour']   = format_seconds(self.spans['h'])
+            self.instance.states['stringLastDay']    = format_seconds(self.spans['d'])
+            self.instance.states['stringLastWeek']   = format_seconds(self.spans['w'])
+            self.instance.states['stringLastMonth']  = format_seconds(self.spans['m'])
+            self.instance.states['stringLastYear']   = format_seconds(self.spans['y'])
+            self.instance.states['stringLastContinuous'] = format_seconds(self.spans['c'])
+
+    #-------------------------------------------------------------------------------
+    # Properties
+    #-------------------------------------------------------------------------------
+    def _offTimeGet(self):
+        return self.states['offTime']
+    def _offTimeSet(self, value):
+        self.states['offTime'] = value
+        self.states['offString'] = format_datetime(value)
+    offTime = property(_offTimeGet, _offTimeSet)
+
+    def _onTimeGet(self):
+        return self.states['onTime']
+    def _onTimeSet(self, value):
+        self.states['onTime'] = value
+        self.states['onString'] = format_datetime(value)
+    onTime = property(_onTimeGet, _onTimeSet)
+
+    #-------------------------------------------------------------------------------
+    def tick(self):
+        # update current hour, day, week, month, year
+        self.task.update()
+        # updated accumulated time for each span
+        self.secsThis.update()
+
+        logTimer = ''
+
+        if  self.updateDelta and self.onState and self.taskTime >= self.updateTime:
+            logTimer = 'updateTime'
+            self.updateTime = self.taskTime + self.updateDelta
+
+        newSpan = False
+        for span in k_timeSpans:
+            if self.task.spans[span] != self.saved.spans[span]:
+                # we are now in a new time span
+                # set the accumulated seconds value for the prior span
+                self.secsLast.spans[span] = self.secsThis.spans[span]
+                # set inital accumulated seconds value for new span to zero
+                self.secsDone.spans[span] = 0
+                # start timer for new span now
+                self.secStart.spans[span] = self.taskTime
+                # save new span so we know when it changes again
+                self.saved.spans[span] = self.task.spans[span]
+                # update states when done
+                newSpan = True
+        if newSpan:
+            self.secsThis.update()
+            logTimer = 'newSpan'
+
+        if logTimer:
+            self.logger.debug('"{}" timer:{}  [onOff:{}, onSec:{}, update:{}]'
+                .format(self.name, logTimer, self.onState, self.secsThis.spans['c'], self.updateTime))
+            self.updateSeconds()
+        elif self.plugin.showTimer:
+            self.update()
+
+    #-------------------------------------------------------------------------------
+    def tock(self, newVal):
+        # update current hour, day, week, month, year
+        self.task.update()
+        # updated accumulated on time for each span
+        self.secsThis.update()
+
+        if newVal:
+            # set device state to on
+            self.onState = True
+            # record time device went on
+            self.onTime = self.taskTime
+        else:
+            for span in k_timeSpans:
+                # save accumulated timer value
+                self.secsDone.spans[span] = self.secsThis.spans[span]
+
+            self.secsLast.spans['c'] = self.secsThis.spans['c']
+            self.secsThis.spans['c'] = 0
+
+            # set device state to off
+            self.onState = False
+            # record time device went off
+            self.offTime = self.taskTime
+
+        self.logger.debug('"{}" input:{}  [onOff:{}]'
+            .format(self.name, newVal, self.onState))
+        self.updateSeconds()
+
+    #-------------------------------------------------------------------------------
+    def turnOn(self):
+        self.tock(True)
+
+    #-------------------------------------------------------------------------------
+    def turnOff(self):
+        self.tock(False)
+
+    #-------------------------------------------------------------------------------
+    def updateSeconds(self):
+        self.saved.save()
+        self.secsDone.save()
+        self.secsThis.save()
+        self.secsLast.save()
+        self.update()
+
+    #-------------------------------------------------------------------------------
+    def getStates(self):
+        if self.onState:
+            self.state = 'on'
+            self.stateImg = 'TimerOn'
+        else:
+            self.state = 'off'
+            self.stateImg = 'SensorOff'
+
+        if self.plugin.showTimer and self.onState:
+            self.displayState = format_seconds(self.secsThis.spans['c'])
+        else:
+            self.displayState = self.state
+
+################################################################################
 # Utilities
 ################################################################################
 
@@ -1004,3 +1333,18 @@ def zint(value):
 
 #-------------------------------------------------------------------------------
 def ver(vstr): return tuple(map(int, (vstr.split('.'))))
+
+#-------------------------------------------------------------------------------
+def format_datetime(t=None):
+    if not t: t = time.time()
+    return time.strftime(k_strftimeFormat,time.localtime(t))
+
+#-------------------------------------------------------------------------------
+def format_seconds(value):
+    days, remainder  = divmod(int(round(value)),86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    if days:
+        return '{}-{:0>2d}:{:0>2d}:{:0>2d}'.format(days, hours, minutes, seconds)
+    else:
+        return '{}:{:0>2d}:{:0>2d}'.format(hours, minutes, seconds)
