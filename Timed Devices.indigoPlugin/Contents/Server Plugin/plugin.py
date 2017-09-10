@@ -63,12 +63,12 @@ k_variableKeys = (
     )
 
 k_timeSpans = (
-    'h',
-    'd',
-    'w',
-    'm',
-    'y',
-    'c',
+    'h', # hour
+    'd', # day
+    'w', # week
+    'm', # month
+    'y', # year
+    'c', # continuous
     )
 
 k_tickSeconds = 1
@@ -1073,7 +1073,7 @@ class RunningTimer(TimerBase):
         for span in k_timeSpans:
             if self.task.spans[span] != self.saved.spans[span]:
                 # we are now in a new time span
-                if self.onstate:
+                if self.onState:
                     self.secsLast.spans[span] = self.secsThis.spans[span]-(self.taskTime - self.secStart.spans[span])
                     self.secsDone.spans[span] = self.taskTime - self.secStart.spans[span]
                 else:
@@ -1094,18 +1094,18 @@ class RunningTimer(TimerBase):
     # Time Span Classes
     #-------------------------------------------------------------------------------
     class Spans(object):
-        def __init__(self,instance):
+        def __init__(self,thisDev):
             self.spans = dict()
-            self.instance = instance
+            self.thisDev = thisDev
             self.update()
         def update(self):
             raise NotImplementedError
 
     #-------------------------------------------------------------------------------
     class TaskSpans(Spans):
-        def __init__(self,instance): instance.Spans.__init__(self,instance)
+        def __init__(self,thisDev): thisDev.Spans.__init__(self,thisDev)
         def update(self):
-            dt = datetime.fromtimestamp(self.instance.taskTime)
+            dt = datetime.fromtimestamp(self.thisDev.taskTime)
             self.spans = {
                 'h': dt.hour,
                 'd': dt.day,
@@ -1117,99 +1117,99 @@ class RunningTimer(TimerBase):
 
     #-------------------------------------------------------------------------------
     class SavedSpans(Spans):
-        def __init__(self,instance): instance.Spans.__init__(self,instance)
+        def __init__(self,thisDev): thisDev.Spans.__init__(self,thisDev)
         def update(self):
             try:
-                self.spans = literal_eval(self.instance.states['zzzSaveSpanDict'])
+                self.spans = literal_eval(self.thisDev.states['zzzSaveSpanDict'])
             except:
                 self.spans = dict()
             for span in k_timeSpans:
-                if not self.spans.get(span,None): self.spans[span] = self.instance.task.spans[span]
+                if not self.spans.get(span,None): self.spans[span] = self.thisDev.task.spans[span]
         def save(self):
-            self.instance.states['zzzSaveSpanDict'] = repr(self.spans)
+            self.thisDev.states['zzzSaveSpanDict'] = repr(self.spans)
 
     #-------------------------------------------------------------------------------
     class SecStartSpans(Spans):
-        def __init__(self,instance): instance.Spans.__init__(self,instance)
+        def __init__(self,thisDev): thisDev.Spans.__init__(self,thisDev)
         def update(self):
-            year  = self.instance.saved.spans['y']
-            month = self.instance.saved.spans['m']
-            day   = self.instance.saved.spans['d']
-            hour  = self.instance.saved.spans['h']
+            year  = self.thisDev.saved.spans['y']
+            month = self.thisDev.saved.spans['m']
+            day   = self.thisDev.saved.spans['d']
+            hour  = self.thisDev.saved.spans['h']
             self.spans = {
                 'h': time.mktime(datetime(year, month, day, hour).timetuple()),
                 'd': time.mktime(datetime(year, month, day).timetuple()),
                 'm': time.mktime(datetime(year, month, 1).timetuple()),
                 'y': time.mktime(datetime(year, 1, 1).timetuple()),
-                'c': self.instance.onTime,
+                'c': self.thisDev.onTime,
                 }
-            self.spans['w'] = self.spans['d'] - (time.localtime(self.instance.taskTime).tm_wday*24*60*60)
+            self.spans['w'] = self.spans['d'] - (time.localtime(self.thisDev.taskTime).tm_wday*24*60*60)
 
     #-------------------------------------------------------------------------------
     class SecsDoneSpans(Spans):
-        def __init__(self,instance): instance.Spans.__init__(self,instance)
+        def __init__(self,thisDev): thisDev.Spans.__init__(self,thisDev)
         def update(self):
             try:
-                self.spans = literal_eval(self.instance.states['zzzSecsDoneDict'])
+                self.spans = literal_eval(self.thisDev.states['zzzSecsDoneDict'])
             except:
                 self.spans = dict()
             for span in k_timeSpans:
                 if not self.spans.get(span,None): self.spans[span] = 0
         def save(self):
-            self.instance.states['zzzSecsDoneDict'] = repr(self.spans)
+            self.thisDev.states['zzzSecsDoneDict'] = repr(self.spans)
 
     #-------------------------------------------------------------------------------
     class SecsThisSpans(Spans):
-        def __init__(self,instance): instance.Spans.__init__(self,instance)
+        def __init__(self,thisDev): thisDev.Spans.__init__(self,thisDev)
         def update(self):
             for span in k_timeSpans:
-                if self.instance.onState:
-                    accumulated = self.instance.taskTime - max(self.instance.onTime, self.instance.secStart.spans[span])
+                if self.thisDev.onState:
+                    accumulated = self.thisDev.taskTime - max(self.thisDev.onTime, self.thisDev.secStart.spans[span])
                 else:
                     accumulated = 0
                 if span =='c':
                     self.spans[span] = accumulated
                 else:
-                    self.spans[span] = self.instance.secsDone.spans[span] + accumulated
+                    self.spans[span] = self.thisDev.secsDone.spans[span] + accumulated
         def save(self):
-            self.instance.states['secondsThisHour']  = int(round(self.spans['h']))
-            self.instance.states['secondsThisDay']   = int(round(self.spans['d']))
-            self.instance.states['secondsThisWeek']  = int(round(self.spans['w']))
-            self.instance.states['secondsThisMonth'] = int(round(self.spans['m']))
-            self.instance.states['secondsThisYear']  = int(round(self.spans['y']))
-            self.instance.states['secondsThisContinuous'] = int(round(self.spans['c']))
-            self.instance.states['stringThisHour']   = format_seconds(self.spans['h'])
-            self.instance.states['stringThisDay']    = format_seconds(self.spans['d'])
-            self.instance.states['stringThisWeek']   = format_seconds(self.spans['w'])
-            self.instance.states['stringThisMonth']  = format_seconds(self.spans['m'])
-            self.instance.states['stringThisYear']   = format_seconds(self.spans['y'])
-            self.instance.states['stringThisContinuous'] = format_seconds(self.spans['c'])
+            self.thisDev.states['secondsThisHour']  = int(round(self.spans['h']))
+            self.thisDev.states['secondsThisDay']   = int(round(self.spans['d']))
+            self.thisDev.states['secondsThisWeek']  = int(round(self.spans['w']))
+            self.thisDev.states['secondsThisMonth'] = int(round(self.spans['m']))
+            self.thisDev.states['secondsThisYear']  = int(round(self.spans['y']))
+            self.thisDev.states['secondsThisContinuous'] = int(round(self.spans['c']))
+            self.thisDev.states['stringThisHour']   = format_seconds(self.spans['h'])
+            self.thisDev.states['stringThisDay']    = format_seconds(self.spans['d'])
+            self.thisDev.states['stringThisWeek']   = format_seconds(self.spans['w'])
+            self.thisDev.states['stringThisMonth']  = format_seconds(self.spans['m'])
+            self.thisDev.states['stringThisYear']   = format_seconds(self.spans['y'])
+            self.thisDev.states['stringThisContinuous'] = format_seconds(self.spans['c'])
 
     #-------------------------------------------------------------------------------
     class SecsLastSpans(Spans):
-        def __init__(self,instance): instance.Spans.__init__(self,instance)
+        def __init__(self,thisDev): thisDev.Spans.__init__(self,thisDev)
         def update(self):
             self.spans = {
-                'h': self.instance.states['secondsLastHour'],
-                'd': self.instance.states['secondsLastDay'],
-                'w': self.instance.states['secondsLastWeek'],
-                'm': self.instance.states['secondsLastMonth'],
-                'y': self.instance.states['secondsLastYear'],
-                'c': self.instance.states['secondsLastContinuous'],
+                'h': self.thisDev.states['secondsLastHour'],
+                'd': self.thisDev.states['secondsLastDay'],
+                'w': self.thisDev.states['secondsLastWeek'],
+                'm': self.thisDev.states['secondsLastMonth'],
+                'y': self.thisDev.states['secondsLastYear'],
+                'c': self.thisDev.states['secondsLastContinuous'],
                 }
         def save(self):
-            self.instance.states['secondsLastHour']  = int(round(self.spans['h']))
-            self.instance.states['secondsLastDay']   = int(round(self.spans['d']))
-            self.instance.states['secondsLastWeek']  = int(round(self.spans['w']))
-            self.instance.states['secondsLastMonth'] = int(round(self.spans['m']))
-            self.instance.states['secondsLastYear']  = int(round(self.spans['y']))
-            self.instance.states['secondsLastContinuous'] = int(round(self.spans['c']))
-            self.instance.states['stringLastHour']   = format_seconds(self.spans['h'])
-            self.instance.states['stringLastDay']    = format_seconds(self.spans['d'])
-            self.instance.states['stringLastWeek']   = format_seconds(self.spans['w'])
-            self.instance.states['stringLastMonth']  = format_seconds(self.spans['m'])
-            self.instance.states['stringLastYear']   = format_seconds(self.spans['y'])
-            self.instance.states['stringLastContinuous'] = format_seconds(self.spans['c'])
+            self.thisDev.states['secondsLastHour']  = int(round(self.spans['h']))
+            self.thisDev.states['secondsLastDay']   = int(round(self.spans['d']))
+            self.thisDev.states['secondsLastWeek']  = int(round(self.spans['w']))
+            self.thisDev.states['secondsLastMonth'] = int(round(self.spans['m']))
+            self.thisDev.states['secondsLastYear']  = int(round(self.spans['y']))
+            self.thisDev.states['secondsLastContinuous'] = int(round(self.spans['c']))
+            self.thisDev.states['stringLastHour']   = format_seconds(self.spans['h'])
+            self.thisDev.states['stringLastDay']    = format_seconds(self.spans['d'])
+            self.thisDev.states['stringLastWeek']   = format_seconds(self.spans['w'])
+            self.thisDev.states['stringLastMonth']  = format_seconds(self.spans['m'])
+            self.thisDev.states['stringLastYear']   = format_seconds(self.spans['y'])
+            self.thisDev.states['stringLastContinuous'] = format_seconds(self.spans['c'])
 
     #-------------------------------------------------------------------------------
     # Properties
