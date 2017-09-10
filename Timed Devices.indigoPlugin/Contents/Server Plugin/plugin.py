@@ -429,7 +429,7 @@ class TimerBase(threading.Thread):
         self.logger.debug('"{}" thread started'.format(self.name))
         while not self.cancelled:
             try:
-                task,arg1,arg2 = self.queue.get(True,0.25)
+                task,arg1,arg2 = self.queue.get(True,1)
                 self.taskTime = time.time()
                 if task == 'tick':
                     self.tick()
@@ -443,6 +443,8 @@ class TimerBase(threading.Thread):
                     self.turnOn()
                 elif task == 'turnOff':
                     self.turnOff()
+                elif task == 'cancel':
+                    self.cancelled = True
                 else:
                     self.logger.error('"{}" task "{}" not recognized'.format(self.name,task))
                 self.queue.task_done()
@@ -460,7 +462,7 @@ class TimerBase(threading.Thread):
     #-------------------------------------------------------------------------------
     def cancel(self):
         """End this thread"""
-        self.cancelled = True
+        self.doTask('cancel')
 
     #-------------------------------------------------------------------------------
     def doTask(self, task, arg1=None, arg2=None):
@@ -1069,7 +1071,6 @@ class RunningTimer(TimerBase):
             self.onState = self.getBoolValue(indigo.variables[self.variableList[0]].value)
             self.deviceStateDict = dict()
 
-        self.secsThis.update()
         for span in k_timeSpans:
             if self.task.spans[span] != self.saved.spans[span]:
                 # we are now in a new time span
@@ -1232,8 +1233,6 @@ class RunningTimer(TimerBase):
     def tick(self):
         # update current hour, day, week, month, year
         self.task.update()
-        # updated accumulated time for each span
-        self.secsThis.update()
 
         logTimer = ''
 
@@ -1245,6 +1244,9 @@ class RunningTimer(TimerBase):
         for span in k_timeSpans:
             if self.task.spans[span] != self.saved.spans[span]:
                 # we are now in a new time span
+                if not newSpan:
+                    # updated accumulated time for each span
+                    self.secsThis.update()
                 # set the accumulated seconds value for the prior span
                 self.secsLast.spans[span] = self.secsThis.spans[span]
                 # set inital accumulated seconds value for new span to zero
@@ -1256,7 +1258,6 @@ class RunningTimer(TimerBase):
                 # update states when done
                 newSpan = True
         if newSpan:
-            self.secsThis.update()
             logTimer = 'newSpan'
 
         if logTimer:
@@ -1268,23 +1269,20 @@ class RunningTimer(TimerBase):
 
     #-------------------------------------------------------------------------------
     def tock(self, newVal):
-        # update current hour, day, week, month, year
-        self.task.update()
-        # updated accumulated on time for each span
-        self.secsThis.update()
-
         if newVal:
             # set device state to on
             self.onState = True
             # record time device went on
             self.onTime = self.taskTime
         else:
+            # updated accumulated on time for each span
+            self.secsThis.update()
+
             for span in k_timeSpans:
                 # save accumulated timer value
                 self.secsDone.spans[span] = self.secsThis.spans[span]
 
             self.secsLast.spans['c'] = self.secsThis.spans['c']
-            self.secsThis.spans['c'] = 0
 
             # set device state to off
             self.onState = False
@@ -1305,6 +1303,8 @@ class RunningTimer(TimerBase):
 
     #-------------------------------------------------------------------------------
     def updateSeconds(self):
+        self.secsThis.update()
+        
         self.saved.save()
         self.secsDone.save()
         self.secsThis.save()
@@ -1321,7 +1321,7 @@ class RunningTimer(TimerBase):
             self.stateImg = 'SensorOff'
 
         if self.plugin.showTimer and self.onState:
-            self.displayState = format_seconds(self.secsThis.spans['c'])
+            self.displayState = format_seconds(self.taskTime - self.onTime)
         else:
             self.displayState = self.state
 
