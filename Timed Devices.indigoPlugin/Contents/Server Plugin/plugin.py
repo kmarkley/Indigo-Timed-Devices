@@ -329,7 +329,8 @@ class Plugin(indigo.PluginBase):
     # Callbacks
     #-------------------------------------------------------------------------------
     def getDeviceList(self, filter='', valuesDict=dict(), typeId='', targetId=0):
-        self.logger.debug('getDeviceList: {}'.format(targetId))
+        if self.verbose:
+            self.logger.debug('getDeviceList: {}'.format(targetId))
         devList = list()
         excludeList  = [dev.id for dev in indigo.devices.iter(filter='self')]
         for dev in indigo.devices.iter():
@@ -340,7 +341,8 @@ class Plugin(indigo.PluginBase):
 
     #-------------------------------------------------------------------------------
     def getStateList(self, filter=None, valuesDict=dict(), typeId='', targetId=0):
-        self.logger.debug('getStateList: {}'.format(targetId))
+        if self.verbose:
+            self.logger.debug('getStateList: {}'.format(targetId))
         stateList = list()
         devId = zint(valuesDict.get(filter,''))
         if devId:
@@ -350,7 +352,8 @@ class Plugin(indigo.PluginBase):
 
     #-------------------------------------------------------------------------------
     def getVariableList(self, filter='', valuesDict=dict(), typeId='', targetId=0):
-        self.logger.debug('getVariableList: {}'.format(targetId))
+        if self.verbose:
+            self.logger.debug('getVariableList: {}'.format(targetId))
         varList = [(var.id,var.name) for var in indigo.variables.iter()]
         varList.append((0,"- none -"))
         return varList
@@ -429,7 +432,7 @@ class TimerBase(threading.Thread):
         self.logger.debug('"{}" thread started'.format(self.name))
         while not self.cancelled:
             try:
-                task,arg1,arg2 = self.queue.get(True,1)
+                task,arg1,arg2 = self.queue.get(True,5)
                 self.taskTime = time.time()
                 if task == 'tick':
                     self.tick()
@@ -846,6 +849,7 @@ class LockoutTimer(TimerBase):
                                     instance.pluginProps.get('offUnits','seconds') )
 
         # initial state
+        self.lastVal = self.onState
         self.tick()
         if instance.pluginProps['trackEntity'] == 'dev':
             devId, state = self.deviceStateDict.items()[0]
@@ -1074,17 +1078,18 @@ class RunningTimer(TimerBase):
         for span in k_timeSpans:
             if self.task.spans[span] != self.saved.spans[span]:
                 # we are now in a new time span
+                # estimate inital accumulated seconds for new span
                 if self.onState:
-                    self.secsLast.spans[span] = self.secsThis.spans[span]-(self.taskTime - self.secStart.spans[span])
                     self.secsDone.spans[span] = self.taskTime - self.secStart.spans[span]
                 else:
-                    self.secsLast.spans[span] = self.secsThis.spans[span]
                     self.secsDone.spans[span] = 0
+                # set the accumulated seconds for the prior span
+                self.secsLast.spans[span] = self.secsThis.spans[span]-self.secsDone.spans[span]
                 # start timer for new span now
                 self.secStart.spans[span] = self.taskTime
                 # save new span so we know when it changes again
                 self.saved.spans[span] = self.task.spans[span]
-                # update props when done
+
         if not self.onState and self.secsThis.spans['c']:
             self.secsLast.spans['c'] = self.secsThis.spans['c']
             self.secsThis.spans['c'] = 0
@@ -1173,18 +1178,18 @@ class RunningTimer(TimerBase):
                 else:
                     self.spans[span] = self.thisDev.secsDone.spans[span] + accumulated
         def save(self):
-            self.thisDev.states['secondsThisHour']  = int(round(self.spans['h']))
-            self.thisDev.states['secondsThisDay']   = int(round(self.spans['d']))
-            self.thisDev.states['secondsThisWeek']  = int(round(self.spans['w']))
-            self.thisDev.states['secondsThisMonth'] = int(round(self.spans['m']))
-            self.thisDev.states['secondsThisYear']  = int(round(self.spans['y']))
+            self.thisDev.states['secondsThisHour']       = int(round(self.spans['h']))
+            self.thisDev.states['secondsThisDay']        = int(round(self.spans['d']))
+            self.thisDev.states['secondsThisWeek']       = int(round(self.spans['w']))
+            self.thisDev.states['secondsThisMonth']      = int(round(self.spans['m']))
+            self.thisDev.states['secondsThisYear']       = int(round(self.spans['y']))
             self.thisDev.states['secondsThisContinuous'] = int(round(self.spans['c']))
-            self.thisDev.states['stringThisHour']   = format_seconds(self.spans['h'])
-            self.thisDev.states['stringThisDay']    = format_seconds(self.spans['d'])
-            self.thisDev.states['stringThisWeek']   = format_seconds(self.spans['w'])
-            self.thisDev.states['stringThisMonth']  = format_seconds(self.spans['m'])
-            self.thisDev.states['stringThisYear']   = format_seconds(self.spans['y'])
-            self.thisDev.states['stringThisContinuous'] = format_seconds(self.spans['c'])
+            self.thisDev.states['stringThisHour']        = format_seconds(self.spans['h'])
+            self.thisDev.states['stringThisDay']         = format_seconds(self.spans['d'])
+            self.thisDev.states['stringThisWeek']        = format_seconds(self.spans['w'])
+            self.thisDev.states['stringThisMonth']       = format_seconds(self.spans['m'])
+            self.thisDev.states['stringThisYear']        = format_seconds(self.spans['y'])
+            self.thisDev.states['stringThisContinuous']  = format_seconds(self.spans['c'])
 
     #-------------------------------------------------------------------------------
     class SecsLastSpans(Spans):
@@ -1199,18 +1204,18 @@ class RunningTimer(TimerBase):
                 'c': self.thisDev.states['secondsLastContinuous'],
                 }
         def save(self):
-            self.thisDev.states['secondsLastHour']  = int(round(self.spans['h']))
-            self.thisDev.states['secondsLastDay']   = int(round(self.spans['d']))
-            self.thisDev.states['secondsLastWeek']  = int(round(self.spans['w']))
-            self.thisDev.states['secondsLastMonth'] = int(round(self.spans['m']))
-            self.thisDev.states['secondsLastYear']  = int(round(self.spans['y']))
+            self.thisDev.states['secondsLastHour']       = int(round(self.spans['h']))
+            self.thisDev.states['secondsLastDay']        = int(round(self.spans['d']))
+            self.thisDev.states['secondsLastWeek']       = int(round(self.spans['w']))
+            self.thisDev.states['secondsLastMonth']      = int(round(self.spans['m']))
+            self.thisDev.states['secondsLastYear']       = int(round(self.spans['y']))
             self.thisDev.states['secondsLastContinuous'] = int(round(self.spans['c']))
-            self.thisDev.states['stringLastHour']   = format_seconds(self.spans['h'])
-            self.thisDev.states['stringLastDay']    = format_seconds(self.spans['d'])
-            self.thisDev.states['stringLastWeek']   = format_seconds(self.spans['w'])
-            self.thisDev.states['stringLastMonth']  = format_seconds(self.spans['m'])
-            self.thisDev.states['stringLastYear']   = format_seconds(self.spans['y'])
-            self.thisDev.states['stringLastContinuous'] = format_seconds(self.spans['c'])
+            self.thisDev.states['stringLastHour']        = format_seconds(self.spans['h'])
+            self.thisDev.states['stringLastDay']         = format_seconds(self.spans['d'])
+            self.thisDev.states['stringLastWeek']        = format_seconds(self.spans['w'])
+            self.thisDev.states['stringLastMonth']       = format_seconds(self.spans['m'])
+            self.thisDev.states['stringLastYear']        = format_seconds(self.spans['y'])
+            self.thisDev.states['stringLastContinuous']  = format_seconds(self.spans['c'])
 
     #-------------------------------------------------------------------------------
     # Properties
@@ -1233,32 +1238,30 @@ class RunningTimer(TimerBase):
     def tick(self):
         # update current hour, day, week, month, year
         self.task.update()
+        # updated accumulated time for each span
+        self.secsThis.update()
 
-        logTimer = ''
+        logTimer = None
 
         if  self.updateDelta and self.onState and self.taskTime >= self.updateTime:
             logTimer = 'updateTime'
             self.updateTime = self.taskTime + self.updateDelta
 
-        newSpan = False
         for span in k_timeSpans:
             if self.task.spans[span] != self.saved.spans[span]:
                 # we are now in a new time span
-                if not newSpan:
-                    # updated accumulated time for each span
-                    self.secsThis.update()
-                # set the accumulated seconds value for the prior span
+                if self.plugin.verbose:
+                    self.logger.debug('new span "{}": {} -> {}'.format(span, self.saved.spans[span],self.task.spans[span]))
+                # set the accumulated seconds for the prior span
                 self.secsLast.spans[span] = self.secsThis.spans[span]
-                # set inital accumulated seconds value for new span to zero
+                # set inital accumulated seconds for new span to zero
                 self.secsDone.spans[span] = 0
                 # start timer for new span now
                 self.secStart.spans[span] = self.taskTime
                 # save new span so we know when it changes again
                 self.saved.spans[span] = self.task.spans[span]
                 # update states when done
-                newSpan = True
-        if newSpan:
-            logTimer = 'newSpan'
+                logTimer = 'newSpan({})'.format(span)
 
         if logTimer:
             self.logger.debug('"{}" timer:{}  [onOff:{}, onSec:{}, update:{}]'
@@ -1304,7 +1307,7 @@ class RunningTimer(TimerBase):
     #-------------------------------------------------------------------------------
     def updateSeconds(self):
         self.secsThis.update()
-        
+
         self.saved.save()
         self.secsDone.save()
         self.secsThis.save()

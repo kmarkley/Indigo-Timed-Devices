@@ -259,17 +259,17 @@ Choose whether or not to log device on/off changes to the Indigo event log.
 * **state** (enum): one of
     * **on**: the tracked device/variable and plugin device are both on.
     * **off**: the tracked device/variable and plugin device are both off.
-* **secondsThisPeriod**: the number of seconds the tracked entity has been ON for a given time period.
-* **secondsLastPeriod**: the number of seconds the tracked entity has been ON for the prior time period.
-* **stringThisPeriod**: string equivalent of **secondsThisPeriod**.
-* **stringLastPeriod**: string equivalent of **secondsLastPeriod**.
+* **secondsThis_Period_**: the number of seconds the tracked entity has been ON for a given time period.
+* **secondsLast_Period_**: the number of seconds the tracked entity has been ON for the prior time period.
+* **stringThis_Period_**: string equivalent of **secondsThis_Period_**.
+* **stringLast_Period_**: string equivalent of **secondsLast_Period_**.
 
 ## Actions
 
 #### Force Timed Device Off
 Force the plugin device to become off.  
 Related timers (expire, lockout) will be started.  
-For **Activity Timer** devices, **reset** and **expired** states will become/remain true.
+For **Activity Timer** devices, **reset** and **expired** states will become true.
 
 #### Force Timed Device On
 Force the plugin device to become on.  

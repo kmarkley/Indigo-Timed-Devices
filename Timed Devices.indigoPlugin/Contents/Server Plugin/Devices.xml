@@ -38,7 +38,6 @@
             <Field id='device1' type='menu'>
                 <Label>Device 1:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state1' type='menu'>
                 <Label>State 1:</Label>
@@ -47,7 +46,6 @@
             <Field id='device2' type='menu'>
                 <Label>Device 2:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state2' type='menu'>
                 <Label>State 2:</Label>
@@ -56,7 +54,6 @@
             <Field id='device3' type='menu'>
                 <Label>Device 3:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state3' type='menu'>
                 <Label>State 3:</Label>
@@ -65,7 +62,6 @@
             <Field id='device4' type='menu'>
                 <Label>Device 4:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state4' type='menu'>
                 <Label>State 4:</Label>
@@ -74,11 +70,14 @@
             <Field id='device5' type='menu'>
                 <Label>Device 5:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state5' type='menu'>
                 <Label>State 5:</Label>
                 <List class='self' filter='device5' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='statesButton1' type='button'>
+                <Title>Load Device States</Title>
+                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='show10dev' type='checkbox' defaultValue='false'>
                 <Label>Show more</Label>
@@ -86,7 +85,6 @@
             <Field id='device6' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
                 <Label>Device 6:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state6' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
                 <Label>State 6:</Label>
@@ -95,7 +93,6 @@
             <Field id='device7' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
                 <Label>Device 7:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state7' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
                 <Label>State 7:</Label>
@@ -104,7 +101,6 @@
             <Field id='device8' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
                 <Label>Device 8:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state8' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
                 <Label>State 8:</Label>
@@ -113,7 +109,6 @@
             <Field id='device9' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
                 <Label>Device 9:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state9' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
                 <Label>State 9:</Label>
@@ -122,11 +117,14 @@
             <Field id='device10' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
                 <Label>Device 10:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state10' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
                 <Label>State 10:</Label>
                 <List class='self' filter='device10' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='statesButton2' type='button' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Title>Load Device States</Title>
+                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='show20dev' type='checkbox' defaultValue='false'>
                 <Label>Show even more</Label>
@@ -134,7 +132,6 @@
             <Field id='device11' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>Device 11:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state11' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>State 11:</Label>
@@ -143,7 +140,6 @@
             <Field id='device12' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>Device 12:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state12' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>State 12:</Label>
@@ -152,7 +148,6 @@
             <Field id='device13' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>Device 13:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state13' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>State 13:</Label>
@@ -161,7 +156,6 @@
             <Field id='device14' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>Device 14:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state14' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>State 14:</Label>
@@ -170,7 +164,6 @@
             <Field id='device15' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>Device 15:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state15' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>State 15:</Label>
@@ -179,7 +172,6 @@
             <Field id='device16' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>Device 16:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state16' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>State 16:</Label>
@@ -188,7 +180,6 @@
             <Field id='device17' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>Device 17:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state17' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>State 17:</Label>
@@ -197,7 +188,6 @@
             <Field id='device18' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>Device 18:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state18' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>State 18:</Label>
@@ -206,7 +196,6 @@
             <Field id='device19' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>Device 19:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state19' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>State 19:</Label>
@@ -215,11 +204,14 @@
             <Field id='device20' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>Device 20:</Label>
                 <List class='self' method='getDeviceList'/>
-                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='state20' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
                 <Label>State 20:</Label>
                 <List class='self' filter='device20' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='statesButton3' type='button' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Title>Load Device States</Title>
+                <CallbackMethod>loadStates</CallbackMethod>
             </Field>
             <Field id='variableSeparator' type='separator' />
             <Field id='variable1' type='menu'>
@@ -742,7 +734,7 @@
     <Device type='custom' id='aliveTimer'>
         <Name>Alive Timer</Name>
         <ConfigUI>
-            <Field id='offCycles' type='textfield' defaultValue='24'>
+            <Field id='offCycles' type='textfield' defaultValue='25'>
                 <Label>Alive Cycles:</Label>
             </Field>
             <Field id='offUnits' type='menu' defaultValue='hours'>
@@ -836,8 +828,14 @@
                     <Option value="3600">1 Hour</Option>
                 </List>
             </Field>
-            <Field id='updateHelp' type='label' alignWithControl='true' fontSize='small' fontColor='darkgrey'>
-                <Label>Device will always update when tracked entity changes</Label>
+            <Field id='updateHelp0' type='label' alignWithControl='true' fontSize='small' fontColor='darkgrey'>
+                <Label>Only affects how often times are saved to device's</Label>
+            </Field>
+            <Field id='updateHelp1' type='label' alignWithControl='true' fontSize='small' fontColor='darkgrey'>
+                <Label>states, _not_ the granualarity of the measurment.</Label>
+            </Field>
+            <Field id='updateHelp2' type='label' alignWithControl='true' fontSize='small' fontColor='darkgrey'>
+                <Label>Device will _always_ update when the tracked entity changes.</Label>
             </Field>
             <Field id='separator' type='separator' />
             <Field id='trackEntity' type='menu' defaultValue='dev'>
