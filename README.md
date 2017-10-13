@@ -17,15 +17,15 @@ I first wrote the plugin for this scenario and in one case was able to replace 1
 
 #### Persistence Timer devices
 
-These devices track the state of a single device or variable, but only change state after the tracked entity state has ***persisted*** for a defined period of time.  At the end of the lockout period, the plugin will reevaluate if the tracked entity has changed in the interim, and initiate another lockout period if it has.
+These devices track the state of a single device or variable, but only change state after the tracked entity state has ***persisted*** for a defined period of time.  
 
-Once configured, these devices are just ON or OFF to reflect the delayed/confirmed state of some other device or variable (eliminating the need for possibly several cancel-delayed-action actions).
+Once configured, these devices are just ON or OFF to reflect the delayed/confirmed state of some other device or variable (eliminating the need for possibly several cancel-delayed-action actions).  
 
-An obvious example is the if you want to track if a door has been left open (or closed), but ignore the door being opened (or closed) momentarily.
+An obvious example if you want to track if a door has been left open (or closed), but ignore the door being opened (or closed) momentarily.
 
 #### Lockout Timer devices
 
-These devices track a single device or variable and change state immediately when the tracked entity changes, but will ***lockout*** (ignore) subsequent changes for a user-defined period of time.
+These devices track a single device or variable and change state immediately when the tracked entity changes, but will ***lockout*** (ignore) subsequent changes for a user-defined period of time.  At the end of the lockout period, the plugin will reevaluate if the tracked entity has changed in the interim, and initiate another lockout period if it has.
 
 Once configured, these devices are just ON or OFF to reflect the state of some other device or variable, but are guaranteed not to change more often than some pre-set period of time (allowing your triggered actions to complete before, say, reversing themselves).
 
@@ -41,7 +41,7 @@ The obvious use is battery-powered devices like sensors.  Unlike the other devic
 
 #### Running Timer devices
 
-These devices track how long a single device or variable has been ***running*** and calculated accumulated ON times over various time periods.
+These devices track how long a single device or variable has been ***running*** and calculate accumulated ON times over various time periods.
 
 Once configured, these devices are just ON or OFF to reflect whether or not some other device or variable is ON or OFF.
 
@@ -81,7 +81,7 @@ Select variables to track as inputs for the device.
     * **Simple**: device states or variable values that can be understood as true/false are considered inputs.
         * **Reverse?**  
         Reverse the logic.  I.e. consider False values as inputs.
-    * **Complex**: provide specific comaparison logic to determine what is considered an input.
+    * **Complex**: provide specific comparison logic to determine what is considered an input.
         * **Operator**  
         The operator used to compare device states and variable values to a reference value.
         * **Comparison**  
@@ -226,7 +226,7 @@ Choose whether or not to log device on/off changes to the Indigo event log.
 #### Configuration
 
 * **Update Frequency**  
-How often to update the time statistics in the device's states.  The plugin will always be updated when the tracked entity changes.
+How often to update the time statistics in the device's states.  The plugin device will always be updated when the tracked entity changes.
 * **Track**  
 Choose whether to track a device state or variable value.
     * **Device** and **State**  
