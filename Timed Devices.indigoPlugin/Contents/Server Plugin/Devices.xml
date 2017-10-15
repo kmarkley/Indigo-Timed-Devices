@@ -3,26 +3,42 @@
     <Device type='custom' id='activityTimer'>
         <Name>Activity Timer</Name>
         <ConfigUI>
+            <Field id='description0' type='label'>
+                <Label>Activity Timer device tracks multiple momentary inputs.</Label>
+            </Field>
+            <Field id='description1' type='label' fontSize='small' fontColor='darkgray'>
+                <Label>Device turns ON if THRESHOLD inputs are detected before RESET TIMER expires, and remains ON until OFF TIMER expires.  OFF TIMER is extended when any additional input is detected or when THRESHOLD is met, depending on the setting of ALWAYS EXTEND.</Label>
+            </Field>
+            <Field id='timerSeparator' type='separator' />
+            <Field id='timerSection' type='label' fontColor='blue'>
+                <Label>Timer Settings:</Label>
+            </Field>
             <Field id='countThreshold' type='textfield' defaultValue='1'>
                 <Label>Threshold:</Label>
             </Field>
+            <Field id='thresholdHelp' type='label' fontSize='small' fontColor='darkgray' alignWithControl='true'>
+                <Label>Number of TRUE inputs before this device turns on</Label>
+            </Field>
             <Field id='resetCycles' type='textfield' defaultValue='1'>
-                <Label>Reset Cycles:</Label>
+                <Label>Reset Timer Cycles:</Label>
             </Field>
             <Field id='resetUnits' type='menu' defaultValue='minutes'>
-                <Label>Reset Units:</Label>
+                <Label>Reset Timer Units:</Label>
                 <List>
                     <Option value='seconds'>Seconds</Option>
                     <Option value='minutes'>Minutes</Option>
                     <Option value='hours'>Hours</Option>
                     <Option value='days'>Days</Option>
                 </List>
+            </Field>
+            <Field id='resetHelp' type='label' fontSize='small' fontColor='darkgray' alignWithControl='true'>
+                <Label>Max time to reach threshold before count is reset</Label>
             </Field>
             <Field id='offCycles' type='textfield' defaultValue='10'>
-                <Label>Off Cycles:</Label>
+                <Label>Off Timer Cycles:</Label>
             </Field>
             <Field id='offUnits' type='menu' defaultValue='minutes'>
-                <Label>Off Units:</Label>
+                <Label>Off Timer Units:</Label>
                 <List>
                     <Option value='seconds'>Seconds</Option>
                     <Option value='minutes'>Minutes</Option>
@@ -30,11 +46,22 @@
                     <Option value='days'>Days</Option>
                 </List>
             </Field>
-            <Field id='extend' type='checkbox' defaultValue='true'>
-                <Label>Always Ext?:</Label>
-                <Description>Extend ON state even when threshold not met.   </Description>
+            <Field id='offHelp' type='label' fontSize='small' fontColor='darkgray' alignWithControl='true'>
+                <Label>How long before this device turns off</Label>
             </Field>
-            <Field id='deviceSeparator' type='separator' />
+            <Field id='extend' type='checkbox' defaultValue='true'>
+                <Label>Always Extend?:</Label>
+            </Field>
+            <Field id='extendHelp1' type='label' fontSize='small' fontColor='darkgray' alignWithControl='true'>
+                <Label>Checked = extend OFF TIMER when any TRUE input is detected</Label>
+            </Field>
+            <Field id='extendHelp2' type='label' fontSize='small' fontColor='darkgray' alignWithControl='true'>
+                <Label>Unchecked = only extend OFF TIMER when threshold is met</Label>
+            </Field>
+            <Field id='trackSeparator' type='separator' />
+            <Field id='trackSection' type='label' fontColor='blue'>
+                <Label>Tracked Entities:</Label>
+            </Field>
             <Field id='device1' type='menu'>
                 <Label>Device 1:</Label>
                 <List class='self' method='getDeviceList'/>
@@ -126,7 +153,426 @@
                 <Title>Load Device States</Title>
                 <CallbackMethod>loadStates</CallbackMethod>
             </Field>
-            <Field id='show20dev' type='checkbox' defaultValue='false'>
+            <Field id='show20dev' type='checkbox' defaultValue='false' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>Show even more</Label>
+            </Field>
+            <Field id='device11' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 11:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state11' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 11:</Label>
+                <List class='self' filter='device11' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device12' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 12:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state12' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 12:</Label>
+                <List class='self' filter='device12' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device13' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 13:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state13' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 13:</Label>
+                <List class='self' filter='device13' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device14' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 14:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state14' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 14:</Label>
+                <List class='self' filter='device14' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device15' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 15:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state15' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 15:</Label>
+                <List class='self' filter='device15' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device16' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 16:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state16' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 16:</Label>
+                <List class='self' filter='device16' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device17' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 17:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state17' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 17:</Label>
+                <List class='self' filter='device17' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device18' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 18:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state18' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 18:</Label>
+                <List class='self' filter='device18' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device19' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 19:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state19' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 19:</Label>
+                <List class='self' filter='device19' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device20' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>Device 20:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state20' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Label>State 20:</Label>
+                <List class='self' filter='device20' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='statesButton3' type='button' visibleBindingId='show20dev'  visibleBindingValue='true'>
+                <Title>Load Device States</Title>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='variableSpacer' type='label'>
+                <Label> </Label>
+            </Field>
+            <Field id='variable1' type='menu'>
+                <Label>Variable 1:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable2' type='menu'>
+                <Label>Variable 2:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable3' type='menu'>
+                <Label>Variable 3:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable4' type='menu'>
+                <Label>Variable 4:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable5' type='menu'>
+                <Label>Variable 5:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='show10var' type='checkbox' defaultValue='false'>
+                <Label>Show more</Label>
+            </Field>
+            <Field id='variable6' type='menu' visibleBindingId='show10var'  visibleBindingValue='true'>
+                <Label>Variable 6:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable7' type='menu' visibleBindingId='show10var'  visibleBindingValue='true'>
+                <Label>Variable 7:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable8' type='menu' visibleBindingId='show10var'  visibleBindingValue='true'>
+                <Label>Variable 8:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable9' type='menu' visibleBindingId='show10var'  visibleBindingValue='true'>
+                <Label>Variable 9:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='variable10' type='menu' visibleBindingId='show10var'  visibleBindingValue='true'>
+                <Label>Variable 10:</Label>
+                <List class='self' method='getVariableList'/>
+            </Field>
+            <Field id='logicSeparator' type='separator' />
+            <Field id='logicSection' type='label' fontColor='blue'>
+                <Label>Input Logic:</Label>
+            </Field>
+            <Field id='logicHelp' type='label' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>Which state or variable values are counted as TRUE inputs?</Label>
+            </Field>
+            <Field id='logicType' type='menu' defaultValue='simple'>
+                <Label>Logic:</Label>
+                <List>
+                    <Option value='any'>Any Change</Option>
+                    <Option value='simple'>Simple</Option>
+                    <Option value='complex'>Complex</Option>
+                </List>
+            </Field>
+            <Field id='boolLabel0' type='label' visibleBindingId='logicType'  visibleBindingValue='any' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Any change will be considered a TRUE input</Label>
+            </Field>
+            <Field id='boolLabel1' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Strings match 'true', 'on', 'open', 'up', 'yes', 'active', 'locked', '1'  </Label>
+            </Field>
+            <Field id='boolLabel2' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Numbers match if non-zero</Label>
+            </Field>
+            <Field id='boolLabel3' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Booleans match if True</Label>
+            </Field>
+            <Field id='reverseBoolean' type='checkbox' defaultValue='false' visibleBindingId='logicType'  visibleBindingValue='simple' alwaysUseInDialogHeightCalc='true'>
+                <Label>Reverse?:</Label>
+                <Description>Check to reverse above logic.</Description>
+            </Field>
+            <Field id='boolLabel4' type='label' visibleBindingId='reverseBoolean'  visibleBindingValue='false' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Matched value is TRUE input</Label>
+            </Field>
+            <Field id='boolLabel5' type='label' visibleBindingId='reverseBoolean'  visibleBindingValue='true' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Matched value is FALSE input</Label>
+            </Field>
+            <Field id='operator' type='menu' defaultValue='eq' visibleBindingId='logicType'  visibleBindingValue='complex'>
+                <Label>Operator:</Label>
+                <List>
+                    <Option value='eq'>Equal</Option>
+                    <Option value='ne'>Not Equal</Option>
+                    <Option value='gt'>Greater Than</Option>
+                    <Option value='lt'>Less Than</Option>
+                    <Option value='ge'>Greater or Equal</Option>
+                    <Option value='le'>Less or Equal</Option>
+                </List>
+            </Field>
+            <Field id='value' type='textfield' visibleBindingId='logicType'  visibleBindingValue='complex'>
+                <Label>Comparison Value:</Label>
+            </Field>
+            <Field id='valueType' type='menu' defaultValue='str' visibleBindingId='logicType'  visibleBindingValue='complex'>
+                <Label>Data Type:</Label>
+                <List>
+                    <Option value='str'>String</Option>
+                    <Option value='num'>Number</Option>
+                </List>
+            </Field>
+            <Field id='boolLabel6' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Type errors always compare as False</Label>
+            </Field>
+            <Field id='boolLabel7' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Strings are compared in lowercase</Label>
+            </Field>
+            <Field id='boolLabel8' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Numbers are compared as floats</Label>
+            </Field>
+            <Field id='boolLabel9' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• For boolean comparison, use simple logic</Label>
+            </Field>
+            <Field id='miscSeparator' type='separator' />
+            <Field id='miscSection' type='label' fontColor='blue'>
+                <Label>Miscellaneous:</Label>
+            </Field>
+            <Field id='logOnOff' type='checkbox' defaultValue='true'>
+                <Label>Log On/Off?:</Label>
+                <Description>Uncheck to suppress logging on/off events</Description>
+            </Field>
+        </ConfigUI>
+        <States>
+            <State id='onOffState'>
+                <ValueType>Boolean</ValueType>
+                <TriggerLabel>On/Off State is On</TriggerLabel>
+                <TriggerLabelPrefix>On/Off State is</TriggerLabelPrefix>
+                <ControlPageLabel>On/Off State</ControlPageLabel>
+                <ControlPageLabelPrefix>On/Off State is</ControlPageLabelPrefix>
+            </State>
+            <State id='state'>
+                <ValueType>
+                    <List>
+                        <Option value='idle'>Idle</Option>
+                        <Option value='accrue'>Accrual</Option>
+                        <Option value='active'>Active</Option>
+                        <Option value='persist'>Persistent</Option>
+                    </List>
+                </ValueType>
+                <TriggerLabel>Any State Change</TriggerLabel>
+                <TriggerLabelPrefix>State is</TriggerLabelPrefix>
+                <ControlPageLabel>State</ControlPageLabel>
+                <ControlPageLabelPrefix>State is</ControlPageLabelPrefix>
+            </State>
+            <State id='displayState'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Display State Change</TriggerLabel>
+                <TriggerLabelPrefix>Display State is</TriggerLabelPrefix>
+                <ControlPageLabel>Display State</ControlPageLabel>
+                <ControlPageLabelPrefix>Display State is</ControlPageLabelPrefix>
+            </State>
+            <State id='count'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Count</TriggerLabel>
+                <ControlPageLabel>Count</ControlPageLabel>
+            </State>
+            <State id='counting'>
+                <ValueType>Boolean</ValueType>
+                <TriggerLabel>Counting</TriggerLabel>
+                <ControlPageLabel>Counting</ControlPageLabel>
+            </State>
+            <State id='expired'>
+                <ValueType>Boolean</ValueType>
+                <TriggerLabel>Expired</TriggerLabel>
+                <ControlPageLabel>Expired</ControlPageLabel>
+            </State>
+            <State id='reset'>
+                <ValueType>Boolean</ValueType>
+                <TriggerLabel>Reset</TriggerLabel>
+                <ControlPageLabel>Reset</ControlPageLabel>
+            </State>
+            <State id='resetTime'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Reset Time</TriggerLabel>
+                <ControlPageLabel>Reset Time</ControlPageLabel>
+            </State>
+            <State id='resetString'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Reset String</TriggerLabel>
+                <ControlPageLabel>Reset String</ControlPageLabel>
+            </State>
+            <State id='offTime'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Off Time</TriggerLabel>
+                <ControlPageLabel>Off Time</ControlPageLabel>
+            </State>
+            <State id='offString'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>Off String</TriggerLabel>
+                <ControlPageLabel>Off String</ControlPageLabel>
+            </State>
+        </States>
+        <UiDisplayStateId>displayState</UiDisplayStateId>
+    </Device>
+    <Device type='custom' id='thresholdTimer'>
+        <Name>Threshold Timer</Name>
+        <ConfigUI>
+            <Field id='description0' type='label'>
+                <Label>Threshold Timer device tracks multiple continuous inputs.</Label>
+            </Field>
+            <Field id='description1' type='label' fontSize='small' fontColor='darkgray'>
+                <Label>Device turns ON once THRESHOLD inputs are detected.</Label>
+            </Field>
+            <Field id='description2' type='label' fontSize='small' fontColor='darkgray'>
+                <Label>OFF TIMER starts when input count drops below THRESHOLD.</Label>
+            </Field>
+            <Field id='description3' type='label' fontSize='small' fontColor='darkgray'>
+                <Label>Device turns OFF when OFF TIMER expires.</Label>
+            </Field>
+            <Field id='timerSeparator' type='separator' />
+            <Field id='timerSection' type='label' fontColor='blue'>
+                <Label>Timer Settings:</Label>
+            </Field>
+            <Field id='countThreshold' type='textfield' defaultValue='1'>
+                <Label>Threshold:</Label>
+            </Field>
+            <Field id='thresholdHelp' type='label' fontSize='small' fontColor='darkgray' alignWithControl='true'>
+                <Label>Number of TRUE inputs before this device turns on</Label>
+            </Field>
+            <Field id='offCycles' type='textfield' defaultValue='10'>
+                <Label>Off Timer Cycles:</Label>
+            </Field>
+            <Field id='offUnits' type='menu' defaultValue='minutes'>
+                <Label>Off Timer Units:</Label>
+                <List>
+                    <Option value='seconds'>Seconds</Option>
+                    <Option value='minutes'>Minutes</Option>
+                    <Option value='hours'>Hours</Option>
+                    <Option value='days'>Days</Option>
+                </List>
+            </Field>
+            <Field id='offHelp' type='label' fontSize='small' fontColor='darkgray' alignWithControl='true'>
+                <Label>How long before this device turns off.</Label>
+            </Field>
+            <Field id='trackSeparator' type='separator' />
+            <Field id='trackSection' type='label' fontColor='blue'>
+                <Label>Tracked Entities:</Label>
+            </Field>
+            <Field id='device1' type='menu'>
+                <Label>Device 1:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state1' type='menu'>
+                <Label>State 1:</Label>
+                <List class='self' filter='device1' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device2' type='menu'>
+                <Label>Device 2:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state2' type='menu'>
+                <Label>State 2:</Label>
+                <List class='self' filter='device2' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device3' type='menu'>
+                <Label>Device 3:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state3' type='menu'>
+                <Label>State 3:</Label>
+                <List class='self' filter='device3' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device4' type='menu'>
+                <Label>Device 4:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state4' type='menu'>
+                <Label>State 4:</Label>
+                <List class='self' filter='device4' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device5' type='menu'>
+                <Label>Device 5:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state5' type='menu'>
+                <Label>State 5:</Label>
+                <List class='self' filter='device5' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='statesButton1' type='button'>
+                <Title>Load Device States</Title>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='show10dev' type='checkbox' defaultValue='false'>
+                <Label>Show more</Label>
+            </Field>
+            <Field id='device6' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>Device 6:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state6' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>State 6:</Label>
+                <List class='self' filter='device6' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device7' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>Device 7:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state7' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>State 7:</Label>
+                <List class='self' filter='device7' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device8' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>Device 8:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state8' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>State 8:</Label>
+                <List class='self' filter='device8' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device9' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>Device 9:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state9' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>State 9:</Label>
+                <List class='self' filter='device9' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='device10' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>Device 10:</Label>
+                <List class='self' method='getDeviceList'/>
+            </Field>
+            <Field id='state10' type='menu' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Label>State 10:</Label>
+                <List class='self' filter='device10' method='getStateList' dynamicReload='true'/>
+            </Field>
+            <Field id='statesButton2' type='button' visibleBindingId='show10dev'  visibleBindingValue='true'>
+                <Title>Load Device States</Title>
+                <CallbackMethod>loadStates</CallbackMethod>
+            </Field>
+            <Field id='show20dev' type='checkbox' defaultValue='false' visibleBindingId='show10dev'  visibleBindingValue='true'>
                 <Label>Show even more</Label>
             </Field>
             <Field id='device11' type='menu' visibleBindingId='show20dev'  visibleBindingValue='true'>
@@ -258,29 +704,37 @@
                 <List class='self' method='getVariableList'/>
             </Field>
             <Field id='logicSeparator' type='separator' />
+            <Field id='logicSection' type='label' fontColor='blue'>
+                <Label>Input Logic:</Label>
+            </Field>
+            <Field id='logicHelp' type='label' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>Which state or variable values are counted as TRUE inputs?</Label>
+            </Field>
             <Field id='logicType' type='menu' defaultValue='simple'>
                 <Label>Logic:</Label>
                 <List>
-                    <Option value='any'>Any Change</Option>
                     <Option value='simple'>Simple</Option>
                     <Option value='complex'>Complex</Option>
                 </List>
             </Field>
-            <Field id='boolLabel0' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
-                <Label>• Strings match:</Label>
+            <Field id='boolLabel1' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Strings match 'true', 'on', 'open', 'up', 'yes', 'active', 'locked', '1'  </Label>
             </Field>
-            <Field id='boolLabel1' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
-                <Label>    'true', 'on', 'open', 'up', 'yes', 'active', 'locked', '1'</Label>
-            </Field>
-            <Field id='boolLabel2' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
+            <Field id='boolLabel2' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Numbers match if non-zero</Label>
             </Field>
-            <Field id='boolLabel3' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
+            <Field id='boolLabel3' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Booleans match if True</Label>
             </Field>
             <Field id='reverseBoolean' type='checkbox' defaultValue='false' visibleBindingId='logicType'  visibleBindingValue='simple' alwaysUseInDialogHeightCalc='true'>
                 <Label>Reverse?:</Label>
                 <Description>Check to reverse above logic.</Description>
+            </Field>
+            <Field id='boolLabel4' type='label' visibleBindingId='reverseBoolean'  visibleBindingValue='false' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Matched value is TRUE input</Label>
+            </Field>
+            <Field id='boolLabel5' type='label' visibleBindingId='reverseBoolean'  visibleBindingValue='true' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Matched value is FALSE input</Label>
             </Field>
             <Field id='operator' type='menu' defaultValue='eq' visibleBindingId='logicType'  visibleBindingValue='complex'>
                 <Label>Operator:</Label>
@@ -294,28 +748,31 @@
                 </List>
             </Field>
             <Field id='value' type='textfield' visibleBindingId='logicType'  visibleBindingValue='complex'>
-                <Label>Comparison:</Label>
+                <Label>Comparison Value:</Label>
             </Field>
-            <Field id='valueType' type='menu' defaultvalue='str' visibleBindingId='logicType'  visibleBindingValue='complex'>
+            <Field id='valueType' type='menu' defaultValue='str' visibleBindingId='logicType'  visibleBindingValue='complex'>
                 <Label>Data Type:</Label>
                 <List>
                     <Option value='str'>String</Option>
                     <Option value='num'>Number</Option>
                 </List>
             </Field>
-            <Field id='boolLabel4' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel6' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Type errors always compare as False</Label>
             </Field>
-            <Field id='boolLabel5' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel7' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Strings are compared in lowercase</Label>
             </Field>
-            <Field id='boolLabel6' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel8' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Numbers are compared as floats</Label>
             </Field>
-            <Field id='boolLabel7' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel9' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• For boolean comparison, use simple logic</Label>
             </Field>
-            <Field id='logSeparator' type='separator' />
+            <Field id='miscSeparator' type='separator' />
+            <Field id='miscSection' type='label' fontColor='blue'>
+                <Label>Miscellaneous:</Label>
+            </Field>
             <Field id='logOnOff' type='checkbox' defaultValue='true'>
                 <Label>Log On/Off?:</Label>
                 <Description>Uncheck to suppress logging on/off events</Description>
@@ -365,11 +822,6 @@
                 <TriggerLabel>Expired</TriggerLabel>
                 <ControlPageLabel>Expired</ControlPageLabel>
             </State>
-            <State id='reset'>
-                <ValueType>Boolean</ValueType>
-                <TriggerLabel>Reset</TriggerLabel>
-                <ControlPageLabel>Reset</ControlPageLabel>
-            </State>
             <State id='resetTime'>
                 <ValueType>Number</ValueType>
                 <TriggerLabel>Reset Time</TriggerLabel>
@@ -396,23 +848,39 @@
     <Device type='custom' id='persistenceTimer'>
         <Name>Persistence Timer</Name>
         <ConfigUI>
+            <Field id='description0' type='label'>
+                <Label>Persistence Timer device tracks a single entity, igoring momentary changes.</Label>
+            </Field>
+            <Field id='description1' type='label' fontSize='small' fontColor='darkgray'>
+                <Label>Device turns ON if input remains TRUE for duration of ON PERSIST.</Label>
+            </Field>
+            <Field id='description2' type='label' fontSize='small' fontColor='darkgray'>
+                <Label>Device turns OFF if input remains FALSE for duration of OFF PERSIST.</Label>
+            </Field>
+            <Field id='timerSeparator' type='separator' />
+            <Field id='timerSection' type='label' fontColor='blue'>
+                <Label>Timer Settings:</Label>
+            </Field>
             <Field id='onCycles' type='textfield' defaultValue='30'>
-                <Label>ON Persist Cycles:</Label>
+                <Label>On Persist Cycles:</Label>
             </Field>
             <Field id='onUnits' type='menu' defaultValue='seconds'>
-                <Label>ON Persist Units:</Label>
+                <Label>On Persist Units:</Label>
                 <List>
                     <Option value='seconds'>Seconds</Option>
                     <Option value='minutes'>Minutes</Option>
                     <Option value='hours'>Hours</Option>
                     <Option value='days'>Days</Option>
                 </List>
+            </Field>
+            <Field id='onHelp' type='label' fontSize='small' fontColor='darkgray' alignWithControl='true'>
+                <Label>How long after TRUE input until this device turns ON.</Label>
             </Field>
             <Field id='offCycles' type='textfield' defaultValue='30'>
-                <Label>OFF Persist Cycles:</Label>
+                <Label>Off Persist Cycles:</Label>
             </Field>
             <Field id='offUnits' type='menu' defaultValue='seconds'>
-                <Label>OFF Persist Units:</Label>
+                <Label>Off Persist Units:</Label>
                 <List>
                     <Option value='seconds'>Seconds</Option>
                     <Option value='minutes'>Minutes</Option>
@@ -420,7 +888,13 @@
                     <Option value='days'>Days</Option>
                 </List>
             </Field>
-            <Field id='separator' type='separator' />
+            <Field id='offHelp' type='label' fontSize='small' fontColor='darkgray' alignWithControl='true'>
+                <Label>How long after FALSE input until this device turns OFF.</Label>
+            </Field>
+            <Field id='trackSeparator' type='separator' />
+            <Field id='trackSection' type='label' fontColor='blue'>
+                <Label>Tracked Entity:</Label>
+            </Field>
             <Field id='trackEntity' type='menu' defaultValue='dev'>
                 <Label>Track:</Label>
                 <List>
@@ -442,6 +916,12 @@
                 <List class='self' method='getVariableList'/>
             </Field>
             <Field id='logicSeparator' type='separator' />
+            <Field id='logicSection' type='label' fontColor='blue'>
+                <Label>Input Logic:</Label>
+            </Field>
+            <Field id='logicHelp' type='label' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>Which state or variable values are counted as TRUE inputs?</Label>
+            </Field>
             <Field id='logicType' type='menu' defaultValue='simple'>
                 <Label>Logic:</Label>
                 <List>
@@ -449,21 +929,24 @@
                     <Option value='complex'>Complex</Option>
                 </List>
             </Field>
-            <Field id='boolLabel0' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
-                <Label>• Strings match:</Label>
+            <Field id='boolLabel1' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Strings match 'true', 'on', 'open', 'up', 'yes', 'active', 'locked', '1'  </Label>
             </Field>
-            <Field id='boolLabel1' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
-                <Label>    'true', 'on', 'open', 'up', 'yes', 'active', 'locked', '1'</Label>
-            </Field>
-            <Field id='boolLabel2' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
+            <Field id='boolLabel2' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Numbers match if non-zero</Label>
             </Field>
-            <Field id='boolLabel3' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
+            <Field id='boolLabel3' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Booleans match if True</Label>
             </Field>
             <Field id='reverseBoolean' type='checkbox' defaultValue='false' visibleBindingId='logicType'  visibleBindingValue='simple' alwaysUseInDialogHeightCalc='true'>
                 <Label>Reverse?:</Label>
                 <Description>Check to reverse above logic.</Description>
+            </Field>
+            <Field id='boolLabel4' type='label' visibleBindingId='reverseBoolean'  visibleBindingValue='false' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Matched value is TRUE input</Label>
+            </Field>
+            <Field id='boolLabel5' type='label' visibleBindingId='reverseBoolean'  visibleBindingValue='true' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Matched value is FALSE input</Label>
             </Field>
             <Field id='operator' type='menu' defaultValue='eq' visibleBindingId='logicType'  visibleBindingValue='complex'>
                 <Label>Operator:</Label>
@@ -477,28 +960,31 @@
                 </List>
             </Field>
             <Field id='value' type='textfield' visibleBindingId='logicType'  visibleBindingValue='complex'>
-                <Label>Comparison:</Label>
+                <Label>Comparison Value:</Label>
             </Field>
-            <Field id='valueType' type='menu' defaultvalue='str' visibleBindingId='logicType'  visibleBindingValue='complex'>
+            <Field id='valueType' type='menu' defaultValue='str' visibleBindingId='logicType'  visibleBindingValue='complex'>
                 <Label>Data Type:</Label>
                 <List>
                     <Option value='str'>String</Option>
                     <Option value='num'>Number</Option>
                 </List>
             </Field>
-            <Field id='boolLabel4' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel6' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Type errors always compare as False</Label>
             </Field>
-            <Field id='boolLabel5' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel7' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Strings are compared in lowercase</Label>
             </Field>
-            <Field id='boolLabel6' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel8' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Numbers are compared as floats</Label>
             </Field>
-            <Field id='boolLabel7' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel9' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• For boolean comparison, use simple logic</Label>
             </Field>
-            <Field id='logSeparator' type='separator' />
+            <Field id='miscSeparator' type='separator' />
+            <Field id='miscSection' type='label' fontColor='blue'>
+                <Label>Miscellaneous:</Label>
+            </Field>
             <Field id='logOnOff' type='checkbox' defaultValue='true'>
                 <Label>Log On/Off?:</Label>
                 <Description>Uncheck to suppress logging on/off events</Description>
@@ -565,23 +1051,42 @@
     <Device type='custom' id='lockoutTimer'>
         <Name>Lockout Timer</Name>
         <ConfigUI>
+            <Field id='description0' type='label'>
+                <Label>Lockout Timer device tracks a single entity, igoring fast changes.</Label>
+            </Field>
+            <Field id='description1' type='label' fontSize='small' fontColor='darkgray'>
+                <Label>Device turns ON with TRUE input, and locks until ON LOCKOUT expires.</Label>
+            </Field>
+            <Field id='description2' type='label' fontSize='small' fontColor='darkgray'>
+                <Label>Device turns OFF with FALSE input, and locks until OFF LOCKOUT expires.</Label>
+            </Field>
+            <Field id='description3' type='label' fontSize='small' fontColor='darkgray'>
+                <Label>When LOCKOUT expires, device will evaluate any subsequent changes.</Label>
+            </Field>
+            <Field id='timerSeparator' type='separator' />
+            <Field id='timerSection' type='label' fontColor='blue'>
+                <Label>Timer Settings:</Label>
+            </Field>
             <Field id='onCycles' type='textfield' defaultValue='30'>
-                <Label>ON Lockout Cycles:</Label>
+                <Label>On Lockout Cycles:</Label>
             </Field>
             <Field id='onUnits' type='menu' defaultValue='seconds'>
-                <Label>ON Lockout Units:</Label>
+                <Label>On Lockout Units:</Label>
                 <List>
                     <Option value='seconds'>Seconds</Option>
                     <Option value='minutes'>Minutes</Option>
                     <Option value='hours'>Hours</Option>
                     <Option value='days'>Days</Option>
                 </List>
+            </Field>
+            <Field id='onHelp' type='label' fontSize='small' fontColor='darkgray' alignWithControl='true'>
+                <Label>How long to prevent changes after this device turns ON.</Label>
             </Field>
             <Field id='offCycles' type='textfield' defaultValue='30'>
-                <Label>OFF Lockout Cycles:</Label>
+                <Label>Off Lockout Cycles:</Label>
             </Field>
             <Field id='offUnits' type='menu' defaultValue='seconds'>
-                <Label>OFF Lockout Units:</Label>
+                <Label>Off Lockout Units:</Label>
                 <List>
                     <Option value='seconds'>Seconds</Option>
                     <Option value='minutes'>Minutes</Option>
@@ -589,7 +1094,13 @@
                     <Option value='days'>Days</Option>
                 </List>
             </Field>
-            <Field id='separator' type='separator' />
+            <Field id='offHelp' type='label' fontSize='small' fontColor='darkgray' alignWithControl='true'>
+                <Label>How long to prevent changes after this device turns OFF.</Label>
+            </Field>
+            <Field id='trackSeparator' type='separator' />
+            <Field id='trackSection' type='label' fontColor='blue'>
+                <Label>Tracked Entity:</Label>
+            </Field>
             <Field id='trackEntity' type='menu' defaultValue='dev'>
                 <Label>Track:</Label>
                 <List>
@@ -611,6 +1122,12 @@
                 <List class='self' method='getVariableList'/>
             </Field>
             <Field id='logicSeparator' type='separator' />
+            <Field id='logicSection' type='label' fontColor='blue'>
+                <Label>Input Logic:</Label>
+            </Field>
+            <Field id='logicHelp' type='label' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>Which state or variable values are counted as TRUE inputs?</Label>
+            </Field>
             <Field id='logicType' type='menu' defaultValue='simple'>
                 <Label>Logic:</Label>
                 <List>
@@ -618,21 +1135,24 @@
                     <Option value='complex'>Complex</Option>
                 </List>
             </Field>
-            <Field id='boolLabel0' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
-                <Label>• Strings match:</Label>
+            <Field id='boolLabel1' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Strings match 'true', 'on', 'open', 'up', 'yes', 'active', 'locked', '1'  </Label>
             </Field>
-            <Field id='boolLabel1' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
-                <Label>    'true', 'on', 'open', 'up', 'yes', 'active', 'locked', '1'</Label>
-            </Field>
-            <Field id='boolLabel2' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
+            <Field id='boolLabel2' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Numbers match if non-zero</Label>
             </Field>
-            <Field id='boolLabel3' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
+            <Field id='boolLabel3' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Booleans match if True</Label>
             </Field>
             <Field id='reverseBoolean' type='checkbox' defaultValue='false' visibleBindingId='logicType'  visibleBindingValue='simple' alwaysUseInDialogHeightCalc='true'>
                 <Label>Reverse?:</Label>
                 <Description>Check to reverse above logic.</Description>
+            </Field>
+            <Field id='boolLabel4' type='label' visibleBindingId='reverseBoolean'  visibleBindingValue='false' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Matched value is TRUE input</Label>
+            </Field>
+            <Field id='boolLabel5' type='label' visibleBindingId='reverseBoolean'  visibleBindingValue='true' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Matched value is FALSE input</Label>
             </Field>
             <Field id='operator' type='menu' defaultValue='eq' visibleBindingId='logicType'  visibleBindingValue='complex'>
                 <Label>Operator:</Label>
@@ -646,7 +1166,7 @@
                 </List>
             </Field>
             <Field id='value' type='textfield' visibleBindingId='logicType'  visibleBindingValue='complex'>
-                <Label>Comparison:</Label>
+                <Label>Comparison Value:</Label>
             </Field>
             <Field id='valueType' type='menu' defaultValue='str' visibleBindingId='logicType'  visibleBindingValue='complex'>
                 <Label>Data Type:</Label>
@@ -655,19 +1175,22 @@
                     <Option value='num'>Number</Option>
                 </List>
             </Field>
-            <Field id='boolLabel4' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel6' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Type errors always compare as False</Label>
             </Field>
-            <Field id='boolLabel5' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel7' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Strings are compared in lowercase</Label>
             </Field>
-            <Field id='boolLabel6' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel8' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Numbers are compared as floats</Label>
             </Field>
-            <Field id='boolLabel7' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel9' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• For boolean comparison, use simple logic</Label>
             </Field>
-            <Field id='logSeparator' type='separator' />
+            <Field id='miscSeparator' type='separator' />
+            <Field id='miscSection' type='label' fontColor='blue'>
+                <Label>Miscellaneous:</Label>
+            </Field>
             <Field id='logOnOff' type='checkbox' defaultValue='true'>
                 <Label>Log On/Off?:</Label>
                 <Description>Uncheck to suppress logging on/off events</Description>
@@ -734,11 +1257,24 @@
     <Device type='custom' id='aliveTimer'>
         <Name>Alive Timer</Name>
         <ConfigUI>
+            <Field id='description0' type='label'>
+                <Label>Alive Timer device tracks a single enity for any changes.</Label>
+            </Field>
+            <Field id='description1' type='label' fontSize='small' fontColor='darkgray'>
+                <Label>Device turns ON and sets ALIVE TIMER if any change is detected (including heartbeat).</Label>
+            </Field>
+            <Field id='description2' type='label' fontSize='small' fontColor='darkgray'>
+                <Label>Device turns OFF if ALIVE TIMER expires.</Label>
+            </Field>
+            <Field id='timerSeparator' type='separator' />
+            <Field id='timerSection' type='label' fontColor='blue'>
+                <Label>Timer Settings:</Label>
+            </Field>
             <Field id='offCycles' type='textfield' defaultValue='25'>
-                <Label>Alive Cycles:</Label>
+                <Label>Alive Timer Cycles:</Label>
             </Field>
             <Field id='offUnits' type='menu' defaultValue='hours'>
-                <Label>Alive Units:</Label>
+                <Label>Alive Timer Units:</Label>
                 <List>
                     <Option value='seconds'>Seconds</Option>
                     <Option value='minutes'>Minutes</Option>
@@ -746,7 +1282,13 @@
                     <Option value='days'>Days</Option>
                 </List>
             </Field>
-            <Field id='separator' type='separator' />
+            <Field id='offHelp' type='label' fontSize='small' fontColor='darkgray' alignWithControl='true'>
+                <Label>How after last detected change before this device turns OFF.</Label>
+            </Field>
+            <Field id='trackSeparator' type='separator' />
+            <Field id='trackSection' type='label' fontColor='blue'>
+                <Label>Tracked Entity:</Label>
+            </Field>
             <Field id='trackEntity' type='menu' defaultValue='dev'>
                 <Label>Track:</Label>
                 <List>
@@ -763,7 +1305,10 @@
                 <Label>Variable:</Label>
                 <List class='self' method='getVariableList'/>
             </Field>
-            <Field id='logSeparator' type='separator' />
+            <Field id='miscSeparator' type='separator' />
+            <Field id='miscSection' type='label' fontColor='blue'>
+                <Label>Miscellaneous:</Label>
+            </Field>
             <Field id='logOnOff' type='checkbox' defaultValue='true'>
                 <Label>Log On/Off?:</Label>
                 <Description>Uncheck to suppress logging on/off events</Description>
@@ -812,6 +1357,19 @@
     <Device type='custom' id='runningTimer'>
         <Name>Running Timer</Name>
         <ConfigUI>
+            <Field id='description0' type='label'>
+                <Label>Running Timer device tracks a single enity, maintaining statistics of on time.</Label>
+            </Field>
+            <Field id='description1' type='label' fontSize='small' fontColor='darkgray'>
+                <Label>Device turns ON with TRUE input and OFF with FALSE input.</Label>
+            </Field>
+            <Field id='description2' type='label' fontSize='small' fontColor='darkgray'>
+                <Label>Total ON times are recorded for current and prior hour, day, week, month and year.</Label>
+            </Field>
+            <Field id='timerSeparator' type='separator' />
+            <Field id='timerSection' type='label' fontColor='blue'>
+                <Label>Timer Settings:</Label>
+            </Field>
             <Field id='updateSeconds' type='menu' defaultValue='60'>
                 <Label>Update Frequency:</Label>
                 <List>
@@ -828,16 +1386,19 @@
                     <Option value="3600">1 Hour</Option>
                 </List>
             </Field>
-            <Field id='updateHelp0' type='label' alignWithControl='true' fontSize='small' fontColor='darkgrey'>
-                <Label>Only affects how often times are saved to device's</Label>
+            <Field id='updateHelp0' type='label' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Only affects how often totals are saved to device's states.</Label>
             </Field>
-            <Field id='updateHelp1' type='label' alignWithControl='true' fontSize='small' fontColor='darkgrey'>
-                <Label>states, _not_ the granualarity of the measurment.</Label>
+            <Field id='updateHelp1' type='label' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• This is NOT the granularity of the measurment.</Label>
             </Field>
-            <Field id='updateHelp2' type='label' alignWithControl='true' fontSize='small' fontColor='darkgrey'>
-                <Label>Device will _always_ update when the tracked entity changes.</Label>
+            <Field id='updateHelp2' type='label' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Device will ALWAYS update when the tracked entity changes.</Label>
             </Field>
-            <Field id='separator' type='separator' />
+            <Field id='trackSeparator' type='separator' />
+            <Field id='trackSection' type='label' fontColor='blue'>
+                <Label>Tracked Entity:</Label>
+            </Field>
             <Field id='trackEntity' type='menu' defaultValue='dev'>
                 <Label>Track:</Label>
                 <List>
@@ -859,6 +1420,12 @@
                 <List class='self' method='getVariableList'/>
             </Field>
             <Field id='logicSeparator' type='separator' />
+            <Field id='logicSection' type='label' fontColor='blue'>
+                <Label>Input Logic:</Label>
+            </Field>
+            <Field id='logicHelp' type='label' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>Which state or variable values are counted as TRUE inputs?</Label>
+            </Field>
             <Field id='logicType' type='menu' defaultValue='simple'>
                 <Label>Logic:</Label>
                 <List>
@@ -866,21 +1433,24 @@
                     <Option value='complex'>Complex</Option>
                 </List>
             </Field>
-            <Field id='boolLabel0' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
-                <Label>• Strings match:</Label>
+            <Field id='boolLabel1' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Strings match 'true', 'on', 'open', 'up', 'yes', 'active', 'locked', '1'  </Label>
             </Field>
-            <Field id='boolLabel1' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
-                <Label>    'true', 'on', 'open', 'up', 'yes', 'active', 'locked', '1'</Label>
-            </Field>
-            <Field id='boolLabel2' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
+            <Field id='boolLabel2' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Numbers match if non-zero</Label>
             </Field>
-            <Field id='boolLabel3' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true'>
+            <Field id='boolLabel3' type='label' visibleBindingId='logicType'  visibleBindingValue='simple' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Booleans match if True</Label>
             </Field>
             <Field id='reverseBoolean' type='checkbox' defaultValue='false' visibleBindingId='logicType'  visibleBindingValue='simple' alwaysUseInDialogHeightCalc='true'>
                 <Label>Reverse?:</Label>
                 <Description>Check to reverse above logic.</Description>
+            </Field>
+            <Field id='boolLabel4' type='label' visibleBindingId='reverseBoolean'  visibleBindingValue='false' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Matched value is TRUE input</Label>
+            </Field>
+            <Field id='boolLabel5' type='label' visibleBindingId='reverseBoolean'  visibleBindingValue='true' alignWithControl='true' fontSize='small' fontColor='darkgray'>
+                <Label>• Matched value is FALSE input</Label>
             </Field>
             <Field id='operator' type='menu' defaultValue='eq' visibleBindingId='logicType'  visibleBindingValue='complex'>
                 <Label>Operator:</Label>
@@ -894,7 +1464,7 @@
                 </List>
             </Field>
             <Field id='value' type='textfield' visibleBindingId='logicType'  visibleBindingValue='complex'>
-                <Label>Comparison:</Label>
+                <Label>Comparison Value:</Label>
             </Field>
             <Field id='valueType' type='menu' defaultValue='str' visibleBindingId='logicType'  visibleBindingValue='complex'>
                 <Label>Data Type:</Label>
@@ -903,19 +1473,22 @@
                     <Option value='num'>Number</Option>
                 </List>
             </Field>
-            <Field id='boolLabel4' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel6' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Type errors always compare as False</Label>
             </Field>
-            <Field id='boolLabel5' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel7' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Strings are compared in lowercase</Label>
             </Field>
-            <Field id='boolLabel6' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel8' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• Numbers are compared as floats</Label>
             </Field>
-            <Field id='boolLabel7' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true'>
+            <Field id='boolLabel9' type='label' visibleBindingId='logicType'  visibleBindingValue='complex' alignWithControl='true' fontSize='small' fontColor='darkgray'>
                 <Label>• For boolean comparison, use simple logic</Label>
             </Field>
-            <Field id='logSeparator' type='separator' />
+            <Field id='miscSeparator' type='separator' />
+            <Field id='miscSection' type='label' fontColor='blue'>
+                <Label>Miscellaneous:</Label>
+            </Field>
             <Field id='logOnOff' type='checkbox' defaultValue='true'>
                 <Label>Log On/Off?:</Label>
                 <Description>Uncheck to suppress logging on/off events</Description>

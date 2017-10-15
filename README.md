@@ -7,7 +7,7 @@ This plugin doesn't do anything that can't be accomplished in Indigo with a comb
 
 #### Activity Timer devices
 
-These devices infer an ongoing ***activity*** from one or more _momentary_ inputs.  The device will expire (turn off) after a defined period of time with no additional inputs.
+Activity Timer devices infer an ongoing ***activity*** from one or more _momentary_ inputs.  Devices will turn on if the number of inputs reaches a defined threshold within a defined period of time. Devices will expire (turn off) after a defined period of time with no additional inputs.
 
 Once configured, these devices are simply ON to indicate recent activity and OFF to indicate no recent activity.
 
@@ -15,13 +15,21 @@ The most common use is inferring activity in a room or area by tracking motion s
 
 I first wrote the plugin for this scenario and in one case was able to replace 13 indigo entities (2 variables, 2 timers, and 9 triggers) with a single plugin device.
 
+#### Threshold Timer devices
+
+These devices are similar to Activity Timer devices, but are intended to track non-momentary inputs.  Devices turn on when tracked inputs reach a defined ***threshold***.  When the count of inputs becomes less than the threshold a timer is started and devices turn off when the timer expires.
+
+Once configured, these devices are simply ON to indicate recently reaching threshold and OFF to indicate not recently reaching threshold.
+
+This is useful for motion sensors that remain on for an extended period and thus do not repeatedly trigger when additional motion is detected.
+
 #### Persistence Timer devices
 
 These devices track the state of a single device or variable, but only change state after the tracked entity state has ***persisted*** for a defined period of time.  
 
-Once configured, these devices are just ON or OFF to reflect the delayed/confirmed state of some other device or variable (eliminating the need for possibly several cancel-delayed-action actions).  
+Once configured, these devices are just ON or OFF to reflect the delayed/confirmed state of some other device or variable (eliminating the need for cancel-delayed-action actions).  
 
-An obvious example if you want to track if a door has been left open (or closed), but ignore the door being opened (or closed) momentarily.
+An obvious example if you want to track if a door has been left open or closed, but ignore the door being opened or closed momentarily.
 
 #### Lockout Timer devices
 
@@ -29,7 +37,7 @@ These devices track a single device or variable and change state immediately whe
 
 Once configured, these devices are just ON or OFF to reflect the state of some other device or variable, but are guaranteed not to change more often than some pre-set period of time (allowing your triggered actions to complete before, say, reversing themselves).
 
-Not sure there is an obvious example for this, but I do find it useful in a few situations, especially when I don't want on/off triggers to fire too close together.
+This is useful when a device oscillates at its transition point.  For example, a presence detector may report OFF-ON-OFF when exiting.  Lockout Timer devices will react to the first change and ignore subsequent changes if the occur within the lockout period.
 
 #### Alive Timer devices
 
@@ -45,6 +53,7 @@ These devices track how long a single device or variable has been ***running*** 
 
 Once configured, these devices are just ON or OFF to reflect whether or not some other device or variable is ON or OFF.
 
+Device states report how long the tracked entity was ON during the current and prior hour, day, week, month, and year.
 
 ## Plugin configuration
 
@@ -108,6 +117,48 @@ Choose whether or not to log device on/off changes to the Indigo event log.
     * **idle**: nothing is happening.
     * **accrue**: device is counting up to **threshold**.
     * **active**: device is on and still counting inputs.
+    * **persist**: device is waiting to either expire or receive more inputs.
+
+## Threshold Timer devices
+
+#### Configuration
+
+* **Threshold**  
+The number of inputs required for the device to turn on.
+* **Off Cycles** and **Off Units**  
+How long before the device turns off after count drops below threshold.
+* **Device N** and **State N**  
+Select devices and their associated states to track as inputs for the device.
+* **Variable N**  
+Select variables to track as inputs for the device.
+* **Logic**
+    * **Simple**: device states or variable values that can be understood as true/false are considered inputs.
+        * **Reverse?**  
+        Reverse the logic.  I.e. consider False values as inputs.
+    * **Complex**: provide specific comparison logic to determine what is considered an input.
+        * **Operator**  
+        The operator used to compare device states and variable values to a reference value.
+        * **Comparison**  
+        The reference value for comparison.
+        * **Data Type**  
+            * **String**: compare as strings.
+            * **Number**: compare as number (float)
+* **Log On/Off**  
+Choose whether or not to log device on/off changes to the Indigo event log.
+
+#### States
+
+* **count** (int): current count toward **threshold**.
+* **counting** (bool): whether the device is acquiring inputs toward **threshold**.
+* **displayState** (str): state to display in indigo client interface.
+* **expired** (bool): true when device expires (as opposed to being forced off).
+* **offString** (str): timestamp of scheduled expiration.
+* **offTime** (float): epoch time of scheduled expiration.
+* **onOffState** (bool): whether the device is on or off.
+* **state** (enum): one of
+    * **idle**: nothing is happening.
+    * **accrue**: device is counting up to **threshold**.
+    * **active**: **threshold** is met and device is on.
     * **persist**: device is waiting to either expire or receive more inputs.
 
 ## Persistence Timer devices
