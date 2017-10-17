@@ -777,7 +777,6 @@ class ThresholdTimer(TimerBase):
 
     #-------------------------------------------------------------------------------
     def tick(self):
-        expired = False
         if (self.state == 'persist') and (self.taskTime >= self.offTime):
             self.onState = False
             self.expired = True
