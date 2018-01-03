@@ -262,9 +262,9 @@ class Plugin(indigo.PluginBase):
             if newDev.id in self.deviceDict:
                 self.deviceDict[newDev.id].dev = newDev
                 self.deviceDict[newDev.id].name = newDev.name
-        else:
-            for devId, device in self.deviceDict.items():
-                device.doTask('devChanged', oldDev, newDev)
+
+        for devId, device in self.deviceDict.items():
+            device.doTask('devChanged', oldDev, newDev)
 
     #-------------------------------------------------------------------------------
     # Variable Methods
@@ -337,7 +337,6 @@ class Plugin(indigo.PluginBase):
         if self.verbose:
             self.logger.debug('getDeviceList: {}'.format(targetId))
         devList = list()
-        excludeList  = [dev.id for dev in indigo.devices.iter(filter='self')]
         for dev in indigo.devices.iter():
             if not dev.id == targetId:
                 devList.append((dev.id, dev.name))
