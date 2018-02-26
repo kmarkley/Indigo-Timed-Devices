@@ -83,6 +83,8 @@ class Plugin(indigo.PluginBase):
     def __init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs):
         indigo.PluginBase.__init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
         self.updater = GitHubPluginUpdater(self)
+        self.configDeviceList = list()
+        self.configVariableList = list()
 
     def __del__(self):
         indigo.PluginBase.__del__(self)
@@ -234,7 +236,11 @@ class Plugin(indigo.PluginBase):
         if len(errorsDict) > 0:
             self.logger.debug('validate device config error: \n{}'.format(errorsDict))
             return (False, valuesDict, errorsDict)
-        return (True, valuesDict)
+        else:
+            # on success, reset generated device and variable lists
+            self.configDeviceList = list()
+            self.configVariableList = list()
+            return (True, valuesDict)
 
     #-------------------------------------------------------------------------------
     def updateDeviceVersion(self, dev):
@@ -336,12 +342,15 @@ class Plugin(indigo.PluginBase):
     def getDeviceList(self, filter='', valuesDict=dict(), typeId='', targetId=0):
         if self.verbose:
             self.logger.debug('getDeviceList: {}'.format(targetId))
-        devList = list()
-        for dev in indigo.devices.iter():
-            if not dev.id == targetId:
-                devList.append((dev.id, dev.name))
-        devList.append((0,"- none -"))
-        return devList
+
+        if not self.configDeviceList:
+            # generate device list once
+            for dev in indigo.devices.iter():
+                if not dev.id == targetId:
+                    self.configDeviceList.append((dev.id, dev.name))
+            self.configDeviceList.append((0,"- none -"))
+
+        return self.configDeviceList
 
     #-------------------------------------------------------------------------------
     def getStateList(self, filter=None, valuesDict=dict(), typeId='', targetId=0):
@@ -358,9 +367,13 @@ class Plugin(indigo.PluginBase):
     def getVariableList(self, filter='', valuesDict=dict(), typeId='', targetId=0):
         if self.verbose:
             self.logger.debug('getVariableList: {}'.format(targetId))
-        varList = [(var.id,var.name) for var in indigo.variables.iter()]
-        varList.append((0,"- none -"))
-        return varList
+
+        if not self.configVariableList:
+            # generate variable list once
+            self.configVariableList = [(var.id,var.name) for var in indigo.variables.iter()]
+            self.configVariableList.append((0,"- none -"))
+
+        return self.configVariableList
 
     #-------------------------------------------------------------------------------
     def loadStates(self, valuesDict=None, typeId='', targetId=0):
