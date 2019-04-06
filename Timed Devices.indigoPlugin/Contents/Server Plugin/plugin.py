@@ -10,7 +10,6 @@ import time
 from datetime import datetime, timedelta
 from ast import literal_eval
 from collections import OrderedDict
-from ghpu import GitHubPluginUpdater
 
 # Note the "indigo" module is automatically imported and made available inside
 # our global name space by the host process.
@@ -83,8 +82,6 @@ k_periodRange = {
 
 k_tickSeconds = 1
 
-kPluginUpdateCheckHours = 24
-
 k_strftimeFormat = '%Y-%m-%d %H:%M:%S'
 
 ################################################################################
@@ -92,7 +89,6 @@ class Plugin(indigo.PluginBase):
     #-------------------------------------------------------------------------------
     def __init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs):
         indigo.PluginBase.__init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
-        self.updater = GitHubPluginUpdater(self)
         self.configDeviceList = list()
         self.configVariableList = list()
 
@@ -103,7 +99,6 @@ class Plugin(indigo.PluginBase):
     # Start, Stop and Config changes
     #-------------------------------------------------------------------------------
     def startup(self):
-        self.nextCheck  = self.pluginPrefs.get('nextUpdateCheck',0)
         self.showTimer  = self.pluginPrefs.get('showTimer',False)
         self.debug      = self.pluginPrefs.get('showDebugInfo',False)
         self.verbose    = self.pluginPrefs.get('verboseDebug',False) and self.debug
@@ -123,7 +118,6 @@ class Plugin(indigo.PluginBase):
         self.pluginPrefs['showDebugInfo']   = self.debug
         self.pluginPrefs['verboseDebug']    = self.verbose
         self.pluginPrefs['showTimer']       = self.showTimer
-        self.pluginPrefs['nextUpdateCheck'] = self.nextCheck
 
     #-------------------------------------------------------------------------------
     def validatePrefsConfigUi(self, valuesDict):
@@ -152,8 +146,6 @@ class Plugin(indigo.PluginBase):
                 self.tickTime = time.time()
                 for device in self.deviceDict.values():
                     device.doTask('tick')
-                if self.tickTime > self.nextCheck:
-                    self.checkForUpdates()
                 self.sleep(self.tickTime + k_tickSeconds - time.time())
         except self.StopThread:
             pass    # Optionally catch the StopThread exception and do any needed cleanup.
@@ -321,27 +313,6 @@ class Plugin(indigo.PluginBase):
 
     #-------------------------------------------------------------------------------
     # Menu Methods
-    #-------------------------------------------------------------------------------
-    def checkForUpdates(self):
-        self.nextCheck = time.time() + (kPluginUpdateCheckHours*60*60)
-        try:
-            self.updater.checkForUpdate()
-        except Exception as e:
-            msg = 'Check for update error.  Next attempt in {} hours.'.format(kPluginUpdateCheckHours)
-            if self.debug:
-                self.logger.exception(msg)
-            else:
-                self.logger.error(msg)
-                self.logger.debug(e)
-
-    #-------------------------------------------------------------------------------
-    def updatePlugin(self):
-        self.updater.update()
-
-    #-------------------------------------------------------------------------------
-    def forceUpdate(self):
-        self.updater.update(currentVersion='0.0.0')
-
     #-------------------------------------------------------------------------------
     def toggleCountdown(self):
         if self.showTimer:
