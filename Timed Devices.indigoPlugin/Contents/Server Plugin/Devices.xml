@@ -1541,188 +1541,694 @@
                 <TriggerLabel>Reset String</TriggerLabel>
                 <ControlPageLabel>Reset String</ControlPageLabel>
             </State>
-            <State id='secondsThisContinuous'>
+            <State id='secondsContinuous00'>
                 <ValueType>Number</ValueType>
                 <TriggerLabel>Seconds On Currently</TriggerLabel>
-                <TriggerLabelPrefix>Seconds On Currently</TriggerLabelPrefix>
                 <ControlPageLabel>Seconds On Currently</ControlPageLabel>
-                <ControlPageLabelPrefix>Seconds On Currently</ControlPageLabelPrefix>
             </State>
-            <State id='secondsThisHour'>
-                <ValueType>Number</ValueType>
-                <TriggerLabel>Seconds On This Hour</TriggerLabel>
-                <TriggerLabelPrefix>Seconds On This Hour</TriggerLabelPrefix>
-                <ControlPageLabel>Seconds On This Hour</ControlPageLabel>
-                <ControlPageLabelPrefix>Seconds On This Hour</ControlPageLabelPrefix>
-            </State>
-            <State id='secondsThisDay'>
-                <ValueType>Number</ValueType>
-                <TriggerLabel>Seconds On This Day</TriggerLabel>
-                <TriggerLabelPrefix>Seconds On This Day</TriggerLabelPrefix>
-                <ControlPageLabel>Seconds On This Day</ControlPageLabel>
-                <ControlPageLabelPrefix>Seconds On This Day</ControlPageLabelPrefix>
-            </State>
-            <State id='secondsThisWeek'>
-                <ValueType>Number</ValueType>
-                <TriggerLabel>Seconds On This Week</TriggerLabel>
-                <TriggerLabelPrefix>Seconds On This Week</TriggerLabelPrefix>
-                <ControlPageLabel>Seconds On This Week</ControlPageLabel>
-                <ControlPageLabelPrefix>Seconds On This Week</ControlPageLabelPrefix>
-            </State>
-            <State id='secondsThisMonth'>
-                <ValueType>Number</ValueType>
-                <TriggerLabel>Seconds On This Month</TriggerLabel>
-                <TriggerLabelPrefix>Seconds On This Month</TriggerLabelPrefix>
-                <ControlPageLabel>Seconds On This Month</ControlPageLabel>
-                <ControlPageLabelPrefix>Seconds On This Month</ControlPageLabelPrefix>
-            </State>
-            <State id='secondsThisYear'>
-                <ValueType>Number</ValueType>
-                <TriggerLabel>Seconds On This Year</TriggerLabel>
-                <TriggerLabelPrefix>Seconds On This Year</TriggerLabelPrefix>
-                <ControlPageLabel>Seconds On This Year</ControlPageLabel>
-                <ControlPageLabelPrefix>Seconds On This Year</ControlPageLabelPrefix>
-            </State>
-            <State id='secondsLastContinuous'>
+            <State id='secondsContinuous01'>
                 <ValueType>Number</ValueType>
                 <TriggerLabel>Seconds On Previously</TriggerLabel>
-                <TriggerLabelPrefix>Seconds On Previously</TriggerLabelPrefix>
                 <ControlPageLabel>Seconds On Previously</ControlPageLabel>
-                <ControlPageLabelPrefix>Seconds On Previously</ControlPageLabelPrefix>
             </State>
-            <State id='secondsLastHour'>
+            <State id='secondsHour00'>
                 <ValueType>Number</ValueType>
-                <TriggerLabel>Seconds On Last Hour</TriggerLabel>
-                <TriggerLabelPrefix>Seconds On Last Hour</TriggerLabelPrefix>
-                <ControlPageLabel>Seconds On Last Hour</ControlPageLabel>
-                <ControlPageLabelPrefix>Seconds On Last Hour</ControlPageLabelPrefix>
+                <TriggerLabel>Seconds On Current Hour</TriggerLabel>
+                <ControlPageLabel>Seconds On Current Hour</ControlPageLabel>
             </State>
-            <State id='secondsLastDay'>
+            <State id='secondsHour01'>
                 <ValueType>Number</ValueType>
-                <TriggerLabel>Seconds On Last Day</TriggerLabel>
-                <TriggerLabelPrefix>Seconds On Last Day</TriggerLabelPrefix>
-                <ControlPageLabel>Seconds On Last Day</ControlPageLabel>
-                <ControlPageLabelPrefix>Seconds On Last Day</ControlPageLabelPrefix>
+                <TriggerLabel>Seconds On 1 Hour Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 1 Hour Ago</ControlPageLabel>
             </State>
-            <State id='secondsLastWeek'>
+            <State id='secondsHour02'>
                 <ValueType>Number</ValueType>
-                <TriggerLabel>Seconds On Last Week</TriggerLabel>
-                <TriggerLabelPrefix>Seconds On Last Week</TriggerLabelPrefix>
-                <ControlPageLabel>Seconds On Last Week</ControlPageLabel>
-                <ControlPageLabelPrefix>Seconds On Last Week</ControlPageLabelPrefix>
+                <TriggerLabel>Seconds On 2 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 2 Hours Ago</ControlPageLabel>
             </State>
-            <State id='secondsLastMonth'>
+            <State id='secondsHour03'>
                 <ValueType>Number</ValueType>
-                <TriggerLabel>Seconds On Last Month</TriggerLabel>
-                <TriggerLabelPrefix>Seconds On Last Month</TriggerLabelPrefix>
-                <ControlPageLabel>Seconds On Last Month</ControlPageLabel>
-                <ControlPageLabelPrefix>Seconds On Last Month</ControlPageLabelPrefix>
+                <TriggerLabel>Seconds On 3 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 3 Hours Ago</ControlPageLabel>
             </State>
-            <State id='secondsLastYear'>
+            <State id='secondsHour04'>
                 <ValueType>Number</ValueType>
-                <TriggerLabel>Seconds On Last Year</TriggerLabel>
-                <TriggerLabelPrefix>Seconds On Last Year</TriggerLabelPrefix>
-                <ControlPageLabel>Seconds On Last Year</ControlPageLabel>
-                <ControlPageLabelPrefix>Seconds On Last Year</ControlPageLabelPrefix>
+                <TriggerLabel>Seconds On 4 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 4 Hours Ago</ControlPageLabel>
             </State>
-            <State id='stringThisContinuous'>
+            <State id='secondsHour05'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 5 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 5 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour06'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 6 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 6 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour07'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 7 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 7 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour08'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 8 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 8 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour09'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 9 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 9 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour10'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 10 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 10 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour11'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 11 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 11 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour12'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 12 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 12 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour13'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 13 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 13 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour14'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 14 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 14 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour15'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 15 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 15 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour16'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 16 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 16 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour17'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 17 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 17 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour18'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 18 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 18 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour19'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 19 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 19 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour20'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 20 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 20 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour21'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 21 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 21 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour22'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 22 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 22 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour23'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 23 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 23 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsHour24'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 24 Hours Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 24 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='secondsDay00'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On Current Day</TriggerLabel>
+                <ControlPageLabel>Seconds On Current Day</ControlPageLabel>
+            </State>
+            <State id='secondsDay01'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 1 Day Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 1 Day Ago</ControlPageLabel>
+            </State>
+            <State id='secondsDay02'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 2 Days Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 2 Days Ago</ControlPageLabel>
+            </State>
+            <State id='secondsDay03'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 3 Days Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 3 Days Ago</ControlPageLabel>
+            </State>
+            <State id='secondsDay04'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 4 Days Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 4 Days Ago</ControlPageLabel>
+            </State>
+            <State id='secondsDay05'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 5 Days Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 5 Days Ago</ControlPageLabel>
+            </State>
+            <State id='secondsDay06'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 6 Days Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 6 Days Ago</ControlPageLabel>
+            </State>
+            <State id='secondsDay07'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 7 Days Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 7 Days Ago</ControlPageLabel>
+            </State>
+            <State id='secondsWeek00'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On Current Week</TriggerLabel>
+                <ControlPageLabel>Seconds On Current Week</ControlPageLabel>
+            </State>
+            <State id='secondsWeek01'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 1 Week Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 1 Week Ago</ControlPageLabel>
+            </State>
+            <State id='secondsWeek02'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 2 Weeks Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 2 Weeks Ago</ControlPageLabel>
+            </State>
+            <State id='secondsWeek03'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 3 Weeks Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 3 Weeks Ago</ControlPageLabel>
+            </State>
+            <State id='secondsWeek04'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 4 Weeks Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 4 Weeks Ago</ControlPageLabel>
+            </State>
+            <State id='secondsMonth00'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On Current Month</TriggerLabel>
+                <ControlPageLabel>Seconds On Current Month</ControlPageLabel>
+            </State>
+            <State id='secondsMonth01'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 1 Month Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 1 Month Ago</ControlPageLabel>
+            </State>
+            <State id='secondsMonth02'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 2 Months Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 2 Months Ago</ControlPageLabel>
+            </State>
+            <State id='secondsMonth03'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 3 Months Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 3 Months Ago</ControlPageLabel>
+            </State>
+            <State id='secondsMonth04'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 4 Months Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 4 Months Ago</ControlPageLabel>
+            </State>
+            <State id='secondsMonth05'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 5 Months Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 5 Months Ago</ControlPageLabel>
+            </State>
+            <State id='secondsMonth06'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 6 Months Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 6 Months Ago</ControlPageLabel>
+            </State>
+            <State id='secondsMonth07'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 7 Months Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 7 Months Ago</ControlPageLabel>
+            </State>
+            <State id='secondsMonth08'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 8 Months Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 8 Months Ago</ControlPageLabel>
+            </State>
+            <State id='secondsMonth09'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 9 Months Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 9 Months Ago</ControlPageLabel>
+            </State>
+            <State id='secondsMonth10'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 10 Months Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 10 Months Ago</ControlPageLabel>
+            </State>
+            <State id='secondsMonth11'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 11 Months Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 11 Months Ago</ControlPageLabel>
+            </State>
+            <State id='secondsMonth12'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On 12 Months Ago</TriggerLabel>
+                <ControlPageLabel>Seconds On 12 Months Ago</ControlPageLabel>
+            </State>
+            <State id='secondsYear00'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On Current Year</TriggerLabel>
+                <ControlPageLabel>Seconds Current Year</ControlPageLabel>
+            </State>
+            <State id='secondsYear01'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>Seconds On Previous Year</TriggerLabel>
+                <ControlPageLabel>Seconds On Previous Year</ControlPageLabel>
+            </State>
+            <State id='stringContinuous00'>
                 <ValueType>String</ValueType>
                 <TriggerLabel>String On Currently</TriggerLabel>
-                <TriggerLabelPrefix>String On Currently</TriggerLabelPrefix>
                 <ControlPageLabel>String On Currently</ControlPageLabel>
-                <ControlPageLabelPrefix>String On Currently</ControlPageLabelPrefix>
             </State>
-            <State id='stringThisHour'>
-                <ValueType>String</ValueType>
-                <TriggerLabel>String On This Hour</TriggerLabel>
-                <TriggerLabelPrefix>String On This Hour</TriggerLabelPrefix>
-                <ControlPageLabel>String On This Hour</ControlPageLabel>
-                <ControlPageLabelPrefix>String On This Hour</ControlPageLabelPrefix>
-            </State>
-            <State id='stringThisDay'>
-                <ValueType>String</ValueType>
-                <TriggerLabel>String On This Day</TriggerLabel>
-                <TriggerLabelPrefix>String On This Day</TriggerLabelPrefix>
-                <ControlPageLabel>String On This Day</ControlPageLabel>
-                <ControlPageLabelPrefix>String On This Day</ControlPageLabelPrefix>
-            </State>
-            <State id='stringThisWeek'>
-                <ValueType>String</ValueType>
-                <TriggerLabel>String On This Week</TriggerLabel>
-                <TriggerLabelPrefix>String On This Week</TriggerLabelPrefix>
-                <ControlPageLabel>String On This Week</ControlPageLabel>
-                <ControlPageLabelPrefix>String On This Week</ControlPageLabelPrefix>
-            </State>
-            <State id='stringThisMonth'>
-                <ValueType>String</ValueType>
-                <TriggerLabel>String On This Month</TriggerLabel>
-                <TriggerLabelPrefix>String On This Month</TriggerLabelPrefix>
-                <ControlPageLabel>String On This Month</ControlPageLabel>
-                <ControlPageLabelPrefix>String On This Month</ControlPageLabelPrefix>
-            </State>
-            <State id='stringThisYear'>
-                <ValueType>String</ValueType>
-                <TriggerLabel>String On This Year</TriggerLabel>
-                <TriggerLabelPrefix>String On This Year</TriggerLabelPrefix>
-                <ControlPageLabel>String On This Year</ControlPageLabel>
-                <ControlPageLabelPrefix>String On This Year</ControlPageLabelPrefix>
-            </State>
-            <State id='stringLastContinuous'>
+            <State id='stringContinuous01'>
                 <ValueType>String</ValueType>
                 <TriggerLabel>String On Previously</TriggerLabel>
-                <TriggerLabelPrefix>String On Previously</TriggerLabelPrefix>
                 <ControlPageLabel>String On Previously</ControlPageLabel>
-                <ControlPageLabelPrefix>String On Previously</ControlPageLabelPrefix>
             </State>
-            <State id='stringLastHour'>
+            <State id='stringHour00'>
                 <ValueType>String</ValueType>
-                <TriggerLabel>String On Last Hour</TriggerLabel>
-                <TriggerLabelPrefix>String On Last Hour</TriggerLabelPrefix>
-                <ControlPageLabel>String On Last Hour</ControlPageLabel>
-                <ControlPageLabelPrefix>String On Last Hour</ControlPageLabelPrefix>
+                <TriggerLabel>String On This Hour</TriggerLabel>
+                <ControlPageLabel>String On This Hour</ControlPageLabel>
             </State>
-            <State id='stringLastDay'>
+            <State id='stringHour00'>
                 <ValueType>String</ValueType>
-                <TriggerLabel>String On Last Day</TriggerLabel>
-                <TriggerLabelPrefix>String On Last Day</TriggerLabelPrefix>
-                <ControlPageLabel>String On Last Day</ControlPageLabel>
-                <ControlPageLabelPrefix>String On Last Day</ControlPageLabelPrefix>
+                <TriggerLabel>String On Current Hour</TriggerLabel>
+                <ControlPageLabel>String On Current Hour</ControlPageLabel>
             </State>
-            <State id='stringLastWeek'>
+            <State id='stringHour01'>
                 <ValueType>String</ValueType>
-                <TriggerLabel>String On Last Week</TriggerLabel>
-                <TriggerLabelPrefix>String On Last Week</TriggerLabelPrefix>
-                <ControlPageLabel>String On Last Week</ControlPageLabel>
-                <ControlPageLabelPrefix>String On Last Week</ControlPageLabelPrefix>
+                <TriggerLabel>String On 1 Hour Ago</TriggerLabel>
+                <ControlPageLabel>String On 1 Hour Ago</ControlPageLabel>
             </State>
-            <State id='stringLastMonth'>
+            <State id='stringHour02'>
                 <ValueType>String</ValueType>
-                <TriggerLabel>String On Last Month</TriggerLabel>
-                <TriggerLabelPrefix>String On Last Month</TriggerLabelPrefix>
-                <ControlPageLabel>String On Last Month</ControlPageLabel>
-                <ControlPageLabelPrefix>String On Last Month</ControlPageLabelPrefix>
+                <TriggerLabel>String On 2 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 2 Hours Ago</ControlPageLabel>
             </State>
-            <State id='stringLastYear'>
+            <State id='stringHour03'>
                 <ValueType>String</ValueType>
-                <TriggerLabel>String On Last Year</TriggerLabel>
-                <TriggerLabelPrefix>String On Last Year</TriggerLabelPrefix>
-                <ControlPageLabel>String On Last Year</ControlPageLabel>
-                <ControlPageLabelPrefix>String On Last Year</ControlPageLabelPrefix>
+                <TriggerLabel>String On 3 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 3 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour04'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 4 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 4 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour05'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 5 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 5 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour06'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 6 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 6 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour07'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 7 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 7 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour08'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 8 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 8 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour09'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 9 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 9 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour10'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 10 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 10 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour11'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 11 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 11 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour12'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 12 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 12 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour13'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 13 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 13 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour14'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 14 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 14 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour15'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 15 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 15 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour16'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 16 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 16 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour17'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 17 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 17 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour18'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 18 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 18 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour19'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 19 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 19 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour20'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 20 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 20 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour21'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 21 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 21 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour22'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 22 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 22 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour23'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 23 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 23 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringHour24'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 24 Hours Ago</TriggerLabel>
+                <ControlPageLabel>String On 24 Hours Ago</ControlPageLabel>
+            </State>
+            <State id='stringDay00'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On Current Day</TriggerLabel>
+                <ControlPageLabel>String On Current Day</ControlPageLabel>
+            </State>
+            <State id='stringDay01'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 1 Day Ago</TriggerLabel>
+                <ControlPageLabel>String On 1 Day Ago</ControlPageLabel>
+            </State>
+            <State id='stringDay02'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 2 Days Ago</TriggerLabel>
+                <ControlPageLabel>String On 2 Days Ago</ControlPageLabel>
+            </State>
+            <State id='stringDay03'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 3 Days Ago</TriggerLabel>
+                <ControlPageLabel>String On 3 Days Ago</ControlPageLabel>
+            </State>
+            <State id='stringDay04'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 4 Days Ago</TriggerLabel>
+                <ControlPageLabel>String On 4 Days Ago</ControlPageLabel>
+            </State>
+            <State id='stringDay05'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 5 Days Ago</TriggerLabel>
+                <ControlPageLabel>String On 5 Days Ago</ControlPageLabel>
+            </State>
+            <State id='stringDay06'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 6 Days Ago</TriggerLabel>
+                <ControlPageLabel>String On 6 Days Ago</ControlPageLabel>
+            </State>
+            <State id='stringDay07'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 7 Days Ago</TriggerLabel>
+                <ControlPageLabel>String On 7 Days Ago</ControlPageLabel>
+            </State>
+            <State id='stringWeek00'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On Current Week</TriggerLabel>
+                <ControlPageLabel>String On Current Week</ControlPageLabel>
+            </State>
+            <State id='stringWeek01'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 1 Week Ago</TriggerLabel>
+                <ControlPageLabel>String On 1 Week Ago</ControlPageLabel>
+            </State>
+            <State id='stringWeek02'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 2 Weeks Ago</TriggerLabel>
+                <ControlPageLabel>String On 2 Weeks Ago</ControlPageLabel>
+            </State>
+            <State id='stringWeek03'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 3 Weeks Ago</TriggerLabel>
+                <ControlPageLabel>String On 3 Weeks Ago</ControlPageLabel>
+            </State>
+            <State id='stringWeek04'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 4 Weeks Ago</TriggerLabel>
+                <ControlPageLabel>String On 4 Weeks Ago</ControlPageLabel>
+            </State>
+            <State id='stringMonth00'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On Current Month</TriggerLabel>
+                <ControlPageLabel>String On Current Month</ControlPageLabel>
+            </State>
+            <State id='stringMonth01'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 1 Month Ago</TriggerLabel>
+                <ControlPageLabel>String On 1 Month Ago</ControlPageLabel>
+            </State>
+            <State id='stringMonth02'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 2 Months Ago</TriggerLabel>
+                <ControlPageLabel>String On 2 Months Ago</ControlPageLabel>
+            </State>
+            <State id='stringMonth03'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 3 Months Ago</TriggerLabel>
+                <ControlPageLabel>String On 3 Months Ago</ControlPageLabel>
+            </State>
+            <State id='stringMonth04'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 4 Months Ago</TriggerLabel>
+                <ControlPageLabel>String On 4 Months Ago</ControlPageLabel>
+            </State>
+            <State id='stringMonth05'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 5 Months Ago</TriggerLabel>
+                <ControlPageLabel>String On 5 Months Ago</ControlPageLabel>
+            </State>
+            <State id='stringMonth06'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 6 Months Ago</TriggerLabel>
+                <ControlPageLabel>String On 6 Months Ago</ControlPageLabel>
+            </State>
+            <State id='stringMonth07'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 7 Months Ago</TriggerLabel>
+                <ControlPageLabel>String On 7 Months Ago</ControlPageLabel>
+            </State>
+            <State id='stringMonth08'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 8 Months Ago</TriggerLabel>
+                <ControlPageLabel>String On 8 Months Ago</ControlPageLabel>
+            </State>
+            <State id='stringMonth09'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 9 Months Ago</TriggerLabel>
+                <ControlPageLabel>String On 9 Months Ago</ControlPageLabel>
+            </State>
+            <State id='stringMonth10'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 10 Months Ago</TriggerLabel>
+                <ControlPageLabel>String On 10 Months Ago</ControlPageLabel>
+            </State>
+            <State id='stringMonth11'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 11 Months Ago</TriggerLabel>
+                <ControlPageLabel>String On 11 Months Ago</ControlPageLabel>
+            </State>
+            <State id='stringMonth12'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On 12 Months Ago</TriggerLabel>
+                <ControlPageLabel>String On 12 Months Ago</ControlPageLabel>
+            </State>
+            <State id='stringYear00'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On Current Year</TriggerLabel>
+                <ControlPageLabel>Seconds Current Year</ControlPageLabel>
+            </State>
+            <State id='stringYear01'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>String On Previous Year</TriggerLabel>
+                <ControlPageLabel>String On Previous Year</ControlPageLabel>
             </State>
             <State id='zzzSaveSpanDict'>
                 <ValueType>String</ValueType>
                 <TriggerLabel>-- Do Not Use --</TriggerLabel>
-                <TriggerLabelPrefix>-- Do Not Use --</TriggerLabelPrefix>
                 <ControlPageLabel>-- Do Not Use --</ControlPageLabel>
-                <ControlPageLabelPrefix>-- Do Not Use --</ControlPageLabelPrefix>
             </State>
             <State id='zzzSecsDoneDict'>
                 <ValueType>String</ValueType>
                 <TriggerLabel>-- Do Not Use --</TriggerLabel>
-                <TriggerLabelPrefix>-- Do Not Use --</TriggerLabelPrefix>
                 <ControlPageLabel>-- Do Not Use --</ControlPageLabel>
-                <ControlPageLabelPrefix>-- Do Not Use --</ControlPageLabelPrefix>
             </State>
+            <!-- FIXME depricated state name -->
+            <!-- remove after respectful transition period -->
+            <State id='secondsThisContinuous'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>DEPRICATED: Seconds On Currently</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: Seconds On Currently</ControlPageLabel>
+            </State>
+            <State id='secondsThisHour'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>DEPRICATED: Seconds On This Hour</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: Seconds On This Hour</ControlPageLabel>
+            </State>
+            <State id='secondsThisDay'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>DEPRICATED: Seconds On This Day</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: Seconds On This Day</ControlPageLabel>
+            </State>
+            <State id='secondsThisWeek'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>DEPRICATED: Seconds On This Week</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: Seconds On This Week</ControlPageLabel>
+            </State>
+            <State id='secondsThisMonth'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>DEPRICATED: Seconds On This Month</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: Seconds On This Month</ControlPageLabel>
+            </State>
+            <State id='secondsThisYear'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>DEPRICATED: Seconds On This Year</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: Seconds On This Year</ControlPageLabel>
+            </State>
+            <State id='secondsLastContinuous'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>DEPRICATED: Seconds On Previously</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: Seconds On Previously</ControlPageLabel>
+            </State>
+            <State id='secondsLastHour'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>DEPRICATED: Seconds On Last Hour</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: Seconds On Last Hour</ControlPageLabel>
+            </State>
+            <State id='secondsLastDay'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>DEPRICATED: Seconds On Last Day</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: Seconds On Last Day</ControlPageLabel>
+            </State>
+            <State id='secondsLastWeek'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>DEPRICATED: Seconds On Last Week</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: Seconds On Last Week</ControlPageLabel>
+            </State>
+            <State id='secondsLastMonth'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>DEPRICATED: Seconds On Last Month</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: Seconds On Last Month</ControlPageLabel>
+            </State>
+            <State id='secondsLastYear'>
+                <ValueType>Number</ValueType>
+                <TriggerLabel>DEPRICATED: Seconds On Last Year</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: Seconds On Last Year</ControlPageLabel>
+            </State>
+            <State id='stringThisContinuous'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>DEPRICATED: String On Currently</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: String On Currently</ControlPageLabel>
+            </State>
+            <State id='stringThisHour'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>DEPRICATED: String On This Hour</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: String On This Hour</ControlPageLabel>
+            </State>
+            <State id='stringThisDay'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>DEPRICATED: String On This Day</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: String On This Day</ControlPageLabel>
+            </State>
+            <State id='stringThisWeek'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>DEPRICATED: String On This Week</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: String On This Week</ControlPageLabel>
+            </State>
+            <State id='stringThisMonth'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>DEPRICATED: String On This Month</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: String On This Month</ControlPageLabel>
+            </State>
+            <State id='stringThisYear'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>DEPRICATED: String On This Year</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: String On This Year</ControlPageLabel>
+            </State>
+            <State id='stringLastContinuous'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>DEPRICATED: String On Previously</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: String On Previously</ControlPageLabel>
+            </State>
+            <State id='stringLastHour'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>DEPRICATED: String On Last Hour</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: String On Last Hour</ControlPageLabel>
+            </State>
+            <State id='stringLastDay'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>DEPRICATED: String On Last Day</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: String On Last Day</ControlPageLabel>
+            </State>
+            <State id='stringLastWeek'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>DEPRICATED: String On Last Week</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: String On Last Week</ControlPageLabel>
+            </State>
+            <State id='stringLastMonth'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>DEPRICATED: String On Last Month</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: String On Last Month</ControlPageLabel>
+            </State>
+            <State id='stringLastYear'>
+                <ValueType>String</ValueType>
+                <TriggerLabel>DEPRICATED: String On Last Year</TriggerLabel>
+                <ControlPageLabel>DEPRICATED: String On Last Year</ControlPageLabel>
+            </State>
+            <!-- /FIXME -->
         </States>
         <UiDisplayStateId>displayState</UiDisplayStateId>
     </Device>

@@ -9,7 +9,7 @@ import Queue
 import time
 from datetime import datetime, timedelta
 from ast import literal_eval
-from ghpu import GitHubPluginUpdater
+from collections import OrderedDict
 
 # Note the "indigo" module is automatically imported and made available inside
 # our global name space by the host process.
@@ -62,18 +62,25 @@ k_variableKeys = (
     'variable10',
     )
 
-k_timeSpans = (
-    'h', # hour
-    'd', # day
-    'w', # week
-    'm', # month
-    'y', # year
-    'c', # continuous
-    )
+k_timeSpans = OrderedDict([
+    ('h', 'Hour'),
+    ('d', 'Day'),
+    ('w', 'Week'),
+    ('m', 'Month'),
+    ('y', 'Year'),
+    ('c', 'Continuous'),
+    ])
+
+k_periodRange = {
+    'h': 25,
+    'd': 8,
+    'w': 5,
+    'm': 13,
+    'y': 2,
+    'c': 2,
+    }
 
 k_tickSeconds = 1
-
-kPluginUpdateCheckHours = 24
 
 k_strftimeFormat = '%Y-%m-%d %H:%M:%S'
 
@@ -82,7 +89,6 @@ class Plugin(indigo.PluginBase):
     #-------------------------------------------------------------------------------
     def __init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs):
         indigo.PluginBase.__init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
-        self.updater = GitHubPluginUpdater(self)
         self.configDeviceList = list()
         self.configVariableList = list()
 
@@ -93,7 +99,6 @@ class Plugin(indigo.PluginBase):
     # Start, Stop and Config changes
     #-------------------------------------------------------------------------------
     def startup(self):
-        self.nextCheck  = self.pluginPrefs.get('nextUpdateCheck',0)
         self.showTimer  = self.pluginPrefs.get('showTimer',False)
         self.debug      = self.pluginPrefs.get('showDebugInfo',False)
         self.verbose    = self.pluginPrefs.get('verboseDebug',False) and self.debug
@@ -113,7 +118,6 @@ class Plugin(indigo.PluginBase):
         self.pluginPrefs['showDebugInfo']   = self.debug
         self.pluginPrefs['verboseDebug']    = self.verbose
         self.pluginPrefs['showTimer']       = self.showTimer
-        self.pluginPrefs['nextUpdateCheck'] = self.nextCheck
 
     #-------------------------------------------------------------------------------
     def validatePrefsConfigUi(self, valuesDict):
@@ -140,10 +144,8 @@ class Plugin(indigo.PluginBase):
         try:
             while True:
                 self.tickTime = time.time()
-                for devId, device in self.deviceDict.iteritems():
+                for device in self.deviceDict.values():
                     device.doTask('tick')
-                if self.tickTime > self.nextCheck:
-                    self.checkForUpdates()
                 self.sleep(self.tickTime + k_tickSeconds - time.time())
         except self.StopThread:
             pass    # Optionally catch the StopThread exception and do any needed cleanup.
@@ -255,6 +257,19 @@ class Plugin(indigo.PluginBase):
             else:
                 theProps['logicType'] = 'simple'
 
+        # update running timer prior periods
+        if ver(theProps.get('version',"0.0.0")) < ver("0.0.22"):
+            if dev.deviceTypeId == 'runningTimer':
+                newStates = []
+                for span, name in k_timeSpans.items():
+                    newKey = 'seconds{}00'.format(name)
+                    oldKey = 'secondsThis{}'.format(name)
+                    newStates.append({'key':newKey, 'value':dev.states[oldKey]})
+                    newKey = 'seconds{}01'.format(name)
+                    oldKey = 'secondsLast{}'.format(name)
+                    newStates.append({'key':newKey, 'value':dev.states[oldKey]})
+                dev.updateStatesOnServer(newStates)
+
         # push to server
         theProps["version"] = self.pluginVersion
         dev.replacePluginPropsOnServer(theProps)
@@ -265,11 +280,12 @@ class Plugin(indigo.PluginBase):
         if newDev.pluginId == self.pluginId:
             # device belongs to plugin
             indigo.PluginBase.deviceUpdated(self, oldDev, newDev)
-            if newDev.id in self.deviceDict:
-                self.deviceDict[newDev.id].dev = newDev
+            if (newDev.id in self.deviceDict) and (newDev.name != oldDev.name):
+                # I hate it when the log continues to use an old name
                 self.deviceDict[newDev.id].name = newDev.name
 
-        for devId, device in self.deviceDict.items():
+        # plugin devices may belong to other plugin devices
+        for device in self.deviceDict.values():
             device.doTask('devChanged', oldDev, newDev)
 
     #-------------------------------------------------------------------------------
@@ -297,27 +313,6 @@ class Plugin(indigo.PluginBase):
 
     #-------------------------------------------------------------------------------
     # Menu Methods
-    #-------------------------------------------------------------------------------
-    def checkForUpdates(self):
-        self.nextCheck = time.time() + (kPluginUpdateCheckHours*60*60)
-        try:
-            self.updater.checkForUpdate()
-        except Exception as e:
-            msg = 'Check for update error.  Next attempt in {} hours.'.format(kPluginUpdateCheckHours)
-            if self.debug:
-                self.logger.exception(msg)
-            else:
-                self.logger.error(msg)
-                self.logger.debug(e)
-
-    #-------------------------------------------------------------------------------
-    def updatePlugin(self):
-        self.updater.update()
-
-    #-------------------------------------------------------------------------------
-    def forceUpdate(self):
-        self.updater.update(currentVersion='0.0.0')
-
     #-------------------------------------------------------------------------------
     def toggleCountdown(self):
         if self.showTimer:
@@ -526,14 +521,11 @@ class TimerBase(threading.Thread):
                     elif key == 'state':
                         self.dev.updateStateImageOnServer(k_stateImages[self.stateImg])
 
-            if len(newStates) > 0:
-                if self.plugin.verbose:
-                    logStates = ""
-                    for item in newStates:
-                        logStates += '{}:{}, '.format(item['key'],item['value'])
-                    self.logger.debug('"{0}" states: [{1}]'.format(self.name, logStates.strip(', ')))
-                self.dev.updateStatesOnServer(newStates)
+            if self.plugin.verbose:
+                logStates = ', '.join('{}:{}'.format(item['key'],item['value']) for item in newStates)
+                self.logger.debug('"{0}" states: [{1}]'.format(self.name, logStates.strip(', ')))
 
+            self.dev.updateStatesOnServer(newStates)
             self.states = self.dev.states
 
     #-------------------------------------------------------------------------------
@@ -1198,14 +1190,6 @@ class RunningTimer(TimerBase):
         self.updateDelta = int(instance.pluginProps.get('updateSeconds',60))
         self.updateTime  = 0
 
-        self.task     = self.TaskSpans(self)
-        self.saved    = self.SavedSpans(self)
-        self.secStart = self.SecStartSpans(self)
-        self.secsDone = self.SecsDoneSpans(self)
-        self.secsThis = self.SecsThisSpans(self)
-        self.secsLast = self.SecsLastSpans(self)
-
-        # initial state
         if instance.pluginProps['trackEntity'] == 'dev':
             devId, state = self.deviceStateDict.items()[0]
             dev = indigo.devices[devId]
@@ -1219,147 +1203,69 @@ class RunningTimer(TimerBase):
             self.onState = self.getBoolValue(indigo.variables[self.variableList[0]].value)
             self.deviceStateDict = dict()
 
+
+        # INITIALIZE TIMESPAN DICTIONARIES
+        # task_spans: numerical timespans of current task
+        self.task_spans = dict()
+        self.updateTaskSpans()
+
+        # save_spans: numerical timespans last saved to device
+        try:
+            self.save_spans = literal_eval(self.states['zzzSaveSpanDict'])
+        except:
+            self.save_spans = dict()
         for span in k_timeSpans:
-            if self.task.spans[span] != self.saved.spans[span]:
+            if not self.save_spans.get(span,None): self.save_spans[span] = self.task_spans[span]
+
+        # start_spans: epoch time for the start of current timespans
+        year  = self.save_spans['y']
+        month = self.save_spans['m']
+        day   = self.save_spans['d']
+        hour  = self.save_spans['h']
+        self.start_spans = {
+            'h': time.mktime(datetime(year, month, day, hour).timetuple()),
+            'd': time.mktime(datetime(year, month, day).timetuple()),
+            'm': time.mktime(datetime(year, month, 1).timetuple()),
+            'y': time.mktime(datetime(year, 1, 1).timetuple()),
+            'c': self.onTime,
+            }
+        self.start_spans['w'] = self.start_spans['d'] - (time.localtime(self.start_spans['d']).tm_wday*24*60*60)
+
+        # done_spans: accumulated seconds for each current timespan already saved to device's states
+        try:
+            self.done_spans = literal_eval(self.states['zzzSecsDoneDict'])
+        except:
+            self.done_spans = dict()
+        for span in k_timeSpans:
+            if not self.done_spans.get(span,None): self.done_spans[span] = 0
+
+        # running_spans: total accumulated seconds for each current and prior timespan
+        self.running_spans = dict()
+        for span, name in k_timeSpans.items():
+            self.running_spans[span] = {i:self.states['seconds{}{:0>2d}'.format(name,i)] for i in range(k_periodRange[span])}
+        self.updateRunningSpans()
+
+
+        # INITALIZE DEVICE STATES
+        for span in k_timeSpans:
+            if self.task_spans[span] != self.save_spans[span]:
                 # we are now in a new time span
                 # estimate inital accumulated seconds for new span
                 if self.onState:
-                    self.secsDone.spans[span] = self.taskTime - self.secStart.spans[span]
+                    self.done_spans[span] = self.taskTime - self.start_spans[span]
                 else:
-                    self.secsDone.spans[span] = 0
-                # set the accumulated seconds for the prior span
-                self.secsLast.spans[span] = self.secsThis.spans[span]-self.secsDone.spans[span]
+                    self.done_spans[span] = 0
+                # set the accumulated seconds for the prior spans
+                self.rolloverSpan(span)
                 # start timer for new span now
-                self.secStart.spans[span] = self.taskTime
+                self.start_spans[span] = self.taskTime
                 # save new span so we know when it changes again
-                self.saved.spans[span] = self.task.spans[span]
+                self.save_spans[span] = self.task_spans[span]
 
-        if not self.onState and self.secsThis.spans['c']:
-            self.secsLast.spans['c'] = self.secsThis.spans['c']
-            self.secsThis.spans['c'] = 0
+        if not self.onState and self.running_spans['c'][0]:
+            self.rolloverSpan('c')
 
-        self.updateSeconds()
-
-    #-------------------------------------------------------------------------------
-    # Time Span Classes
-    #-------------------------------------------------------------------------------
-    class Spans(object):
-        def __init__(self,thisDev):
-            self.spans = dict()
-            self.thisDev = thisDev
-            self.update()
-        def update(self):
-            raise NotImplementedError
-
-    #-------------------------------------------------------------------------------
-    class TaskSpans(Spans):
-        def __init__(self,thisDev): thisDev.Spans.__init__(self,thisDev)
-        def update(self):
-            dt = datetime.fromtimestamp(self.thisDev.taskTime)
-            self.spans = {
-                'h': dt.hour,
-                'd': dt.day,
-                'w': dt.isocalendar()[1],
-                'm': dt.month,
-                'y': dt.year,
-                'c': 0
-            }
-
-    #-------------------------------------------------------------------------------
-    class SavedSpans(Spans):
-        def __init__(self,thisDev): thisDev.Spans.__init__(self,thisDev)
-        def update(self):
-            try:
-                self.spans = literal_eval(self.thisDev.states['zzzSaveSpanDict'])
-            except:
-                self.spans = dict()
-            for span in k_timeSpans:
-                if not self.spans.get(span,None): self.spans[span] = self.thisDev.task.spans[span]
-        def save(self):
-            self.thisDev.states['zzzSaveSpanDict'] = repr(self.spans)
-
-    #-------------------------------------------------------------------------------
-    class SecStartSpans(Spans):
-        def __init__(self,thisDev): thisDev.Spans.__init__(self,thisDev)
-        def update(self):
-            year  = self.thisDev.saved.spans['y']
-            month = self.thisDev.saved.spans['m']
-            day   = self.thisDev.saved.spans['d']
-            hour  = self.thisDev.saved.spans['h']
-            self.spans = {
-                'h': time.mktime(datetime(year, month, day, hour).timetuple()),
-                'd': time.mktime(datetime(year, month, day).timetuple()),
-                'm': time.mktime(datetime(year, month, 1).timetuple()),
-                'y': time.mktime(datetime(year, 1, 1).timetuple()),
-                'c': self.thisDev.onTime,
-                }
-            self.spans['w'] = self.spans['d'] - (time.localtime(self.thisDev.taskTime).tm_wday*24*60*60)
-
-    #-------------------------------------------------------------------------------
-    class SecsDoneSpans(Spans):
-        def __init__(self,thisDev): thisDev.Spans.__init__(self,thisDev)
-        def update(self):
-            try:
-                self.spans = literal_eval(self.thisDev.states['zzzSecsDoneDict'])
-            except:
-                self.spans = dict()
-            for span in k_timeSpans:
-                if not self.spans.get(span,None): self.spans[span] = 0
-        def save(self):
-            self.thisDev.states['zzzSecsDoneDict'] = repr(self.spans)
-
-    #-------------------------------------------------------------------------------
-    class SecsThisSpans(Spans):
-        def __init__(self,thisDev): thisDev.Spans.__init__(self,thisDev)
-        def update(self):
-            for span in k_timeSpans:
-                if self.thisDev.onState:
-                    accumulated = self.thisDev.taskTime - max(self.thisDev.onTime, self.thisDev.secStart.spans[span])
-                else:
-                    accumulated = 0
-                if span =='c':
-                    self.spans[span] = accumulated
-                else:
-                    self.spans[span] = self.thisDev.secsDone.spans[span] + accumulated
-        def save(self):
-            self.thisDev.states['secondsThisHour']       = int(round(self.spans['h']))
-            self.thisDev.states['secondsThisDay']        = int(round(self.spans['d']))
-            self.thisDev.states['secondsThisWeek']       = int(round(self.spans['w']))
-            self.thisDev.states['secondsThisMonth']      = int(round(self.spans['m']))
-            self.thisDev.states['secondsThisYear']       = int(round(self.spans['y']))
-            self.thisDev.states['secondsThisContinuous'] = int(round(self.spans['c']))
-            self.thisDev.states['stringThisHour']        = format_seconds(self.spans['h'])
-            self.thisDev.states['stringThisDay']         = format_seconds(self.spans['d'])
-            self.thisDev.states['stringThisWeek']        = format_seconds(self.spans['w'])
-            self.thisDev.states['stringThisMonth']       = format_seconds(self.spans['m'])
-            self.thisDev.states['stringThisYear']        = format_seconds(self.spans['y'])
-            self.thisDev.states['stringThisContinuous']  = format_seconds(self.spans['c'])
-
-    #-------------------------------------------------------------------------------
-    class SecsLastSpans(Spans):
-        def __init__(self,thisDev): thisDev.Spans.__init__(self,thisDev)
-        def update(self):
-            self.spans = {
-                'h': self.thisDev.states['secondsLastHour'],
-                'd': self.thisDev.states['secondsLastDay'],
-                'w': self.thisDev.states['secondsLastWeek'],
-                'm': self.thisDev.states['secondsLastMonth'],
-                'y': self.thisDev.states['secondsLastYear'],
-                'c': self.thisDev.states['secondsLastContinuous'],
-                }
-        def save(self):
-            self.thisDev.states['secondsLastHour']       = int(round(self.spans['h']))
-            self.thisDev.states['secondsLastDay']        = int(round(self.spans['d']))
-            self.thisDev.states['secondsLastWeek']       = int(round(self.spans['w']))
-            self.thisDev.states['secondsLastMonth']      = int(round(self.spans['m']))
-            self.thisDev.states['secondsLastYear']       = int(round(self.spans['y']))
-            self.thisDev.states['secondsLastContinuous'] = int(round(self.spans['c']))
-            self.thisDev.states['stringLastHour']        = format_seconds(self.spans['h'])
-            self.thisDev.states['stringLastDay']         = format_seconds(self.spans['d'])
-            self.thisDev.states['stringLastWeek']        = format_seconds(self.spans['w'])
-            self.thisDev.states['stringLastMonth']       = format_seconds(self.spans['m'])
-            self.thisDev.states['stringLastYear']        = format_seconds(self.spans['y'])
-            self.thisDev.states['stringLastContinuous']  = format_seconds(self.spans['c'])
+        self.saveSpanStates()
 
     #-------------------------------------------------------------------------------
     # Properties
@@ -1381,55 +1287,57 @@ class RunningTimer(TimerBase):
     #-------------------------------------------------------------------------------
     def tick(self):
         # update current hour, day, week, month, year
-        self.task.update()
+        self.updateTaskSpans()
         # updated accumulated time for each span
-        self.secsThis.update()
+        self.updateRunningSpans()
 
         logTimer = None
 
         if  self.updateDelta and self.onState and self.taskTime >= self.updateTime:
-            logTimer = 'updateTime'
             self.updateTime = self.taskTime + self.updateDelta
+            logTimer = 'updateTime'
 
         for span in k_timeSpans:
-            if self.task.spans[span] != self.saved.spans[span]:
+            if self.task_spans[span] != self.save_spans[span]:
                 # we are now in a new time span
                 if self.plugin.verbose:
                     self.logger.debug('new span "{}": {} -> {}'.format(span, self.saved.spans[span],self.task.spans[span]))
-                # set the accumulated seconds for the prior span
-                self.secsLast.spans[span] = self.secsThis.spans[span]
+                # set the accumulated seconds for the prior spans
+                self.rolloverSpan(span)
                 # set inital accumulated seconds for new span to zero
-                self.secsDone.spans[span] = 0
+                self.done_spans[span] = 0
                 # start timer for new span now
-                self.secStart.spans[span] = self.taskTime
+                self.start_spans[span] = self.taskTime
                 # save new span so we know when it changes again
-                self.saved.spans[span] = self.task.spans[span]
+                self.save_spans[span] = self.task_spans[span]
                 # update states when done
                 logTimer = 'newSpan({})'.format(span)
 
         if logTimer:
             self.logger.debug('"{}" timer:{} [onOff:{}, onSec:{}, update:{}]'
-                .format(self.name, logTimer, self.onState, self.secsThis.spans['c'], self.updateTime))
-            self.updateSeconds()
+                .format(self.name, logTimer, self.onState, self.running_spans['c'][0], self.updateTime))
+            self.saveSpanStates()
         elif self.plugin.showTimer:
             self.update()
 
     #-------------------------------------------------------------------------------
     def tock(self, newVal):
+        # update current hour, day, week, month, year
+        self.updateTaskSpans()
+        # updated accumulated time for each span
+        self.updateRunningSpans()
+
         if newVal:
             # set device state to on
             self.onState = True
             # record time device went on
             self.onTime = self.taskTime
         else:
-            # updated accumulated on time for each span
-            self.secsThis.update()
-
             for span in k_timeSpans:
                 # save accumulated timer value
-                self.secsDone.spans[span] = self.secsThis.spans[span]
+                self.done_spans[span] = self.running_spans[span][0]
 
-            self.secsLast.spans['c'] = self.secsThis.spans['c']
+            self.rolloverSpan('c')
 
             # set device state to off
             self.onState = False
@@ -1438,7 +1346,7 @@ class RunningTimer(TimerBase):
 
         self.logger.debug('"{}" input:{} [onOff:{}]'
             .format(self.name, newVal, self.onState))
-        self.updateSeconds()
+        self.saveSpanStates()
 
     #-------------------------------------------------------------------------------
     def turnOn(self):
@@ -1449,13 +1357,55 @@ class RunningTimer(TimerBase):
         self.tock(False)
 
     #-------------------------------------------------------------------------------
-    def updateSeconds(self):
-        self.secsThis.update()
+    def updateTaskSpans(self):
+        dt = datetime.fromtimestamp(self.taskTime)
+        self.task_spans = {
+            'h': dt.hour,
+            'd': dt.day,
+            'w': dt.isocalendar()[1],
+            'm': dt.month,
+            'y': dt.year,
+            'c': 0
+        }
 
-        self.saved.save()
-        self.secsDone.save()
-        self.secsThis.save()
-        self.secsLast.save()
+    #-------------------------------------------------------------------------------
+    def updateRunningSpans(self):
+        for span in k_timeSpans:
+            if self.onState:
+                accumulated = self.taskTime - max(self.onTime, self.start_spans[span])
+            else:
+                accumulated = 0
+            if span =='c':
+                self.running_spans[span][0] = accumulated
+            else:
+                self.running_spans[span][0] = self.done_spans[span] + accumulated
+
+    #-------------------------------------------------------------------------------
+    def rolloverSpan(self, span):
+        for i in range(k_periodRange[span]-1,0,-1):
+            self.running_spans[span][i] = self.running_spans[span][i-1]
+        self.running_spans[span][0] = 0
+
+    #-------------------------------------------------------------------------------
+    def saveSpanStates(self):
+        #save_spans
+        self.states['zzzSaveSpanDict'] = repr(self.save_spans)
+        #done_spans
+        self.states['zzzSecsDoneDict'] = repr(self.done_spans)
+        # running_spans
+        for span, name in k_timeSpans.items():
+            for i in range(k_periodRange[span]):
+                self.states['seconds{}{:0>2d}'.format(name,i)] = int(round(self.running_spans[span][i]))
+                self.states['string{}{:0>2d}'.format(name,i)] = format_seconds(self.running_spans[span][i])
+
+            # FIXME depricated state names
+            # remove after respectful transition period
+            self.states['secondsThis{}'.format(name)] = int(round(self.running_spans[span][0]))
+            self.states['stringThis{}'.format(name)]  = format_seconds(self.running_spans[span][0])
+            self.states['secondsLast{}'.format(name)] = int(round(self.running_spans[span][1]))
+            self.states['stringLast{}'.format(name)]  = format_seconds(self.running_spans[span][1])
+            # /FIXME
+
         self.update()
 
     #-------------------------------------------------------------------------------
