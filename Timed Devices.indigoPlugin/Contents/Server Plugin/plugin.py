@@ -487,9 +487,8 @@ class TimerBase(threading.Thread):
     def devChanged(self, oldDev, newDev):
         if newDev.id in self.deviceStateDict:
             stateKey = self.deviceStateDict[newDev.id]
-            if oldDev.states[stateKey] != newDev.states[stateKey]:
-                rawVal = newDev.states[stateKey]
-                boolVal = self.getBoolValue(rawVal)
+            boolVal = self.getBoolValue(newDev.states[stateKey])
+            if boolVal != self.getBoolValue(oldDev.states[stateKey]):
                 if self.plugin.verbose:
                     self.logger.debug(u'"{}" devChanged:"{}" [stateKey:{}, raw:{}, type:{}, input:{}]'
                         .format(self.name, newDev.name, stateKey, rawVal, type(rawVal), boolVal))
@@ -498,9 +497,8 @@ class TimerBase(threading.Thread):
     #-------------------------------------------------------------------------------
     def varChanged(self, oldVar, newVar):
         if newVar.id in self.variableList:
-            if oldVar.value != newVar.value:
-                rawVal = newVar.value
-                boolVal = self.getBoolValue(rawVal)
+            boolVal = self.getBoolValue(newVar.value)
+            if boolVal != self.getBoolValue(oldVar.value):
                 if self.plugin.verbose:
                     self.logger.debug(u'"{}" varChanged:"{}" [raw:{}, type:{}, input:{}]'
                         .format(self.name, newVar.name, rawVal, type(rawVal), boolVal))
@@ -542,7 +540,7 @@ class TimerBase(threading.Thread):
                 result = not result
         elif self.logic == 'complex':
             try:
-                if self.valType == 'str' and not isinstance(value, unicode):
+                if self.valType == 'str':
                     value = unicode(value).lower()
                 elif self.valType == 'num':
                     value = float(value)
