@@ -17,7 +17,7 @@ from collections import OrderedDict
 ###############################################################################
 # globals
 
-k_commonTrueStates = ['true', 'on', 'open', 'up', 'yes', 'active', 'locked', '1']
+k_commonTrueStates = [u'true', u'on', u'open', u'up', u'yes', u'active', u'locked']
 
 k_stateImages = {
     'SensorOff':    indigo.kStateImageSel.SensorOff,
@@ -487,22 +487,83 @@ class TimerBase(threading.Thread):
     def devChanged(self, oldDev, newDev):
         if newDev.id in self.deviceStateDict:
             stateKey = self.deviceStateDict[newDev.id]
-            boolVal = self.getBoolValue(newDev.states[stateKey])
-            if boolVal != self.getBoolValue(oldDev.states[stateKey]):
-                if self.plugin.verbose:
-                    self.logger.debug(u'"{}" devChanged:"{}" [stateKey:{}, raw:{}, type:{}, input:{}]'
-                        .format(self.name, newDev.name, stateKey, rawVal, type(rawVal), boolVal))
-                self.tock(boolVal)
+            result = self.doInputComparison(oldDev.states[stateKey], newDev.states[stateKey])
+            if self.plugin.verbose:
+                self.logger.debug(u'"{}" devChanged:"{}" [state:{}, value:{}, type:{}, result:{}]'
+                    .format(self.name, newDev.name, stateKey, newDev.states[stateKey], type(newDev.states[stateKey]), result))
+            if result is not None:
+                self.tock(result)
 
     #-------------------------------------------------------------------------------
     def varChanged(self, oldVar, newVar):
         if newVar.id in self.variableList:
-            boolVal = self.getBoolValue(newVar.value)
-            if boolVal != self.getBoolValue(oldVar.value):
-                if self.plugin.verbose:
-                    self.logger.debug(u'"{}" varChanged:"{}" [raw:{}, type:{}, input:{}]'
-                        .format(self.name, newVar.name, rawVal, type(rawVal), boolVal))
-                self.tock(boolVal)
+            result = self.doInputComparison(oldVar.value, newVar.value)
+            if self.plugin.verbose:
+                self.logger.debug(u'"{}" varChanged:"{}" [value:{}, type:{}, result:{}]'
+                    .format(self.name, newVar.name, newVar.value, type(newVar.value), result))
+            if result is not None:
+                self.tock(result)
+
+    #-------------------------------------------------------------------------------
+    def doInputComparison(self, oldValue, newValue):
+        if self.logic == 'any':
+            if oldValue != newValue:
+                return True
+        else:
+            new = self.getBoolValue(newValue)
+            old = self.getBoolValue(oldValue)
+            if new != old:
+                return new
+            else:
+                return None
+
+    #-------------------------------------------------------------------------------
+    def getBoolValue(self, value):
+        result = False
+        error = False
+
+        if self.logic == 'any':
+            result = True
+
+        elif self.logic == 'simple':
+            # numbers, numbers as strings, booleans
+            try:
+                result = bool(int(value))
+            except ValueError:
+                if isinstance(value, basestring):
+                    result = unicode(value).lower() in k_commonTrueStates
+                else:
+                    error = True
+            if self.reverse:
+                result = not result
+
+        elif self.logic == 'complex':
+            try:
+                if self.valType == 'str':
+                    adjVal = unicode(value).lower()
+                elif self.valType == 'num':
+                    adjVal = float(value)
+
+                if   self.operator == 'eq':
+                    result = adjVal == self.value
+                elif self.operator == 'ne':
+                    result = adjVal != self.value
+                elif self.operator == 'gt':
+                    result = adjVal >  self.value
+                elif self.operator == 'lt':
+                    result = adjVal <  self.value
+                elif self.operator == 'ge':
+                    result = adjVal >= self.value
+                elif self.operator == 'le':
+                    result = adjVal <= self.value
+
+            except ValueError as e:
+                error = True
+
+        if error:
+            self.logger.error(u'Data type error for device "{}" [value:{}, type:{}]'.format(self.name, value, type(value)))
+
+        return result
 
     #-------------------------------------------------------------------------------
     def update(self):
@@ -525,41 +586,6 @@ class TimerBase(threading.Thread):
 
             self.dev.updateStatesOnServer(newStates)
             self.states = self.dev.states
-
-    #-------------------------------------------------------------------------------
-    def getBoolValue(self, value):
-        if self.logic == 'any':
-            result = True
-        elif self.logic == 'simple':
-            result = False
-            if zint(value):
-                result = True
-            elif isinstance(value, basestring):
-                result = value.lower() in k_commonTrueStates
-            if self.reverse:
-                result = not result
-        elif self.logic == 'complex':
-            try:
-                if self.valType == 'str':
-                    value = unicode(value).lower()
-                elif self.valType == 'num':
-                    value = float(value)
-                if   self.operator == 'eq':
-                    result = value == self.value
-                elif self.operator == 'ne':
-                    result = value != self.value
-                elif self.operator == 'gt':
-                    result = value >  self.value
-                elif self.operator == 'lt':
-                    result = value <  self.value
-                elif self.operator == 'ge':
-                    result = value >= self.value
-                elif self.operator == 'le':
-                    result = value <= self.value
-            except ValueError as e:
-                result = False
-                self.logger.debug(u'Data type error for device "{}"'.format(self.name))
-        return result
 
     #-------------------------------------------------------------------------------
     def delta(self, cycles, units):
@@ -673,7 +699,7 @@ class ActivityTimer(TimerBase):
                 self.offTime = self.taskTime + self.offDelta
             elif self.onState and self.extend:
                 self.offTime = self.taskTime + self.offDelta
-        self.logger.debug(u'"{}" input:{} [onOff:{}, count:{}, reset:{}, expired:{}]'
+        self.logger.debug(u'"{}" input processed:{} [onOff:{}, count:{}, reset:{}, expired:{}]'
             .format(self.name, newVal, self.onState, self.count, self.reset, self.expired))
         self.update()
 
@@ -804,7 +830,7 @@ class ThresholdTimer(TimerBase):
                 self.count = 0
             if (self.state == 'active') and (self.count < self.threshold):
                 self.offTime = self.taskTime + self.offDelta
-        self.logger.debug(u'"{}" input:{} [onOff:{}, count:{}, expired:{}]'
+        self.logger.debug(u'"{}" input processed:{} [onOff:{}, count:{}, expired:{}]'
             .format(self.name, newVal, self.onState, self.count, self.expired))
         self.update()
 
@@ -927,7 +953,7 @@ class PersistenceTimer(TimerBase):
                 else:
                     self.onState = True
                     self.onTime = self.taskTime
-        self.logger.debug(u'"{}" input:{} [onOff:{}, pending:{}]'
+        self.logger.debug(u'"{}" input processed:{} [onOff:{}, pending:{}]'
             .format(self.name, newVal, self.onState, self.pending))
         self.update()
 
@@ -1043,7 +1069,7 @@ class LockoutTimer(TimerBase):
                     self.onTime  = self.taskTime + self.onDelta
                 else:
                     self.offTime = self.taskTime + self.offDelta
-        self.logger.debug(u'"{}" input:{} [onOff:{}, locked:{}]'
+        self.logger.debug(u'"{}" input processed:{} [onOff:{}, locked:{}]'
             .format(self.name, newVal, self.onState, self.locked))
         self.update()
 
@@ -1132,7 +1158,7 @@ class AliveTimer(TimerBase):
     def tock(self, newVal):
         self.onState = True
         self.offTime = self.taskTime + self.offDelta
-        self.logger.debug(u'"{}" input:{} [onOff:{}]'
+        self.logger.debug(u'"{}" input processed:{} [onOff:{}]'
             .format(self.name, newVal, self.onState))
         self.update()
 
@@ -1342,7 +1368,7 @@ class RunningTimer(TimerBase):
             # record time device went off
             self.offTime = self.taskTime
 
-        self.logger.debug(u'"{}" input:{} [onOff:{}]'
+        self.logger.debug(u'"{}" input processed:{} [onOff:{}]'
             .format(self.name, newVal, self.onState))
         self.saveSpanStates()
 
