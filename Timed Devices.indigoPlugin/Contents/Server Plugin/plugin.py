@@ -464,7 +464,7 @@ class TimerBase(threading.Thread):
                 else:
                     self.logger.error(u'"{}" task "{}" not recognized'.format(self.name,task))
                 self.queue.task_done()
-            except Queue.Empty:
+            except queue.Empty:
                 pass
             except Exception as e:
                 msg = u'"{}" thread error \n{}'.format(self.name, e)
@@ -531,8 +531,8 @@ class TimerBase(threading.Thread):
             try:
                 result = bool(int(value))
             except ValueError:
-                if isinstance(value, basestring):
-                    result = unicode(value).lower() in k_commonTrueStates
+                if isinstance(value, str):
+                    result = value.lower() in k_commonTrueStates
                 else:
                     error = True
             if self.reverse:
@@ -541,7 +541,7 @@ class TimerBase(threading.Thread):
         elif self.logic == 'complex':
             try:
                 if self.valType == 'str':
-                    adjVal = unicode(value).lower()
+                    adjVal = value.lower()
                 elif self.valType == 'num':
                     adjVal = float(value)
 
@@ -764,7 +764,7 @@ class ThresholdTimer(TimerBase):
 
         # initial state
         self.count = 0
-        for devId, stateId in self.deviceStateDict.items():
+        for devId, stateId in list(self.deviceStateDict.items()):
             if self.getBoolValue(indigo.devices[devId].states[stateId]):
                 self.count += 1
         for varId in self.variableList:
@@ -889,7 +889,7 @@ class PersistenceTimer(TimerBase):
         # initial state
         self.tick()
         if instance.pluginProps['trackEntity'] == 'dev':
-            devId, state = self.deviceStateDict.items()[0]
+            devId, state = list(self.deviceStateDict.items())[0]
             self.tock(self.getBoolValue(indigo.devices[devId].states[state]))
             self.variableList = list()
         else:
@@ -1013,7 +1013,7 @@ class LockoutTimer(TimerBase):
         self.lastVal = self.onState
         self.tick()
         if instance.pluginProps['trackEntity'] == 'dev':
-            devId, state = self.deviceStateDict.items()[0]
+            devId, state = list(self.deviceStateDict.items())[0]
             self.tock(self.getBoolValue(indigo.devices[devId].states[state]))
             self.variableList = list()
         else:
@@ -1125,7 +1125,7 @@ class AliveTimer(TimerBase):
 
         # initial state
         if instance.pluginProps['trackEntity'] == 'dev':
-            devId, state = self.deviceStateDict.items()[0]
+            devId, state = list(self.deviceStateDict.items())[0]
             lastDateTime = indigo.devices[devId].lastChanged
             lastTimeTime = time.mktime(lastDateTime.timetuple())
             self.offTime = lastTimeTime + self.offDelta
@@ -1216,7 +1216,7 @@ class RunningTimer(TimerBase):
         self.updateTime  = 0
 
         if instance.pluginProps['trackEntity'] == 'dev':
-            devId, state = self.deviceStateDict.items()[0]
+            devId, state = list(self.deviceStateDict.items())[0]
             dev = indigo.devices[devId]
             lastDateTime = dev.lastChanged
             lastTimeTime = time.mktime(lastDateTime.timetuple())
