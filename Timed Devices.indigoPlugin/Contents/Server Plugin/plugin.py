@@ -3,9 +3,9 @@
 ###############################################################################
 # http://www.indigodomo.com
 
-import indigo
+import indigo # noqa
 import threading
-import Queue
+import queue
 import time
 from datetime import datetime, timedelta
 from ast import literal_eval
@@ -384,7 +384,8 @@ class TimerBase(threading.Thread):
         super(TimerBase, self).__init__()
         self.daemon     = True
         self.cancelled  = False
-        self.queue      = Queue.Queue()
+        # self.queue      = Queue.Queue()
+        self.queue      = queue.Queue()
 
         self.plugin     = plugin
         self.logger     = plugin.logger
