@@ -17,7 +17,7 @@ from collections import OrderedDict
 ###############################################################################
 # globals
 
-k_commonTrueStates = [u'true', u'on', u'open', u'up', u'yes', u'active', u'locked']
+k_commonTrueStates = ['true', 'on', 'open', 'up', 'yes', 'active', 'locked']
 
 k_stateImages = {
     'SensorOff':    indigo.kStateImageSel.SensorOff,
@@ -102,9 +102,9 @@ class Plugin(indigo.PluginBase):
         self.showTimer  = self.pluginPrefs.get('showTimer',False)
         self.debug      = self.pluginPrefs.get('showDebugInfo',False)
         self.verbose    = self.pluginPrefs.get('verboseDebug',False) and self.debug
-        self.logger.debug(u'startup')
+        self.logger.debug('startup')
         if self.debug:
-            self.logger.debug(u'Debug logging enabled')
+            self.logger.debug('Debug logging enabled')
 
         self.deviceDict = dict()
         self.tickTime   = time.time()
@@ -114,30 +114,30 @@ class Plugin(indigo.PluginBase):
 
     #-------------------------------------------------------------------------------
     def shutdown(self):
-        self.logger.debug(u'shutdown')
+        self.logger.debug('shutdown')
         self.pluginPrefs['showDebugInfo']   = self.debug
         self.pluginPrefs['verboseDebug']    = self.verbose
         self.pluginPrefs['showTimer']       = self.showTimer
 
     #-------------------------------------------------------------------------------
     def validatePrefsConfigUi(self, valuesDict):
-        self.logger.debug(u'validatePrefsConfigUi')
+        self.logger.debug('validatePrefsConfigUi')
         errorsDict = indigo.Dict()
 
         if len(errorsDict) > 0:
-            self.logger.debug(u'validate prefs config error: \n{}'.format(errorsDict))
+            self.logger.debug(f'validate prefs config error: \n{errorsDict}')
             return (False, valuesDict, errorsDict)
         return (True, valuesDict)
 
     #-------------------------------------------------------------------------------
     def closedPrefsConfigUi(self, valuesDict, userCancelled):
-        self.logger.debug(u'closedPrefsConfigUi')
+        self.logger.debug('closedPrefsConfigUi')
         if not userCancelled:
             self.debug     = valuesDict.get('showDebugInfo',False)
             self.verbose   = valuesDict.get('verboseDebug',False) and self.debug
             self.showTimer = valuesDict.get('showTimer',True)
             if self.debug:
-                self.logger.debug(u'Debug logging enabled')
+                self.logger.debug('Debug logging enabled')
 
     #-------------------------------------------------------------------------------
     def runConcurrentThread(self):
@@ -182,7 +182,7 @@ class Plugin(indigo.PluginBase):
 
     #-------------------------------------------------------------------------------
     def validateDeviceConfigUi(self, valuesDict, typeId, devId, runtime=False):
-        self.logger.debug(u'validateDeviceConfigUi: {}'.format(typeId))
+        self.logger.debug(f'validateDeviceConfigUi: {typeId}')
         errorsDict = indigo.Dict()
 
         requiredIntegers = ['offCycles']
@@ -236,7 +236,7 @@ class Plugin(indigo.PluginBase):
                     errorsDict['value'] = "Make value a number or change data type"
 
         if len(errorsDict) > 0:
-            self.logger.debug(u'validate device config error: \n{}'.format(errorsDict))
+            self.logger.debug(f'validate device config error: \n{errorsDict}')
             return (False, valuesDict, errorsDict)
         else:
             # on success, reset generated device and variable lists
@@ -262,11 +262,11 @@ class Plugin(indigo.PluginBase):
             if dev.deviceTypeId == 'runningTimer':
                 newStates = []
                 for span, name in k_timeSpans.items():
-                    newKey = 'seconds{}00'.format(name)
-                    oldKey = 'secondsThis{}'.format(name)
+                    newKey = f'seconds{name}00'
+                    oldKey = f'secondsThis{name}'
                     newStates.append({'key':newKey, 'value':dev.states[oldKey]})
-                    newKey = 'seconds{}01'.format(name)
-                    oldKey = 'secondsLast{}'.format(name)
+                    newKey = f'seconds{name}01'
+                    oldKey = f'secondsLast{name}'
                     newStates.append({'key':newKey, 'value':dev.states[oldKey]})
                 dev.updateStatesOnServer(newStates)
 
@@ -302,41 +302,41 @@ class Plugin(indigo.PluginBase):
         if action.deviceId in self.deviceDict:
             self.deviceDict[action.deviceId].doTask('turnOn')
         else:
-            self.logger.error(u'device id "{}" not available'.format(action.deviceId))
+            self.logger.error(f'device id "{action.deviceId}" not available')
 
     #-------------------------------------------------------------------------------
     def forceOff(self, action):
         if action.deviceId in self.deviceDict:
             self.deviceDict[action.deviceId].doTask('turnOff')
         else:
-            self.logger.error(u'device id "{}" not available'.format(action.deviceId))
+            self.logger.error(f'device id "{action.deviceId}" not available')
 
     #-------------------------------------------------------------------------------
     # Menu Methods
     #-------------------------------------------------------------------------------
     def toggleCountdown(self):
         if self.showTimer:
-            self.logger.info(u'visible countdown timer diabled')
+            self.logger.info('visible countdown timer diabled')
             self.showTimer = False
         else:
             self.showTimer = True
-            self.logger.info(u'visible countdown timer enabled')
+            self.logger.info('visible countdown timer enabled')
 
     #-------------------------------------------------------------------------------
     def toggleDebug(self):
         if self.debug:
-            self.logger.debug(u'Debug logging disabled')
+            self.logger.debug('Debug logging disabled')
             self.debug = False
         else:
             self.debug = True
-            self.logger.debug(u'Debug logging enabled')
+            self.logger.debug('Debug logging enabled')
 
     #-------------------------------------------------------------------------------
     # Callbacks
     #-------------------------------------------------------------------------------
     def getDeviceList(self, filter='', valuesDict=dict(), typeId='', targetId=0):
         if self.verbose:
-            self.logger.debug(u'getDeviceList: {}'.format(targetId))
+            self.logger.debug(f'getDeviceList: {targetId}')
 
         if not self.configDeviceList:
             # generate device list once
@@ -350,7 +350,7 @@ class Plugin(indigo.PluginBase):
     #-------------------------------------------------------------------------------
     def getStateList(self, filter=None, valuesDict=dict(), typeId='', targetId=0):
         if self.verbose:
-            self.logger.debug(u'getStateList: {}'.format(targetId))
+            self.logger.debug(f'getStateList: {targetId}')
         stateList = list()
         devId = zint(valuesDict.get(filter,''))
         if devId:
@@ -361,7 +361,7 @@ class Plugin(indigo.PluginBase):
     #-------------------------------------------------------------------------------
     def getVariableList(self, filter='', valuesDict=dict(), typeId='', targetId=0):
         if self.verbose:
-            self.logger.debug(u'getVariableList: {}'.format(targetId))
+            self.logger.debug(f'getVariableList: {targetId}')
 
         if not self.configVariableList:
             # generate variable list once
@@ -442,7 +442,7 @@ class TimerBase(threading.Thread):
 
     #-------------------------------------------------------------------------------
     def run(self):
-        self.logger.debug(u'"{}" thread started'.format(self.name))
+        self.logger.debug(f'"{self.name}" thread started')
         while not self.cancelled:
             try:
                 task,arg1,arg2 = self.queue.get(True,5)
@@ -462,18 +462,18 @@ class TimerBase(threading.Thread):
                 elif task == 'cancel':
                     self.cancelled = True
                 else:
-                    self.logger.error(u'"{}" task "{}" not recognized'.format(self.name,task))
+                    self.logger.error(f'"{self.name}" task "{task}" not recognized')
                 self.queue.task_done()
             except queue.Empty:
                 pass
             except Exception as e:
-                msg = u'"{}" thread error \n{}'.format(self.name, e)
+                msg = f'"{self.name}" thread error \n{e}'
                 if self.plugin.debug:
                     self.logger.exception(msg)
                 else:
                     self.logger.error(msg)
         else:
-            self.logger.debug(u'"{}" thread cancelled'.format(self.name))
+            self.logger.debug(f'"{self.name}" thread cancelled')
 
     #-------------------------------------------------------------------------------
     def cancel(self):
@@ -490,8 +490,7 @@ class TimerBase(threading.Thread):
             stateKey = self.deviceStateDict[newDev.id]
             result = self.doInputComparison(oldDev.states[stateKey], newDev.states[stateKey])
             if self.plugin.verbose:
-                self.logger.debug(u'"{}" devChanged:"{}" [state:{}, value:{}, type:{}, result:{}]'
-                    .format(self.name, newDev.name, stateKey, newDev.states[stateKey], type(newDev.states[stateKey]), result))
+                self.logger.debug(f'"{self.name}" devChanged:"{newDev.name}" [state:{stateKey}, value:{newDev.states[stateKey]}, type:{type(newDev.states[stateKey])}, result:{result}]')
             if result is not None:
                 self.tock(result)
 
@@ -500,8 +499,7 @@ class TimerBase(threading.Thread):
         if newVar.id in self.variableList:
             result = self.doInputComparison(oldVar.value, newVar.value)
             if self.plugin.verbose:
-                self.logger.debug(u'"{}" varChanged:"{}" [value:{}, type:{}, result:{}]'
-                    .format(self.name, newVar.name, newVar.value, type(newVar.value), result))
+                self.logger.debug(f'"{self.name}" varChanged:"{newVar.name}" [value:{newVar.value}, type:{type(newVar.value)}, result:{result}]')
             if result is not None:
                 self.tock(result)
 
@@ -562,7 +560,7 @@ class TimerBase(threading.Thread):
                 error = True
 
         if error:
-            self.logger.error(u'Data type error for device "{}" [value:{}, type:{}]'.format(self.name, value, type(value)))
+            self.logger.error(f'Data type error for device "{self.name}" [value:{value}, type:{type(value)}]')
 
         return result
 
@@ -577,13 +575,13 @@ class TimerBase(threading.Thread):
                 if self.states[key] != self.dev.states[key]:
                     newStates.append({'key':key,'value':value})
                     if key == 'onOffState' and self.logOnOff:
-                        self.logger.info(u'"{0}" {1}'.format(self.name, ['off','on'][value]))
+                        self.logger.info(f'"{self.name}" {["off","on"][value]}')
                     elif key == 'state':
                         self.dev.updateStateImageOnServer(k_stateImages[self.stateImg])
 
             if self.plugin.verbose:
-                logStates = ', '.join('{}:{}'.format(item['key'],item['value']) for item in newStates)
-                self.logger.debug(u'"{0}" states: [{1}]'.format(self.name, logStates.strip(', ')))
+                logStates = ", ".join(f'{item["key"]}:{item["value"]}' for item in newStates)
+                self.logger.debug(f'"{self.name}" states: [{logStates.strip(", ")}]')
 
             self.dev.updateStatesOnServer(newStates)
             self.states = self.dev.states
@@ -686,8 +684,7 @@ class ActivityTimer(TimerBase):
             self.expired = True
             logTimer = 'offTime'
         if reset or expired:
-            self.logger.debug(u'"{}" timer:{} [onOff:{}, count:{}, reset:{}, expired:{}]'
-                .format(self.name, logTimer, self.onState, self.count, self.reset, self.expired))
+            self.logger.debug(f'"{self.name}" timer:{logTimer} [onOff:{self.onState}, count:{self.count}, reset:{self.reset}, expired:{self.expired}]')
         self.update()
 
     #-------------------------------------------------------------------------------
@@ -700,8 +697,7 @@ class ActivityTimer(TimerBase):
                 self.offTime = self.taskTime + self.offDelta
             elif self.onState and self.extend:
                 self.offTime = self.taskTime + self.offDelta
-        self.logger.debug(u'"{}" input processed:{} [onOff:{}, count:{}, reset:{}, expired:{}]'
-            .format(self.name, newVal, self.onState, self.count, self.reset, self.expired))
+        self.logger.debug(f'"{self.name}" input processed:{newVal} [onOff:{self.onState}, count:{self.count}, reset:{self.reset}, expired:{self.expired}]')
         self.update()
 
     #-------------------------------------------------------------------------------
@@ -809,8 +805,7 @@ class ThresholdTimer(TimerBase):
         if (self.state == 'persist') and (self.taskTime >= self.offTime):
             self.onState = False
             self.expired = True
-            self.logger.debug('"{}" timer:{} [onOff:{}, count:{}, expired:{}]'
-                .format(self.name, 'offTime', self.onState, self.count, self.expired))
+            self.logger.debug(f'"{self.name}" timer:offTime [onOff:{self.onState}, count:{self.count}, expired:{self.expired}]')
         self.update()
 
     #-------------------------------------------------------------------------------
@@ -818,21 +813,18 @@ class ThresholdTimer(TimerBase):
         if newVal:
             self.count += 1
             if self.count > self.trackCount:
-                self.logger.error(u'"{}" count out of sync [count:{}, max:{}]'
-                    .format(self.name, self.count, self.trackCount))
+                self.logger.error(f'"{self.name}" count out of sync [count:{self.count}, max:{self.trackCount}]')
                 self.count = self.trackCount
             if self.count >= self.threshold:
                 self.onState = True
         else:
             self.count -= 1
             if self.count < 0:
-                self.logger.error(u'"{}" count out of sync [count:{}, max:{}]'
-                    .format(self.name, self.count, self.trackCount))
+                self.logger.error(f'"{self.name}" count out of sync [count:{self.count}, max:{self.trackCount}]')
                 self.count = 0
             if (self.state == 'active') and (self.count < self.threshold):
                 self.offTime = self.taskTime + self.offDelta
-        self.logger.debug(u'"{}" input processed:{} [onOff:{}, count:{}, expired:{}]'
-            .format(self.name, newVal, self.onState, self.count, self.expired))
+        self.logger.debug(f'"{self.name}" input processed:{newVal} [onOff:{self.onState}, count:{self.count}, expired:{self.expired}]')
         self.update()
 
     #-------------------------------------------------------------------------------
@@ -931,8 +923,7 @@ class PersistenceTimer(TimerBase):
                 self.onState = True
                 logTimer = 'onTime'
             if not self.pending:
-                self.logger.debug(u'"{}" timer:{} [onOff:{}, pending:{}]'
-                    .format(self.name, logTimer, self.onState, self.pending))
+                self.logger.debug(f'"{self.name}" timer:{logTimer} [onOff:{self.onState}, pending:{self.pending}]')
             self.update()
 
     #-------------------------------------------------------------------------------
@@ -954,8 +945,7 @@ class PersistenceTimer(TimerBase):
                 else:
                     self.onState = True
                     self.onTime = self.taskTime
-        self.logger.debug(u'"{}" input processed:{} [onOff:{}, pending:{}]'
-            .format(self.name, newVal, self.onState, self.pending))
+        self.logger.debug(f'"{self.name}" input processed:{newVal} [onOff:{self.onState}, pending:{self.pending}]')
         self.update()
 
     #-------------------------------------------------------------------------------
@@ -1053,8 +1043,7 @@ class LockoutTimer(TimerBase):
                 self.locked = False
                 logTimer = 'offTime'
             if not self.locked:
-                self.logger.debug(u'"{}" timer:{} [onOff:{}, locked:{}]'
-                    .format(self.name, logTimer, self.onState, self.locked))
+                self.logger.debug(f'"{self.name}" timer:{logTimer} [onOff:{self.onState}, locked:{self.locked}]')
             self.update()
             if not self.locked:
                 self.doTask('tock', self.lastVal)
@@ -1070,8 +1059,7 @@ class LockoutTimer(TimerBase):
                     self.onTime  = self.taskTime + self.onDelta
                 else:
                     self.offTime = self.taskTime + self.offDelta
-        self.logger.debug(u'"{}" input processed:{} [onOff:{}, locked:{}]'
-            .format(self.name, newVal, self.onState, self.locked))
+        self.logger.debug(f'"{self.name}" input processed:{newVal} [onOff:{self.onState}, locked:{self.locked}]')
         self.update()
 
     #-------------------------------------------------------------------------------
@@ -1151,16 +1139,14 @@ class AliveTimer(TimerBase):
     def tick(self):
         if self.onState and self.taskTime >= self.offTime:
             self.onState = False
-            self.logger.debug(u'"{}" timer:{} [onOff:{}]'
-                .format(self.name, "offTimer", self.onState))
+            self.logger.debug(f'"{self.name}" timer:offTime [onOff:{self.onState}]')
         self.update()
 
     #-------------------------------------------------------------------------------
     def tock(self, newVal):
         self.onState = True
         self.offTime = self.taskTime + self.offDelta
-        self.logger.debug(u'"{}" input processed:{} [onOff:{}]'
-            .format(self.name, newVal, self.onState))
+        self.logger.debug(f'"{self.name}" input processed:{newVal} [onOff:{self.onState}]')
         self.update()
 
     #-------------------------------------------------------------------------------
@@ -1195,14 +1181,14 @@ class AliveTimer(TimerBase):
     def devChanged(self, oldDev, newDev):
         if newDev.id in self.deviceStateDict:
             if self.plugin.verbose:
-                self.logger.debug(u'"{}" devChanged:"{}"'.format(self.name, newDev.name))
+                self.logger.debug(f'"{self.name}" devChanged:"{newDev.name}"')
             self.tock(True)
 
     #-------------------------------------------------------------------------------
     def varChanged(self, oldVar, newVar):
         if newVar.id in self.variableList:
             if self.plugin.verbose:
-                self.logger.debug(u'"{}" varChanged:"{}"'.format(self.name, newVar.name))
+                self.logger.debug(f'"{self.name}" varChanged:"{newVar.name}"')
             self.tock(True)
 
 ################################################################################
@@ -1267,7 +1253,7 @@ class RunningTimer(TimerBase):
         # running_spans: total accumulated seconds for each current and prior timespan
         self.running_spans = dict()
         for span, name in k_timeSpans.items():
-            self.running_spans[span] = {i:self.states['seconds{}{:0>2d}'.format(name,i)] for i in range(k_periodRange[span])}
+            self.running_spans[span] = {i:self.states[f'seconds{name}{i:02}'] for i in range(k_periodRange[span])}
         self.updateRunningSpans()
 
 
@@ -1326,7 +1312,7 @@ class RunningTimer(TimerBase):
             if self.task_spans[span] != self.save_spans[span]:
                 # we are now in a new time span
                 if self.plugin.verbose:
-                    self.logger.debug(u'new span "{}": {} -> {}'.format(span, self.saved.spans[span],self.task.spans[span]))
+                    self.logger.debug(f'new span "{span}": {self.saved.spans[span]} -> {self.task.spans[span]}')
                 # set the accumulated seconds for the prior spans
                 self.rolloverSpan(span)
                 # set inital accumulated seconds for new span to zero
@@ -1336,11 +1322,10 @@ class RunningTimer(TimerBase):
                 # save new span so we know when it changes again
                 self.save_spans[span] = self.task_spans[span]
                 # update states when done
-                logTimer = 'newSpan({})'.format(span)
+                logTimer = f'newSpan({span})'
 
         if logTimer:
-            self.logger.debug(u'"{}" timer:{} [onOff:{}, onSec:{}, update:{}]'
-                .format(self.name, logTimer, self.onState, self.running_spans['c'][0], self.updateTime))
+            self.logger.debug(f'"{self.name}" timer:{logTimer} [onOff:{self.onState}, onSec:{self.running_spans["c"][0]}, update:{self.updateTime}]')
             self.saveSpanStates()
         elif self.plugin.showTimer:
             self.update()
@@ -1369,8 +1354,7 @@ class RunningTimer(TimerBase):
             # record time device went off
             self.offTime = self.taskTime
 
-        self.logger.debug(u'"{}" input processed:{} [onOff:{}]'
-            .format(self.name, newVal, self.onState))
+        self.logger.debug(f'"{self.name}" input processed:{newVal} [onOff:{self.onState}]')
         self.saveSpanStates()
 
     #-------------------------------------------------------------------------------
@@ -1420,15 +1404,15 @@ class RunningTimer(TimerBase):
         # running_spans
         for span, name in k_timeSpans.items():
             for i in range(k_periodRange[span]):
-                self.states['seconds{}{:0>2d}'.format(name,i)] = int(round(self.running_spans[span][i]))
-                self.states['string{}{:0>2d}'.format(name,i)] = format_seconds(self.running_spans[span][i])
+                self.states[f'seconds{name}{i:02}'] = int(round(self.running_spans[span][i]))
+                self.states[f'string{name}{i:02}'] = format_seconds(self.running_spans[span][i])
 
             # FIXME depricated state names
             # remove after respectful transition period
-            self.states['secondsThis{}'.format(name)] = int(round(self.running_spans[span][0]))
-            self.states['stringThis{}'.format(name)]  = format_seconds(self.running_spans[span][0])
-            self.states['secondsLast{}'.format(name)] = int(round(self.running_spans[span][1]))
-            self.states['stringLast{}'.format(name)]  = format_seconds(self.running_spans[span][1])
+            self.states[f'secondsThis{name}'] = int(round(self.running_spans[span][0]))
+            self.states[f'stringThis{name}']  = format_seconds(self.running_spans[span][0])
+            self.states[f'secondsLast{name}'] = int(round(self.running_spans[span][1]))
+            self.states[f'stringLast{name}']  = format_seconds(self.running_spans[span][1])
             # /FIXME
 
         self.update()
@@ -1469,6 +1453,6 @@ def format_seconds(value):
     hours, remainder = divmod(remainder, 3600)
     minutes, seconds = divmod(remainder, 60)
     if days:
-        return '{}-{:0>2d}:{:0>2d}:{:0>2d}'.format(days, hours, minutes, seconds)
+        return f'{days}-{hours:02}:{minutes:02}:{seconds:02}'
     else:
-        return '{}:{:0>2d}:{:0>2d}'.format(hours, minutes, seconds)
+        return f'{hours}:{minutes:02}:{seconds:02}'
